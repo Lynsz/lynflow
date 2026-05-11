@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 type Task = {
     id: number
@@ -7,20 +7,20 @@ type Task = {
 }
 
 export function TaskList() {
-    const [tasks, setTasks] = useState<Task[]>([
-        {
-            id: 1,
-            title: "Finish dashboard UI",
-            completed: true,
-        },
-        {
-            id: 2,
-            title: "Build task system",
-            completed: false,
-        },
-    ])
-
+    const [tasks, setTasks] = useState<Task[]>([])
     const [newTask, setNewTask] = useState("")
+
+    useEffect(() => {
+        const savedTasks = localStorage.getItem("tasks")
+
+        if (savedTasks) {
+            setTasks(JSON.parse(savedTasks))
+        }
+    }, [])
+
+    useEffect(() => {
+        localStorage.setItem("tasks", JSON.stringify(tasks))
+    }, [tasks])
 
     function handleAddTask() {
         if (!newTask.trim()) return
@@ -43,6 +43,14 @@ export function TaskList() {
         )
 
         setTasks(updatedTasks)
+    }
+
+    function deleteTask(id: number) {
+        const filteredTasks = tasks.filter(
+            (task) => task.id !== id
+        )
+
+        setTasks(filteredTasks)
     }
 
     return (
@@ -76,22 +84,31 @@ export function TaskList() {
                     >
                         <span
                             className={`${task.completed
-                                ? "line-through text-zinc-500"
-                                : "text-white"
+                                    ? "line-through text-zinc-500"
+                                    : "text-white"
                                 }`}
                         >
                             {task.title}
                         </span>
 
-                        <button
-                            onClick={() => toggleTask(task.id)}
-                            className={`px-3 py-1 rounded-lg text-sm font-medium ${task.completed
-                                ? "bg-green-500 text-black"
-                                : "bg-zinc-800 text-white"
-                                }`}
-                        >
-                            {task.completed ? "Done" : "Pending"}
-                        </button>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => toggleTask(task.id)}
+                                className={`px-3 py-1 rounded-lg text-sm font-medium ${task.completed
+                                        ? "bg-green-500 text-black"
+                                        : "bg-zinc-800 text-white"
+                                    }`}
+                            >
+                                {task.completed ? "Done" : "Pending"}
+                            </button>
+
+                            <button
+                                onClick={() => deleteTask(task.id)}
+                                className="bg-red-500 px-3 py-1 rounded-lg text-black text-sm font-medium"
+                            >
+                                Delete
+                            </button>
+                        </div>
                     </div>
                 ))}
             </div>
