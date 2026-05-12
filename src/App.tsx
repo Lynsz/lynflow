@@ -7,8 +7,10 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* 🔐 login público */}
         <Route path="/login" element={<Login />} />
 
+        {/* 🧱 rota protegida */}
         <Route
           path="/"
           element={
