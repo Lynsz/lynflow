@@ -12,20 +12,25 @@ import {
 
 export function TaskList() {
     const [newTask, setNewTask] = useState("")
+    const [loading, setLoading] = useState(true)
 
     const { tasks, setTasks } = useTaskStore()
 
     // 🔄 Load inicial
     useEffect(() => {
         async function load() {
+            setLoading(true)
+
             const data = await getTasks()
             setTasks(data || [])
+
+            setLoading(false)
         }
 
         load()
     }, [setTasks])
 
-    // ⚡ Realtime subscription
+    // ⚡ Realtime
     useEffect(() => {
         const channel = supabase
             .channel("tasks-realtime")
@@ -89,58 +94,73 @@ export function TaskList() {
                 </button>
             </div>
 
+            {/* LOADING */}
+            {loading && (
+                <div className="text-zinc-400 text-sm">
+                    Loading tasks...
+                </div>
+            )}
+
+            {/* EMPTY STATE */}
+            {!loading && tasks.length === 0 && (
+                <div className="text-zinc-500 text-sm text-center py-10 border border-dashed border-zinc-800 rounded-xl">
+                    No tasks yet. Create your first one 🚀
+                </div>
+            )}
+
             {/* LIST */}
             <div className="flex flex-col gap-4">
-                {tasks.map((task) => (
-                    <motion.div
-                        key={task.id}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="flex items-center justify-between bg-zinc-950 border border-zinc-800 p-4 rounded-xl"
-                    >
-                        {/* TITLE */}
-                        <span
-                            className={`${task.completed
-                                    ? "line-through text-zinc-500"
-                                    : "text-white"
-                                }`}
+                {!loading &&
+                    tasks.map((task) => (
+                        <motion.div
+                            key={task.id}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="flex items-center justify-between bg-zinc-950 border border-zinc-800 p-4 rounded-xl"
                         >
-                            {task.title}
-                        </span>
-
-                        {/* ACTIONS */}
-                        <div className="flex gap-2">
-                            {/* TOGGLE */}
-                            <button
-                                onClick={async () => {
-                                    await toggleTask(
-                                        task.id,
-                                        !task.completed
-                                    )
-                                }}
-                                className={`px-3 py-1 rounded-lg text-sm font-medium ${task.completed
-                                        ? "bg-green-500 text-black"
-                                        : "bg-zinc-800 text-white"
+                            {/* TITLE */}
+                            <span
+                                className={`${task.completed
+                                        ? "line-through text-zinc-500"
+                                        : "text-white"
                                     }`}
                             >
-                                {task.completed
-                                    ? "Done"
-                                    : "Pending"}
-                            </button>
+                                {task.title}
+                            </span>
 
-                            {/* DELETE */}
-                            <button
-                                onClick={async () => {
-                                    await deleteTask(task.id)
-                                }}
-                                className="bg-red-500 px-3 py-1 rounded-lg text-black text-sm font-medium"
-                            >
-                                Delete
-                            </button>
-                        </div>
-                    </motion.div>
-                ))}
+                            {/* ACTIONS */}
+                            <div className="flex gap-2">
+                                {/* TOGGLE */}
+                                <button
+                                    onClick={async () => {
+                                        await toggleTask(
+                                            task.id,
+                                            !task.completed
+                                        )
+                                    }}
+                                    className={`px-3 py-1 rounded-lg text-sm font-medium ${task.completed
+                                            ? "bg-green-500 text-black"
+                                            : "bg-zinc-800 text-white"
+                                        }`}
+                                >
+                                    {task.completed
+                                        ? "Done"
+                                        : "Pending"}
+                                </button>
+
+                                {/* DELETE */}
+                                <button
+                                    onClick={async () => {
+                                        await deleteTask(task.id)
+                                    }}
+                                    className="bg-red-500 px-3 py-1 rounded-lg text-black text-sm font-medium"
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                        </motion.div>
+                    ))}
             </div>
         </div>
     )
