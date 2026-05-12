@@ -1,12 +1,14 @@
 import type { ReactNode } from "react"
-import { NavLink } from "react-router-dom"
+import { NavLink, useNavigate } from "react-router-dom"
 import {
     LayoutDashboard,
     CheckSquare,
     Settings,
     Sparkles,
     Target,
+    LogOut,
 } from "lucide-react"
+import { logoutUser } from "../services/auth"
 
 type AppLayoutProps = {
     children: ReactNode
@@ -41,6 +43,13 @@ const navItems = [
 ]
 
 export function AppLayout({ children }: AppLayoutProps) {
+    const navigate = useNavigate()
+
+    function handleLogout() {
+        logoutUser()
+        navigate("/login")
+    }
+
     return (
         <div className="min-h-screen bg-zinc-950 text-white flex">
             <aside className="hidden md:flex w-64 border-r border-zinc-800 bg-zinc-950/80 backdrop-blur-xl p-5 flex-col">
@@ -76,11 +85,21 @@ export function AppLayout({ children }: AppLayoutProps) {
                     })}
                 </nav>
 
-                <div className="mt-auto rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4">
-                    <p className="text-sm font-medium">Upgrade your flow</p>
-                    <p className="text-xs text-zinc-500 mt-1">
-                        Organize tasks with AI suggestions.
-                    </p>
+                <div className="mt-auto space-y-3">
+                    <div className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4">
+                        <p className="text-sm font-medium">Upgrade your flow</p>
+                        <p className="text-xs text-zinc-500 mt-1">
+                            Organize tasks with AI suggestions.
+                        </p>
+                    </div>
+
+                    <button
+                        onClick={handleLogout}
+                        className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-zinc-400 transition hover:bg-red-500/10 hover:text-red-400"
+                    >
+                        <LogOut size={18} />
+                        Sair
+                    </button>
                 </div>
             </aside>
 

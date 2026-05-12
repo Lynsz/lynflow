@@ -1,21 +1,15 @@
+import type { ReactNode } from "react"
 import { Navigate } from "react-router-dom"
-import { supabase } from "../lib/supabase"
-import { useEffect, useState } from "react"
+import { isAuthenticated } from "../services/auth"
 
-export function ProtectedRoute({ children }: any) {
-    const [loading, setLoading] = useState(true)
-    const [user, setUser] = useState<any>(null)
+type ProtectedRouteProps = {
+    children: ReactNode
+}
 
-    useEffect(() => {
-        supabase.auth.getUser().then(({ data }) => {
-            setUser(data.user)
-            setLoading(false)
-        })
-    }, [])
-
-    if (loading) return <p>Loading...</p>
-
-    if (!user) return <Navigate to="/login" replace />
+export function ProtectedRoute({ children }: ProtectedRouteProps) {
+    if (!isAuthenticated()) {
+        return <Navigate to="/login" replace />
+    }
 
     return children
 }

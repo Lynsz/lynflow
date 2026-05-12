@@ -2,26 +2,27 @@ import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
 import { Sparkles } from "lucide-react"
-import { loginUser } from "../../services/auth"
+import { registerUser } from "../../services/auth"
 
-export function Login() {
+export function Register() {
     const navigate = useNavigate()
 
+    const [name, setName] = useState("")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [error, setError] = useState("")
 
-    function handleLogin(event: React.FormEvent) {
+    function handleRegister(event: React.FormEvent) {
         event.preventDefault()
         setError("")
 
-        if (!email.trim() || !password.trim()) {
-            setError("Preencha e-mail e senha.")
+        if (!name.trim() || !email.trim() || !password.trim()) {
+            setError("Preencha todos os campos.")
             return
         }
 
         try {
-            loginUser(email, password)
+            registerUser(name, email, password)
             navigate("/")
         } catch (err) {
             if (err instanceof Error) {
@@ -43,16 +44,16 @@ export function Login() {
                     </div>
 
                     <h1 className="text-3xl font-bold tracking-tight">
-                        Bem-vinda ao Lynflow
+                        Crie sua conta
                     </h1>
 
                     <p className="mt-2 text-sm text-zinc-400">
-                        Entre para acessar seu dashboard de produtividade.
+                        Comece a organizar sua produtividade com o Lynflow.
                     </p>
                 </div>
 
                 <form
-                    onSubmit={handleLogin}
+                    onSubmit={handleRegister}
                     className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-6 shadow-2xl shadow-black/30"
                 >
                     {error && (
@@ -62,6 +63,19 @@ export function Login() {
                     )}
 
                     <div className="space-y-4">
+                        <div>
+                            <label htmlFor="name" className="mb-2 block text-sm text-zinc-300">
+                                Nome
+                            </label>
+                            <input
+                                id="name"
+                                value={name}
+                                onChange={(event) => setName(event.target.value)}
+                                placeholder="Seu nome"
+                                className="w-full rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none transition focus:border-emerald-500"
+                            />
+                        </div>
+
                         <div>
                             <label htmlFor="email" className="mb-2 block text-sm text-zinc-300">
                                 E-mail
@@ -88,7 +102,7 @@ export function Login() {
                                 type="password"
                                 value={password}
                                 onChange={(event) => setPassword(event.target.value)}
-                                placeholder="Sua senha"
+                                placeholder="Crie uma senha"
                                 className="w-full rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none transition focus:border-emerald-500"
                             />
                         </div>
@@ -98,13 +112,13 @@ export function Login() {
                         type="submit"
                         className="mt-6 w-full rounded-2xl bg-white px-4 py-3 font-medium text-black transition hover:bg-zinc-200 active:scale-[0.98]"
                     >
-                        Entrar
+                        Criar conta
                     </button>
 
                     <p className="mt-5 text-center text-sm text-zinc-400">
-                        Ainda não tem conta?{" "}
-                        <Link to="/register" className="text-white hover:underline">
-                            Criar conta
+                        Já tem uma conta?{" "}
+                        <Link to="/login" className="text-white hover:underline">
+                            Entrar
                         </Link>
                     </p>
                 </form>
