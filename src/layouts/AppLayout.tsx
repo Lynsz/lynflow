@@ -1,26 +1,17 @@
-import type { ReactNode } from "react"
-import { Link } from "react-router-dom"
+<nav className="flex flex-col gap-2">
+    <Link to="/home" className="hover:text-green-400">
+        Home
+    </Link>
 
-type Props = {
-    children: ReactNode
-}
+    <Link to="/" className="hover:text-green-400">
+        Dashboard
+    </Link>
 
-export function AppLayout({ children }: Props) {
-    return (
-        <div className="min-h-screen flex bg-zinc-950 text-white">
-            {/* SIDEBAR */}
-            <aside className="w-64 bg-zinc-900 p-4 space-y-4">
-                <h1 className="text-xl font-bold">Lynflow</h1>
+    <Link to="/tasks" className="hover:text-green-400">
+        Tasks
+    </Link>
 
-                <nav className="flex flex-col gap-2">
-                    <Link to="/" className="hover:text-green-400">
-                        Dashboard
-                    </Link>
-                </nav>
-            </aside>
-
-            {/* CONTENT */}
-            <main className="flex-1 p-6">{children}</main>
-        </div>
-    )
-}
+    <Link to="/settings" className="hover:text-green-400">
+        Settings
+    </Link>
+</nav>
