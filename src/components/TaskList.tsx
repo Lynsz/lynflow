@@ -1,56 +1,23 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 
-type Task = {
-    id: number
-    title: string
-    completed: boolean
-}
+import { useTaskStore } from "../store/taskStore"
 
 export function TaskList() {
-    const [tasks, setTasks] = useState<Task[]>([])
     const [newTask, setNewTask] = useState("")
 
-    useEffect(() => {
-        const savedTasks = localStorage.getItem("tasks")
-
-        if (savedTasks) {
-            setTasks(JSON.parse(savedTasks))
-        }
-    }, [])
-
-    useEffect(() => {
-        localStorage.setItem("tasks", JSON.stringify(tasks))
-    }, [tasks])
+    const {
+        tasks,
+        addTask,
+        toggleTask,
+        deleteTask,
+    } = useTaskStore()
 
     function handleAddTask() {
         if (!newTask.trim()) return
 
-        const task: Task = {
-            id: Date.now(),
-            title: newTask,
-            completed: false,
-        }
+        addTask(newTask)
 
-        setTasks([...tasks, task])
         setNewTask("")
-    }
-
-    function toggleTask(id: number) {
-        const updatedTasks = tasks.map((task) =>
-            task.id === id
-                ? { ...task, completed: !task.completed }
-                : task
-        )
-
-        setTasks(updatedTasks)
-    }
-
-    function deleteTask(id: number) {
-        const filteredTasks = tasks.filter(
-            (task) => task.id !== id
-        )
-
-        setTasks(filteredTasks)
     }
 
     return (
@@ -64,7 +31,9 @@ export function TaskList() {
                     type="text"
                     placeholder="Add a new task..."
                     value={newTask}
-                    onChange={(e) => setNewTask(e.target.value)}
+                    onChange={(e) =>
+                        setNewTask(e.target.value)
+                    }
                     className="flex-1 bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white outline-none"
                 />
 
@@ -93,17 +62,23 @@ export function TaskList() {
 
                         <div className="flex gap-2">
                             <button
-                                onClick={() => toggleTask(task.id)}
+                                onClick={() =>
+                                    toggleTask(task.id)
+                                }
                                 className={`px-3 py-1 rounded-lg text-sm font-medium ${task.completed
                                         ? "bg-green-500 text-black"
                                         : "bg-zinc-800 text-white"
                                     }`}
                             >
-                                {task.completed ? "Done" : "Pending"}
+                                {task.completed
+                                    ? "Done"
+                                    : "Pending"}
                             </button>
 
                             <button
-                                onClick={() => deleteTask(task.id)}
+                                onClick={() =>
+                                    deleteTask(task.id)
+                                }
                                 className="bg-red-500 px-3 py-1 rounded-lg text-black text-sm font-medium"
                             >
                                 Delete
