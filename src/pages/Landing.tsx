@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom"
 import { motion } from "framer-motion"
 import {
     ArrowRight,
@@ -10,7 +9,9 @@ import {
     Target,
     Zap,
 } from "lucide-react"
-import { ThemeToggle } from "../components/ThemeToggle"
+import { FeatureCard } from "../components/public/FeatureCard"
+import { PublicHeader } from "../components/public/PublicHeader"
+import { LinkButton } from "../components/ui/LinkButton"
 
 const features = [
     {
@@ -48,52 +49,24 @@ const roadmap = [
     "Analytics avançado",
 ]
 
+const techs = [
+    "React",
+    "TypeScript",
+    "Tailwind CSS",
+    "Framer Motion",
+    "Recharts",
+]
+
+const previewTasks = [
+    "Finalizar layout premium",
+    "Criar README profissional",
+    "Preparar deploy na Vercel",
+]
+
 export function Landing() {
     return (
         <div className="ly-page min-h-screen">
-            <header className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6">
-                <Link to="/" className="flex items-center gap-3">
-                    <div className="ly-button-primary flex h-10 w-10 items-center justify-center rounded-2xl">
-                        <Sparkles size={20} />
-                    </div>
-
-                    <div>
-                        <strong className="block text-lg tracking-tight">Lynflow</strong>
-                        <span className="ly-muted-soft text-xs">AI productivity OS</span>
-                    </div>
-                </Link>
-
-                <nav className="hidden items-center gap-6 text-sm md:flex">
-                    <a href="#features" className="ly-muted transition hover:text-[var(--text)]">
-                        Benefícios
-                    </a>
-                    <a href="#preview" className="ly-muted transition hover:text-[var(--text)]">
-                        Preview
-                    </a>
-                    <a href="#roadmap" className="ly-muted transition hover:text-[var(--text)]">
-                        Roadmap
-                    </a>
-                </nav>
-
-                <div className="flex items-center gap-3">
-                    <ThemeToggle />
-
-                    <Link
-                        to="/login"
-                        className="ly-button-secondary hidden rounded-xl px-4 py-2 text-sm md:inline-flex"
-                    >
-                        Entrar
-                    </Link>
-
-                    <Link
-                        to="/register"
-                        className="ly-button-primary inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium active:scale-[0.98]"
-                    >
-                        Começar
-                        <ArrowRight size={16} />
-                    </Link>
-                </div>
-            </header>
+            <PublicHeader />
 
             <main>
                 <section className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-6 pb-20 pt-16 lg:grid-cols-[1fr_0.95fr] lg:pt-24">
@@ -117,33 +90,28 @@ export function Landing() {
                         </p>
 
                         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                            <Link
+                            <LinkButton
                                 to="/register"
-                                className="ly-button-primary inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-3 font-medium active:scale-[0.98]"
+                                size="lg"
+                                icon={<ArrowRight size={18} />}
                             >
                                 Criar conta grátis
-                                <ArrowRight size={18} />
-                            </Link>
+                            </LinkButton>
 
-                            <Link
-                                to="/login"
-                                className="ly-button-secondary inline-flex items-center justify-center rounded-2xl px-6 py-3 font-medium"
-                            >
+                            <LinkButton to="/login" variant="secondary" size="lg">
                                 Acessar app
-                            </Link>
+                            </LinkButton>
                         </div>
 
                         <div className="mt-10 flex flex-wrap gap-3 text-sm">
-                            {["React", "TypeScript", "Tailwind CSS", "Framer Motion", "Recharts"].map(
-                                (tech) => (
-                                    <span
-                                        key={tech}
-                                        className="rounded-full border border-[var(--border)] px-4 py-2 text-[var(--muted)]"
-                                    >
-                                        {tech}
-                                    </span>
-                                )
-                            )}
+                            {techs.map((tech) => (
+                                <span
+                                    key={tech}
+                                    className="rounded-full border border-[var(--border)] px-4 py-2 text-[var(--muted)]"
+                                >
+                                    {tech}
+                                </span>
+                            ))}
                         </div>
                     </motion.div>
 
@@ -196,11 +164,7 @@ export function Landing() {
                             </div>
 
                             <div className="space-y-3">
-                                {[
-                                    "Finalizar layout premium",
-                                    "Criar README profissional",
-                                    "Preparar deploy na Vercel",
-                                ].map((task, index) => (
+                                {previewTasks.map((task, index) => (
                                     <div
                                         key={task}
                                         className="ly-card flex items-center gap-3 rounded-2xl px-4 py-3"
@@ -234,30 +198,15 @@ export function Landing() {
                     </div>
 
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-                        {features.map((feature, index) => {
-                            const Icon = feature.icon
-
-                            return (
-                                <motion.div
-                                    key={feature.title}
-                                    initial={{ opacity: 0, y: 18 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ delay: index * 0.05 }}
-                                    className="ly-card rounded-3xl p-5"
-                                >
-                                    <div className="ly-button-primary mb-5 flex h-11 w-11 items-center justify-center rounded-2xl">
-                                        <Icon size={21} />
-                                    </div>
-
-                                    <h3 className="text-lg font-semibold">{feature.title}</h3>
-
-                                    <p className="ly-muted mt-3 text-sm leading-6">
-                                        {feature.description}
-                                    </p>
-                                </motion.div>
-                            )
-                        })}
+                        {features.map((feature, index) => (
+                            <FeatureCard
+                                key={feature.title}
+                                icon={feature.icon}
+                                title={feature.title}
+                                description={feature.description}
+                                delay={index * 0.05}
+                            />
+                        ))}
                     </div>
                 </section>
 
@@ -307,13 +256,14 @@ export function Landing() {
                             simulada, o projeto já passa a parecer um produto real.
                         </p>
 
-                        <Link
+                        <LinkButton
                             to="/register"
-                            className="ly-button-primary mt-8 inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-3 font-medium active:scale-[0.98]"
+                            size="lg"
+                            className="mt-8"
+                            icon={<ArrowRight size={18} />}
                         >
                             Começar agora
-                            <ArrowRight size={18} />
-                        </Link>
+                        </LinkButton>
                     </div>
                 </section>
             </main>

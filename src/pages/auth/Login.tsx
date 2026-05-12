@@ -1,9 +1,9 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import { motion } from "framer-motion"
-import { Sparkles } from "lucide-react"
 import { loginUser } from "../../services/auth"
-import { ThemeToggle } from "../../components/ThemeToggle"
+import { AuthCard } from "../../components/auth/AuthCard"
+import { Button } from "../../components/ui/Button"
+import { Input } from "../../components/ui/Input"
 
 export function Login() {
     const navigate = useNavigate()
@@ -32,87 +32,19 @@ export function Login() {
     }
 
     return (
-        <div className="ly-page flex min-h-screen items-center justify-center px-4 py-8">
-            <div className="absolute right-4 top-4">
-                <ThemeToggle />
-            </div>
-
-            <motion.div
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="w-full max-w-md"
-            >
-                <div className="mb-8 text-center">
-                    <Link
-                        to="/"
-                        className="ly-button-primary mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl"
-                        aria-label="Voltar para a página inicial"
-                        title="Voltar para a página inicial"
-                    >
-                        <Sparkles size={22} />
-                    </Link>
-
-                    <h1 className="text-3xl font-bold tracking-tight">
-                        Bem-vinda ao Lynflow
-                    </h1>
-
-                    <p className="ly-muted mt-2 text-sm">
-                        Entre para acessar seu dashboard de produtividade.
-                    </p>
-                </div>
-
-                <form
-                    onSubmit={handleLogin}
-                    className="ly-card rounded-3xl p-6 shadow-2xl shadow-black/10"
-                >
-                    {error && (
-                        <div className="mb-4 rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-500">
-                            {error}
-                        </div>
-                    )}
-
-                    <div className="space-y-4">
-                        <div>
-                            <label htmlFor="email" className="mb-2 block text-sm">
-                                E-mail
-                            </label>
-
-                            <input
-                                id="email"
-                                type="email"
-                                value={email}
-                                onChange={(event) => setEmail(event.target.value)}
-                                placeholder="seu@email.com"
-                                title="Digite seu e-mail"
-                                aria-label="Digite seu e-mail"
-                                className="ly-input rounded-2xl px-4 py-3"
-                            />
-                        </div>
-
-                        <div>
-                            <label htmlFor="password" className="mb-2 block text-sm">
-                                Senha
-                            </label>
-
-                            <input
-                                id="password"
-                                type="password"
-                                value={password}
-                                onChange={(event) => setPassword(event.target.value)}
-                                placeholder="Sua senha"
-                                title="Digite sua senha"
-                                aria-label="Digite sua senha"
-                                className="ly-input rounded-2xl px-4 py-3"
-                            />
-                        </div>
-                    </div>
-
-                    <button
+        <AuthCard
+            title="Bem-vinda ao Lynflow"
+            description="Entre para acessar seu dashboard de produtividade."
+            error={error}
+            footer={
+                <>
+                    <Button
                         type="submit"
-                        className="ly-button-primary mt-6 w-full rounded-2xl px-4 py-3 font-medium active:scale-[0.98]"
+                        className="mt-6 w-full"
+                        onClick={handleLogin}
                     >
                         Entrar
-                    </button>
+                    </Button>
 
                     <p className="ly-muted mt-5 text-center text-sm">
                         Ainda não tem conta?{" "}
@@ -120,8 +52,42 @@ export function Login() {
                             Criar conta
                         </Link>
                     </p>
-                </form>
-            </motion.div>
-        </div>
+                </>
+            }
+        >
+            <div className="space-y-4">
+                <div>
+                    <label htmlFor="email" className="mb-2 block text-sm">
+                        E-mail
+                    </label>
+
+                    <Input
+                        id="email"
+                        type="email"
+                        value={email}
+                        onChange={(event) => setEmail(event.target.value)}
+                        placeholder="seu@email.com"
+                        title="Digite seu e-mail"
+                        aria-label="Digite seu e-mail"
+                    />
+                </div>
+
+                <div>
+                    <label htmlFor="password" className="mb-2 block text-sm">
+                        Senha
+                    </label>
+
+                    <Input
+                        id="password"
+                        type="password"
+                        value={password}
+                        onChange={(event) => setPassword(event.target.value)}
+                        placeholder="Sua senha"
+                        title="Digite sua senha"
+                        aria-label="Digite sua senha"
+                    />
+                </div>
+            </div>
+        </AuthCard>
     )
 }
