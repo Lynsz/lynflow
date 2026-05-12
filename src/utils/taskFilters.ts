@@ -2,7 +2,7 @@ import type { Priority, Task } from "../types/task"
 
 export type StatusFilter = "all" | "todo" | "done"
 export type PriorityFilter = "all" | Priority
-export type SortOption = "newest" | "oldest" | "priority" | "title"
+export type SortOption = "manual" | "newest" | "oldest" | "priority" | "title"
 
 type FilterTasksParams = {
     tasks: Task[]
@@ -39,21 +39,18 @@ export function filterAndSortTasks({
             (status === "done" && task.done) ||
             (status === "todo" && !task.done)
 
-        const matchesPriority =
-            priority === "all" || task.priority === priority
+        const matchesPriority = priority === "all" || task.priority === priority
 
-        const matchesCategory =
-            category === "all" || task.category === category
+        const matchesCategory = category === "all" || task.category === category
 
-        return (
-            matchesSearch &&
-            matchesStatus &&
-            matchesPriority &&
-            matchesCategory
-        )
+        return matchesSearch && matchesStatus && matchesPriority && matchesCategory
     })
 
     return [...filteredTasks].sort((a, b) => {
+        if (sortBy === "manual") {
+            return a.order - b.order
+        }
+
         if (sortBy === "newest") {
             return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         }

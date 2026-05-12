@@ -1,5 +1,5 @@
 import { motion } from "framer-motion"
-import { Trash2 } from "lucide-react"
+import { GripVertical, Trash2 } from "lucide-react"
 import type { Priority, Task } from "../../types/task"
 import { Input } from "../ui/Input"
 
@@ -13,6 +13,7 @@ type TaskCardProps = {
     onCancelEdit: () => void
     onToggle: (id: string) => void
     onDelete: (id: string) => void
+    isDragDisabled?: boolean
 }
 
 function getPriorityLabel(priority: Priority) {
@@ -43,6 +44,7 @@ export function TaskCard({
     onCancelEdit,
     onToggle,
     onDelete,
+    isDragDisabled = false,
 }: TaskCardProps) {
     return (
         <motion.div
@@ -54,6 +56,23 @@ export function TaskCard({
             className="ly-card-strong rounded-2xl p-4"
         >
             <div className="flex items-start gap-4">
+                <div
+                    className={`mt-1 text-[var(--muted-soft)] ${isDragDisabled ? "opacity-30" : "cursor-grab active:cursor-grabbing"
+                        }`}
+                    title={
+                        isDragDisabled
+                            ? "Use a ordenação Manual para arrastar"
+                            : "Arraste para reordenar"
+                    }
+                    aria-label={
+                        isDragDisabled
+                            ? "Arrastar desativado"
+                            : "Arrastar para reordenar"
+                    }
+                >
+                    <GripVertical size={18} />
+                </div>
+
                 <input
                     type="checkbox"
                     checked={task.done}

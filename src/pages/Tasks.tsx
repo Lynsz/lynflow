@@ -1,9 +1,24 @@
 import { useMemo, useState } from "react"
+import {
+    DndContext,
+    KeyboardSensor,
+    PointerSensor,
+    closestCenter,
+    useSensor,
+    useSensors,
+    type DragEndEvent,
+} from "@dnd-kit/core"
+import {
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
+} from "@dnd-kit/sortable"
 import { AnimatePresence } from "framer-motion"
 import {
     ArrowUpDown,
     ClipboardList,
     FilterX,
+    GripVertical,
     Plus,
     Search,
     SlidersHorizontal,
@@ -22,7 +37,7 @@ import { EmptyState } from "../components/ui/EmptyState"
 import { Input } from "../components/ui/Input"
 import { PageHeader } from "../components/ui/PageHeader"
 import { SectionCard } from "../components/ui/SectionCard"
-import { TaskCard } from "../components/tasks/TaskCard"
+import { SortableTaskItem } from "../components/tasks/SortableTaskItem"
 import { useToast } from "../components/ui/ToastProvider"
 
 const statusFilters: Array<{ key: StatusFilter; label: string }> = [
@@ -39,6 +54,7 @@ const priorityOptions: Array<{ key: PriorityFilter; label: string }> = [
 ]
 
 const sortOptions: Array<{ key: SortOption; label: string }> = [
+    { key: "manual", label: "Manual" },
     { key: "newest", label: "Mais recentes" },
     { key: "oldest", label: "Mais antigas" },
     { key: "priority", label: "Prioridade" },
@@ -53,6 +69,7 @@ export function Tasks() {
         updateTask,
         toggleTask,
         deleteTask,
+        reorderTasks,
     } = useTasks()
 
     const { showToast } = useToast()
@@ -65,11 +82,22 @@ export function Tasks() {
     const [statusFilter, setStatusFilter] = useState<StatusFilter>("all")
     const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>("all")
     const [categoryFilter, setCategoryFilter] = useState("all")
-    const [sortBy, setSortBy] = useState<SortOption>("newest")
+    const [sortBy, setSortBy] = useState<SortOption>("manual")
 
     const [editingId, setEditingId] = useState<string | null>(null)
     const [editingTitle, setEditingTitle] = useState("")
     const [taskToDelete, setTaskToDelete] = useState<Task | null>(null)
+
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 8,
+            },
+        }),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    )
 
     const filteredTasks = useMemo(() => {
         return filterAndSortTasks({
@@ -87,7 +115,9 @@ export function Tasks() {
         statusFilter !== "all" ||
         priorityFilter !== "all" ||
         categoryFilter !== "all" ||
-        sortBy !== "newest"
+        sortBy !== "manual"
+
+    const isDragDisabled = sortBy !== "manual"
 
     function handleAddTask(event: React.FormEvent) {
         event.preventDefault()
@@ -201,12 +231,26 @@ export function Tasks() {
         setStatusFilter("all")
         setPriorityFilter("all")
         setCategoryFilter("all")
-        setSortBy("newest")
+        setSortBy("manual")
 
         showToast({
             type: "info",
             title: "Filtros limpos",
             description: "A lista voltou para a visualização padrão.",
+        })
+    }
+
+    function handleDragEnd(event: DragEndEvent) {
+        const { active, over } = event
+
+        if (!over || active.id === over.id) return
+
+        reorderTasks(String(active.id), String(over.id))
+
+        showToast({
+            type: "success",
+            title: "Ordem atualizada",
+            description: "A nova ordem das tarefas foi salva.",
         })
     }
 
@@ -216,7 +260,7 @@ export function Tasks() {
                 <PageHeader
                     eyebrow="Task system"
                     title="Tasks"
-                    description="Crie, organize, edite e conclua tarefas com prioridade, categoria, busca e filtros."
+                    description="Crie, organize, edite e conclua tarefas com prioridade, categoria, busca, filtros e drag and drop."
                 />
 
                 <SectionCard
@@ -404,41 +448,57 @@ export function Tasks() {
                 <SectionCard
                     className="mt-6"
                     title="Lista de tarefas"
-                    description={`${filteredTasks.length} de ${tasks.length} tarefa(s) exibida(s). Clique duas vezes no título para editar.`}
+                    description={`${filteredTasks.length} de ${tasks.length} tarefa(s) exibida(s). Use Manual para arrastar e reordenar.`}
                     action={
                         <div className="flex items-center gap-2 text-sm text-[var(--muted)]">
+                            <GripVertical size={16} />
+                            <span>
+                                {isDragDisabled ? "Drag desativado" : "Drag ativo"}
+                            </span>
                             <SlidersHorizontal size={16} />
                             <span>{hasActiveFilters ? "Filtros ativos" : "Sem filtros"}</span>
                             <ArrowUpDown size={16} />
                         </div>
                     }
                 >
-                    <div className="space-y-3">
-                        <AnimatePresence>
-                            {filteredTasks.map((task) => (
-                                <TaskCard
-                                    key={task.id}
-                                    task={task}
-                                    isEditing={editingId === task.id}
-                                    editingTitle={editingTitle}
-                                    onEditingTitleChange={setEditingTitle}
-                                    onStartEdit={startEdit}
-                                    onSaveEdit={saveEdit}
-                                    onCancelEdit={cancelEdit}
-                                    onToggle={handleToggleTask}
-                                    onDelete={requestDeleteTask}
-                                />
-                            ))}
-                        </AnimatePresence>
+                    <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={handleDragEnd}
+                    >
+                        <SortableContext
+                            items={filteredTasks.map((task) => task.id)}
+                            strategy={verticalListSortingStrategy}
+                        >
+                            <div className="space-y-3">
+                                <AnimatePresence>
+                                    {filteredTasks.map((task) => (
+                                        <SortableTaskItem
+                                            key={task.id}
+                                            task={task}
+                                            isEditing={editingId === task.id}
+                                            editingTitle={editingTitle}
+                                            onEditingTitleChange={setEditingTitle}
+                                            onStartEdit={startEdit}
+                                            onSaveEdit={saveEdit}
+                                            onCancelEdit={cancelEdit}
+                                            onToggle={handleToggleTask}
+                                            onDelete={requestDeleteTask}
+                                            disabled={isDragDisabled}
+                                        />
+                                    ))}
+                                </AnimatePresence>
 
-                        {filteredTasks.length === 0 && (
-                            <EmptyState
-                                icon={<ClipboardList size={20} />}
-                                title="Nenhuma tarefa encontrada"
-                                description="Ajuste a busca ou limpe os filtros para visualizar outros itens."
-                            />
-                        )}
-                    </div>
+                                {filteredTasks.length === 0 && (
+                                    <EmptyState
+                                        icon={<ClipboardList size={20} />}
+                                        title="Nenhuma tarefa encontrada"
+                                        description="Ajuste a busca ou limpe os filtros para visualizar outros itens."
+                                    />
+                                )}
+                            </div>
+                        </SortableContext>
+                    </DndContext>
                 </SectionCard>
             </div>
 

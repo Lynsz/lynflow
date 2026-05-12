@@ -7,4 +7,5 @@ export type Task = {
     priority: Priority
     done: boolean
     createdAt: string
+    order: number
 }

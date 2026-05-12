@@ -19,6 +19,7 @@ const initialTasks: Task[] = [
         priority: "high",
         done: false,
         createdAt: new Date().toISOString(),
+        order: 0,
     },
     {
         id: createId(),
@@ -27,6 +28,7 @@ const initialTasks: Task[] = [
         priority: "medium",
         done: false,
         createdAt: new Date().toISOString(),
+        order: 1,
     },
     {
         id: createId(),
@@ -35,18 +37,31 @@ const initialTasks: Task[] = [
         priority: "medium",
         done: true,
         createdAt: new Date().toISOString(),
+        order: 2,
     },
 ]
 
 function normalizeTasks(tasks: Partial<Task>[]): Task[] {
-    return tasks.map((task) => ({
-        id: task.id ?? createId(),
-        title: task.title ?? "Tarefa sem título",
-        category: task.category ?? "Geral",
-        priority: task.priority ?? "medium",
-        done: Boolean(task.done),
-        createdAt: task.createdAt ?? new Date().toISOString(),
-    }))
+    return tasks
+        .map((task, index) => ({
+            id: task.id ?? createId(),
+            title: task.title ?? "Tarefa sem título",
+            category: task.category ?? "Geral",
+            priority: task.priority ?? "medium",
+            done: Boolean(task.done),
+            createdAt: task.createdAt ?? new Date().toISOString(),
+            order: typeof task.order === "number" ? task.order : index,
+        }))
+        .sort((a, b) => a.order - b.order)
+}
+
+function reorderArray<T>(items: T[], fromIndex: number, toIndex: number) {
+    const result = [...items]
+    const [removed] = result.splice(fromIndex, 1)
+
+    result.splice(toIndex, 0, removed)
+
+    return result
 }
 
 export function useTasks() {
@@ -74,7 +89,9 @@ export function useTasks() {
 
     const completedTasks = tasks.filter((task) => task.done).length
     const pendingTasks = tasks.filter((task) => !task.done).length
-    const highPriorityTasks = tasks.filter((task) => task.priority === "high").length
+    const highPriorityTasks = tasks.filter(
+        (task) => task.priority === "high"
+    ).length
 
     const productivity =
         tasks.length > 0 ? Math.round((completedTasks / tasks.length) * 100) : 0
@@ -90,6 +107,9 @@ export function useTasks() {
     }) {
         if (!data.title.trim()) return
 
+        const smallestOrder =
+            tasks.length > 0 ? Math.min(...tasks.map((task) => task.order)) : 0
+
         const newTask: Task = {
             id: createId(),
             title: data.title.trim(),
@@ -97,6 +117,7 @@ export function useTasks() {
             priority: data.priority,
             done: false,
             createdAt: new Date().toISOString(),
+            order: smallestOrder - 1,
         }
 
         setTasks((currentTasks) => [newTask, ...currentTasks])
@@ -124,6 +145,28 @@ export function useTasks() {
         )
     }
 
+    function reorderTasks(activeId: string, overId: string) {
+        if (activeId === overId) return
+
+        setTasks((currentTasks) => {
+            const sortedTasks = [...currentTasks].sort((a, b) => a.order - b.order)
+
+            const activeIndex = sortedTasks.findIndex((task) => task.id === activeId)
+            const overIndex = sortedTasks.findIndex((task) => task.id === overId)
+
+            if (activeIndex === -1 || overIndex === -1) {
+                return currentTasks
+            }
+
+            return reorderArray(sortedTasks, activeIndex, overIndex).map(
+                (task, index) => ({
+                    ...task,
+                    order: index,
+                })
+            )
+        })
+    }
+
     function clearTasks() {
         setTasks([])
     }
@@ -139,6 +182,7 @@ export function useTasks() {
         updateTask,
         toggleTask,
         deleteTask,
+        reorderTasks,
         clearTasks,
     }
 }
