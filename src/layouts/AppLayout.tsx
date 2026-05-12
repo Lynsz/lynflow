@@ -17,7 +17,7 @@ type AppLayoutProps = {
 const navItems = [
     {
         label: "Dashboard",
-        path: "/",
+        path: "/dashboard",
         icon: LayoutDashboard,
     },
     {

@@ -23,7 +23,7 @@ export function Register() {
 
         try {
             registerUser(name, email, password)
-            navigate("/")
+            navigate("/dashboard")
         } catch (err) {
             if (err instanceof Error) {
                 setError(err.message)
