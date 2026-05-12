@@ -1,8 +1,21 @@
 import { useMemo, useState } from "react"
 import { AnimatePresence } from "framer-motion"
-import { ClipboardList, Plus } from "lucide-react"
+import {
+    ArrowUpDown,
+    ClipboardList,
+    FilterX,
+    Plus,
+    Search,
+    SlidersHorizontal,
+} from "lucide-react"
 import { useTasks } from "../hooks/useTasks"
 import type { Priority, Task } from "../types/task"
+import {
+    filterAndSortTasks,
+    type PriorityFilter,
+    type SortOption,
+    type StatusFilter,
+} from "../utils/taskFilters"
 import { Button } from "../components/ui/Button"
 import { EmptyState } from "../components/ui/EmptyState"
 import { Input } from "../components/ui/Input"
@@ -11,32 +24,69 @@ import { SectionCard } from "../components/ui/SectionCard"
 import { TaskCard } from "../components/tasks/TaskCard"
 import { useToast } from "../components/ui/ToastProvider"
 
-type Filter = "all" | "todo" | "done"
-
-const filters: Array<{ key: Filter; label: string }> = [
+const statusFilters: Array<{ key: StatusFilter; label: string }> = [
     { key: "all", label: "Todas" },
     { key: "todo", label: "Pendentes" },
     { key: "done", label: "Concluídas" },
 ]
 
+const priorityOptions: Array<{ key: PriorityFilter; label: string }> = [
+    { key: "all", label: "Todas" },
+    { key: "high", label: "Alta" },
+    { key: "medium", label: "Média" },
+    { key: "low", label: "Baixa" },
+]
+
+const sortOptions: Array<{ key: SortOption; label: string }> = [
+    { key: "newest", label: "Mais recentes" },
+    { key: "oldest", label: "Mais antigas" },
+    { key: "priority", label: "Prioridade" },
+    { key: "title", label: "Título A-Z" },
+]
+
 export function Tasks() {
-    const { tasks, addTask, updateTask, toggleTask, deleteTask } = useTasks()
+    const {
+        tasks,
+        categories,
+        addTask,
+        updateTask,
+        toggleTask,
+        deleteTask,
+    } = useTasks()
+
     const { showToast } = useToast()
 
     const [title, setTitle] = useState("")
     const [category, setCategory] = useState("Geral")
     const [priority, setPriority] = useState<Priority>("medium")
-    const [filter, setFilter] = useState<Filter>("all")
+
+    const [search, setSearch] = useState("")
+    const [statusFilter, setStatusFilter] = useState<StatusFilter>("all")
+    const [priorityFilter, setPriorityFilter] =
+        useState<PriorityFilter>("all")
+    const [categoryFilter, setCategoryFilter] = useState("all")
+    const [sortBy, setSortBy] = useState<SortOption>("newest")
+
     const [editingId, setEditingId] = useState<string | null>(null)
     const [editingTitle, setEditingTitle] = useState("")
 
     const filteredTasks = useMemo(() => {
-        return tasks.filter((task) => {
-            if (filter === "done") return task.done
-            if (filter === "todo") return !task.done
-            return true
+        return filterAndSortTasks({
+            tasks,
+            search,
+            status: statusFilter,
+            priority: priorityFilter,
+            category: categoryFilter,
+            sortBy,
         })
-    }, [tasks, filter])
+    }, [tasks, search, statusFilter, priorityFilter, categoryFilter, sortBy])
+
+    const hasActiveFilters =
+        search.trim() !== "" ||
+        statusFilter !== "all" ||
+        priorityFilter !== "all" ||
+        categoryFilter !== "all" ||
+        sortBy !== "newest"
 
     function handleAddTask(event: React.FormEvent) {
         event.preventDefault()
@@ -135,36 +185,35 @@ export function Tasks() {
         })
     }
 
+    function clearFilters() {
+        setSearch("")
+        setStatusFilter("all")
+        setPriorityFilter("all")
+        setCategoryFilter("all")
+        setSortBy("newest")
+
+        showToast({
+            type: "info",
+            title: "Filtros limpos",
+            description: "A lista voltou para a visualização padrão.",
+        })
+    }
+
     return (
         <div className="ly-page px-4 py-6 md:px-8">
             <PageHeader
                 eyebrow="Task system"
                 title="Tasks"
-                description="Crie, organize, edite e conclua tarefas com prioridade e categoria."
+                description="Crie, organize, edite e conclua tarefas com prioridade, categoria, busca e filtros."
             />
 
             <SectionCard
-                title="Lista de tarefas"
-                description="Clique duas vezes no título para editar."
-                action={
-                    <div className="flex flex-wrap gap-2">
-                        {filters.map((item) => (
-                            <Button
-                                key={item.key}
-                                type="button"
-                                variant={filter === item.key ? "primary" : "secondary"}
-                                size="sm"
-                                onClick={() => setFilter(item.key)}
-                            >
-                                {item.label}
-                            </Button>
-                        ))}
-                    </div>
-                }
+                title="Nova tarefa"
+                description="Adicione uma tarefa com categoria e prioridade."
             >
                 <form
                     onSubmit={handleAddTask}
-                    className="mb-5 grid grid-cols-1 gap-3 md:grid-cols-[1fr_160px_140px_auto]"
+                    className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_160px_140px_auto]"
                 >
                     <label htmlFor="task-title" className="sr-only">
                         Nova tarefa
@@ -210,7 +259,148 @@ export function Tasks() {
                         Add
                     </Button>
                 </form>
+            </SectionCard>
 
+            <SectionCard
+                className="mt-6"
+                title="Filtros"
+                description="Encontre tarefas por texto, status, prioridade, categoria e ordenação."
+                action={
+                    hasActiveFilters ? (
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            icon={<FilterX size={16} />}
+                            onClick={clearFilters}
+                        >
+                            Limpar filtros
+                        </Button>
+                    ) : null
+                }
+            >
+                <div className="grid grid-cols-1 gap-3 xl:grid-cols-[1fr_180px_180px_180px_180px]">
+                    <div className="relative">
+                        <Search
+                            size={18}
+                            className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted-soft)]"
+                        />
+
+                        <label htmlFor="task-search" className="sr-only">
+                            Buscar tarefa
+                        </label>
+                        <Input
+                            id="task-search"
+                            value={search}
+                            onChange={(event) => setSearch(event.target.value)}
+                            placeholder="Buscar por título ou categoria..."
+                            title="Buscar tarefa"
+                            aria-label="Buscar tarefa"
+                            className="pl-11"
+                        />
+                    </div>
+
+                    <div>
+                        <label htmlFor="status-filter" className="sr-only">
+                            Filtrar por status
+                        </label>
+                        <select
+                            id="status-filter"
+                            value={statusFilter}
+                            onChange={(event) =>
+                                setStatusFilter(event.target.value as StatusFilter)
+                            }
+                            title="Filtrar por status"
+                            aria-label="Filtrar por status"
+                            className="ly-input rounded-2xl px-4 py-3"
+                        >
+                            {statusFilters.map((item) => (
+                                <option key={item.key} value={item.key}>
+                                    {item.label}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label htmlFor="priority-filter" className="sr-only">
+                            Filtrar por prioridade
+                        </label>
+                        <select
+                            id="priority-filter"
+                            value={priorityFilter}
+                            onChange={(event) =>
+                                setPriorityFilter(event.target.value as PriorityFilter)
+                            }
+                            title="Filtrar por prioridade"
+                            aria-label="Filtrar por prioridade"
+                            className="ly-input rounded-2xl px-4 py-3"
+                        >
+                            {priorityOptions.map((item) => (
+                                <option key={item.key} value={item.key}>
+                                    {item.label}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label htmlFor="category-filter" className="sr-only">
+                            Filtrar por categoria
+                        </label>
+                        <select
+                            id="category-filter"
+                            value={categoryFilter}
+                            onChange={(event) => setCategoryFilter(event.target.value)}
+                            title="Filtrar por categoria"
+                            aria-label="Filtrar por categoria"
+                            className="ly-input rounded-2xl px-4 py-3"
+                        >
+                            <option value="all">Categorias</option>
+
+                            {categories.map((item) => (
+                                <option key={item} value={item}>
+                                    {item}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label htmlFor="task-sort" className="sr-only">
+                            Ordenar tarefas
+                        </label>
+                        <select
+                            id="task-sort"
+                            value={sortBy}
+                            onChange={(event) =>
+                                setSortBy(event.target.value as SortOption)
+                            }
+                            title="Ordenar tarefas"
+                            aria-label="Ordenar tarefas"
+                            className="ly-input rounded-2xl px-4 py-3"
+                        >
+                            {sortOptions.map((item) => (
+                                <option key={item.key} value={item.key}>
+                                    {item.label}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+            </SectionCard>
+
+            <SectionCard
+                className="mt-6"
+                title="Lista de tarefas"
+                description={`${filteredTasks.length} de ${tasks.length} tarefa(s) exibida(s). Clique duas vezes no título para editar.`}
+                action={
+                    <div className="flex items-center gap-2 text-sm text-[var(--muted)]">
+                        <SlidersHorizontal size={16} />
+                        <span>{hasActiveFilters ? "Filtros ativos" : "Sem filtros"}</span>
+                        <ArrowUpDown size={16} />
+                    </div>
+                }
+            >
                 <div className="space-y-3">
                     <AnimatePresence>
                         {filteredTasks.map((task) => (
@@ -233,7 +423,7 @@ export function Tasks() {
                         <EmptyState
                             icon={<ClipboardList size={20} />}
                             title="Nenhuma tarefa encontrada"
-                            description="Crie uma nova tarefa ou altere o filtro selecionado para visualizar outros itens."
+                            description="Ajuste a busca ou limpe os filtros para visualizar outros itens."
                         />
                     )}
                 </div>
