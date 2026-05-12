@@ -1,6 +1,7 @@
 import { Header } from "../components/Header"
 import { Card } from "../components/Card"
 import { TaskList } from "../components/TaskList"
+import { ProductivityChart } from "../components/ProductivityChart"
 
 export function Dashboard() {
     return (
@@ -12,6 +13,8 @@ export function Dashboard() {
                 <Card title="Focus Hours" value="18h" />
                 <Card title="Productivity" value="92%" />
             </section>
+
+            <ProductivityChart />
 
             <TaskList />
         </>
