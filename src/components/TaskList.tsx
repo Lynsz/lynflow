@@ -16,7 +16,6 @@ export function TaskList() {
 
     const { tasks, setTasks } = useTaskStore()
 
-    // 🔄 Load inicial
     useEffect(() => {
         async function load() {
             const data = await getTasks()
@@ -27,7 +26,6 @@ export function TaskList() {
         load()
     }, [setTasks])
 
-    // ⚡ Realtime (mantém sync entre dispositivos)
     useEffect(() => {
         const channel = supabase
             .channel("tasks-realtime")
@@ -50,7 +48,6 @@ export function TaskList() {
         }
     }, [setTasks])
 
-    // ➕ CREATE (optimistic)
     async function handleAddTask() {
         if (!newTask.trim()) return
 
@@ -60,7 +57,6 @@ export function TaskList() {
 
         if (!user) return
 
-        // UI imediata
         const tempTask = {
             id: crypto.randomUUID(),
             title: newTask,
@@ -70,55 +66,17 @@ export function TaskList() {
         setTasks([tempTask, ...tasks])
         setNewTask("")
 
-        try {
-            await createTask(newTask, user.id)
-        } catch (err) {
-            // rollback simples
-            const data = await getTasks()
-            setTasks(data || [])
-        }
+        await createTask(newTask, user.id)
     }
 
-    // 🔁 TOGGLE (optimistic)
-    async function handleToggle(task: any) {
-        const updated = tasks.map((t) =>
-            t.id === task.id
-                ? { ...t, completed: !t.completed }
-                : t
+    function SkeletonItem() {
+        return (
+            <div className="h-14 bg-zinc-800/40 rounded-xl animate-pulse" />
         )
-
-        setTasks(updated)
-
-        try {
-            await toggleTask(
-                task.id,
-                !task.completed
-            )
-        } catch (err) {
-            const data = await getTasks()
-            setTasks(data || [])
-        }
-    }
-
-    // 🗑 DELETE (optimistic)
-    async function handleDelete(id: string) {
-        const filtered = tasks.filter(
-            (t) => t.id !== id
-        )
-
-        setTasks(filtered)
-
-        try {
-            await deleteTask(id)
-        } catch (err) {
-            const data = await getTasks()
-            setTasks(data || [])
-        }
     }
 
     return (
         <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 mt-8">
-            {/* HEADER */}
             <h2 className="text-2xl font-bold text-white mb-6">
                 Tasks
             </h2>
@@ -136,20 +94,22 @@ export function TaskList() {
 
                 <button
                     onClick={handleAddTask}
-                    className="bg-white text-black px-5 rounded-xl font-medium hover:opacity-80 transition"
+                    className="bg-white text-black px-5 rounded-xl font-medium"
                 >
                     Add
                 </button>
             </div>
 
-            {/* LOADING */}
+            {/* SKELETON */}
             {loading && (
-                <p className="text-zinc-400">
-                    Loading...
-                </p>
+                <div className="flex flex-col gap-3">
+                    <SkeletonItem />
+                    <SkeletonItem />
+                    <SkeletonItem />
+                </div>
             )}
 
-            {/* EMPTY */}
+            {/* EMPTY STATE */}
             {!loading && tasks.length === 0 && (
                 <div className="text-zinc-500 text-center py-10 border border-dashed border-zinc-800 rounded-xl">
                     No tasks yet 🚀
@@ -158,43 +118,47 @@ export function TaskList() {
 
             {/* LIST */}
             <div className="flex flex-col gap-4">
-                {tasks.map((task) => (
-                    <motion.div
-                        key={task.id}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="flex items-center justify-between bg-zinc-950 border border-zinc-800 p-4 rounded-xl"
-                    >
-                        <span
-                            className={`${task.completed
-                                ? "line-through text-zinc-500"
-                                : "text-white"
-                                }`}
+                {!loading &&
+                    tasks.map((task) => (
+                        <motion.div
+                            key={task.id}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            className="flex items-center justify-between bg-zinc-950 border border-zinc-800 p-4 rounded-xl"
                         >
-                            {task.title}
-                        </span>
-
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() =>
-                                    handleToggle(task)
-                                }
-                                className="px-3 py-1 rounded-lg text-sm bg-zinc-800 text-white"
+                            <span
+                                className={`${task.completed
+                                        ? "line-through text-zinc-500"
+                                        : "text-white"
+                                    }`}
                             >
-                                Toggle
-                            </button>
+                                {task.title}
+                            </span>
 
-                            <button
-                                onClick={() =>
-                                    handleDelete(task.id)
-                                }
-                                className="px-3 py-1 rounded-lg text-sm bg-red-500 text-black"
-                            >
-                                Delete
-                            </button>
-                        </div>
-                    </motion.div>
-                ))}
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() =>
+                                        toggleTask(
+                                            task.id,
+                                            !task.completed
+                                        )
+                                    }
+                                    className="px-3 py-1 rounded-lg text-sm bg-zinc-800 text-white"
+                                >
+                                    Toggle
+                                </button>
+
+                                <button
+                                    onClick={() =>
+                                        deleteTask(task.id)
+                                    }
+                                    className="px-3 py-1 rounded-lg text-sm bg-red-500 text-black"
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                        </motion.div>
+                    ))}
             </div>
         </div>
     )
