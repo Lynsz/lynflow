@@ -1,21 +1,29 @@
-import { Moon, Sun } from "lucide-react"
-import { useTheme } from "../hooks/useTheme"
+import { LogOut } from "lucide-react"
+import { supabase } from "../lib/supabase"
+import { useTaskStore } from "../store/taskStore"
 
 export function Header() {
-    const { theme, toggleTheme } = useTheme()
+    const { setTasks } = useTaskStore()
+
+    async function handleLogout() {
+        await supabase.auth.signOut()
+
+        // 🧹 limpa estado local
+        setTasks([])
+
+        // 🔁 força reset de app (garante logout real)
+        window.location.href = "/"
+    }
 
     return (
-        <header className="flex justify-end mb-6">
+        <div className="flex justify-end">
             <button
-                onClick={toggleTheme}
-                className="bg-zinc-900 border border-zinc-800 p-3 rounded-xl text-white"
+                onClick={handleLogout}
+                className="flex items-center gap-2 bg-red-500 text-black px-4 py-2 rounded-lg"
             >
-                {theme === "dark" ? (
-                    <Sun size={18} />
-                ) : (
-                    <Moon size={18} />
-                )}
+                <LogOut size={16} />
+                Logout
             </button>
-        </header>
+        </div>
     )
 }
