@@ -16,6 +16,7 @@ export function TaskList() {
 
     const { tasks, setTasks } = useTaskStore()
 
+    // 🔄 Load inicial
     useEffect(() => {
         async function load() {
             const data = await getTasks()
@@ -26,28 +27,7 @@ export function TaskList() {
         load()
     }, [setTasks])
 
-    useEffect(() => {
-        const channel = supabase
-            .channel("tasks-realtime")
-            .on(
-                "postgres_changes",
-                {
-                    event: "*",
-                    schema: "public",
-                    table: "tasks",
-                },
-                async () => {
-                    const data = await getTasks()
-                    setTasks(data || [])
-                }
-            )
-            .subscribe()
-
-        return () => {
-            supabase.removeChannel(channel)
-        }
-    }, [setTasks])
-
+    // ➕ CREATE
     async function handleAddTask() {
         if (!newTask.trim()) return
 
@@ -57,26 +37,42 @@ export function TaskList() {
 
         if (!user) return
 
-        const tempTask = {
-            id: crypto.randomUUID(),
-            title: newTask,
-            completed: false,
-        }
-
-        setTasks([tempTask, ...tasks])
+        await createTask(newTask, user.id)
         setNewTask("")
 
-        await createTask(newTask, user.id)
+        const data = await getTasks()
+        setTasks(data || [])
     }
 
-    function SkeletonItem() {
-        return (
-            <div className="h-14 bg-zinc-800/40 rounded-xl animate-pulse" />
-        )
+    // 🔁 TOGGLE (corrigido)
+    async function handleToggle(task: any) {
+        try {
+            await toggleTask(task.id, !task.completed)
+
+            const data = await getTasks()
+            setTasks(data || [])
+        } catch (err) {
+            const data = await getTasks()
+            setTasks(data || [])
+        }
+    }
+
+    // 🗑 DELETE (corrigido)
+    async function handleDelete(id: string) {
+        try {
+            await deleteTask(id)
+
+            const data = await getTasks()
+            setTasks(data || [])
+        } catch (err) {
+            const data = await getTasks()
+            setTasks(data || [])
+        }
     }
 
     return (
         <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 mt-8">
+            {/* HEADER */}
             <h2 className="text-2xl font-bold text-white mb-6">
                 Tasks
             </h2>
@@ -94,22 +90,20 @@ export function TaskList() {
 
                 <button
                     onClick={handleAddTask}
-                    className="bg-white text-black px-5 rounded-xl font-medium"
+                    className="bg-white text-black px-5 rounded-xl font-medium hover:opacity-80 transition"
                 >
                     Add
                 </button>
             </div>
 
-            {/* SKELETON */}
+            {/* LOADING */}
             {loading && (
-                <div className="flex flex-col gap-3">
-                    <SkeletonItem />
-                    <SkeletonItem />
-                    <SkeletonItem />
-                </div>
+                <p className="text-zinc-400">
+                    Loading...
+                </p>
             )}
 
-            {/* EMPTY STATE */}
+            {/* EMPTY */}
             {!loading && tasks.length === 0 && (
                 <div className="text-zinc-500 text-center py-10 border border-dashed border-zinc-800 rounded-xl">
                     No tasks yet 🚀
@@ -126,6 +120,7 @@ export function TaskList() {
                             animate={{ opacity: 1, x: 0 }}
                             className="flex items-center justify-between bg-zinc-950 border border-zinc-800 p-4 rounded-xl"
                         >
+                            {/* TITLE */}
                             <span
                                 className={`${task.completed
                                         ? "line-through text-zinc-500"
@@ -135,22 +130,23 @@ export function TaskList() {
                                 {task.title}
                             </span>
 
+                            {/* ACTIONS */}
                             <div className="flex gap-2">
                                 <button
                                     onClick={() =>
-                                        toggleTask(
-                                            task.id,
-                                            !task.completed
-                                        )
+                                        handleToggle(task)
                                     }
-                                    className="px-3 py-1 rounded-lg text-sm bg-zinc-800 text-white"
+                                    className={`px-3 py-1 rounded-lg text-sm ${task.completed
+                                            ? "bg-green-500 text-black"
+                                            : "bg-zinc-800 text-white"
+                                        }`}
                                 >
                                     Toggle
                                 </button>
 
                                 <button
                                     onClick={() =>
-                                        deleteTask(task.id)
+                                        handleDelete(task.id)
                                     }
                                     className="px-3 py-1 rounded-lg text-sm bg-red-500 text-black"
                                 >
