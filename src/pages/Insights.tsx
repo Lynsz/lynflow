@@ -1,7 +1,29 @@
 import { useState } from "react"
-import { motion } from "framer-motion"
-import { Sparkles, Wand2 } from "lucide-react"
+import { BarChart3, Brain, ClipboardList, Sparkles, Wand2 } from "lucide-react"
 import { useTasks } from "../hooks/useTasks"
+import { Button } from "../components/ui/Button"
+import { InfoRow } from "../components/ui/InfoRow"
+import { MetricCard } from "../components/ui/MetricCard"
+import { PageHeader } from "../components/ui/PageHeader"
+import { SectionCard } from "../components/ui/SectionCard"
+
+const aiCards = [
+    {
+        title: "Organizar rotina",
+        description:
+            "Transformar tarefas soltas em uma sequência clara de execução.",
+    },
+    {
+        title: "Sugerir prioridades",
+        description:
+            "Identificar o que precisa ser feito primeiro para gerar mais progresso.",
+    },
+    {
+        title: "Preparar portfólio",
+        description:
+            "Converter o progresso do projeto em evidências para GitHub e LinkedIn.",
+    },
+]
 
 export function Insights() {
     const { tasks, productivity, pendingTasks, highPriorityTasks } = useTasks()
@@ -39,24 +61,48 @@ export function Insights() {
 
     return (
         <div className="ly-page px-4 py-6 md:px-8">
-            <header className="mb-8">
-                <p className="ly-muted-soft text-sm">AI assistant</p>
+            <PageHeader
+                eyebrow="AI assistant"
+                title="AI Insights"
+                description="Simulação de sugestões inteligentes para organizar sua rotina."
+                action={
+                    <Button
+                        size="lg"
+                        icon={<Wand2 size={18} />}
+                        onClick={generateInsight}
+                    >
+                        Gerar sugestão
+                    </Button>
+                }
+            />
 
-                <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
-                    AI Insights
-                </h1>
+            <section className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+                <MetricCard
+                    title="Tarefas analisadas"
+                    value={tasks.length}
+                    description="Quantidade total usada na simulação."
+                    icon={<ClipboardList size={20} className="ly-accent" />}
+                />
 
-                <p className="ly-muted mt-2">
-                    Simulação de sugestões inteligentes para organizar sua rotina.
-                </p>
-            </header>
+                <MetricCard
+                    title="Produtividade"
+                    value={`${productivity}%`}
+                    description="Baseada nas tarefas concluídas."
+                    icon={<BarChart3 size={20} className="ly-accent" />}
+                    delay={0.05}
+                />
+
+                <MetricCard
+                    title="Alta prioridade"
+                    value={highPriorityTasks}
+                    description="Itens que exigem foco primeiro."
+                    icon={<Brain size={20} className="ly-warning" />}
+                    delay={0.1}
+                />
+            </section>
 
             <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_0.8fr]">
-                <motion.div
-                    initial={{ opacity: 0, y: 18 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="rounded-3xl border border-emerald-500/20 bg-emerald-500/5 p-6"
-                >
+                <section className="rounded-3xl border border-emerald-500/20 bg-emerald-500/5 p-6">
                     <div className="mb-5 flex items-center gap-3">
                         <div className="ly-button-primary flex h-11 w-11 items-center justify-center rounded-2xl">
                             <Sparkles size={22} />
@@ -64,7 +110,6 @@ export function Insights() {
 
                         <div>
                             <h2 className="text-xl font-semibold">Resumo inteligente</h2>
-
                             <p className="ly-muted-soft text-sm">
                                 Baseado nas tarefas salvas localmente.
                             </p>
@@ -75,73 +120,36 @@ export function Insights() {
                         {insight}
                     </p>
 
-                    <button
-                        type="button"
+                    <Button
+                        className="mt-6"
+                        icon={<Wand2 size={18} />}
                         onClick={generateInsight}
-                        className="ly-button-primary mt-6 inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm font-medium active:scale-[0.98]"
                     >
-                        <Wand2 size={18} />
-                        Gerar sugestão
-                    </button>
-                </motion.div>
+                        Gerar nova sugestão
+                    </Button>
+                </section>
 
-                <motion.div
-                    initial={{ opacity: 0, y: 18 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.05 }}
-                    className="ly-card rounded-3xl p-6"
-                >
-                    <h2 className="text-xl font-semibold">Dados analisados</h2>
-
-                    <div className="mt-5 space-y-4 text-sm">
-                        <div className="flex justify-between border-b border-[var(--border)] pb-3">
-                            <span className="ly-muted-soft">Total de tarefas</span>
-                            <span>{tasks.length}</span>
-                        </div>
-
-                        <div className="flex justify-between border-b border-[var(--border)] pb-3">
-                            <span className="ly-muted-soft">Pendentes</span>
-                            <span>{pendingTasks}</span>
-                        </div>
-
-                        <div className="flex justify-between border-b border-[var(--border)] pb-3">
-                            <span className="ly-muted-soft">Alta prioridade</span>
-                            <span>{highPriorityTasks}</span>
-                        </div>
-
-                        <div className="flex justify-between">
-                            <span className="ly-muted-soft">Produtividade</span>
-                            <span>{productivity}%</span>
-                        </div>
+                <SectionCard title="Dados analisados">
+                    <div className="space-y-4">
+                        <InfoRow label="Total de tarefas" value={tasks.length} />
+                        <InfoRow label="Pendentes" value={pendingTasks} />
+                        <InfoRow label="Alta prioridade" value={highPriorityTasks} />
+                        <InfoRow
+                            label="Produtividade"
+                            value={`${productivity}%`}
+                            bordered={false}
+                        />
                     </div>
-                </motion.div>
+                </SectionCard>
             </section>
 
-            <section className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-3">
-                {[
-                    {
-                        title: "Organizar rotina",
-                        description:
-                            "Transformar tarefas soltas em uma sequência clara de execução.",
-                    },
-                    {
-                        title: "Sugerir prioridades",
-                        description:
-                            "Identificar o que precisa ser feito primeiro para gerar mais progresso.",
-                    },
-                    {
-                        title: "Preparar portfólio",
-                        description:
-                            "Converter o progresso do projeto em evidências para GitHub e LinkedIn.",
-                    },
-                ].map((item) => (
-                    <div key={item.title} className="ly-card rounded-3xl p-5">
-                        <h3 className="font-semibold">{item.title}</h3>
-
-                        <p className="ly-muted mt-3 text-sm leading-6">
+            <section className="mt-6 grid grid-cols-1 gap-4 xl:grid-cols-3">
+                {aiCards.map((item) => (
+                    <SectionCard key={item.title} title={item.title}>
+                        <p className="ly-muted text-sm leading-6">
                             {item.description}
                         </p>
-                    </div>
+                    </SectionCard>
                 ))}
             </section>
         </div>

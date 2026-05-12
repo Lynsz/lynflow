@@ -1,103 +1,119 @@
-import { motion } from "framer-motion"
-import { Target, CheckCircle2, Flame } from "lucide-react"
+import { useNavigate } from "react-router-dom"
+import { CheckCircle2, Flame, ListTodo, Target } from "lucide-react"
 import { useTasks } from "../hooks/useTasks"
+import { Button } from "../components/ui/Button"
+import { MetricCard } from "../components/ui/MetricCard"
+import { PageHeader } from "../components/ui/PageHeader"
+import { ProgressBar } from "../components/ui/ProgressBar"
+import { SectionCard } from "../components/ui/SectionCard"
+
+const weeklyPlan = [
+    "Finalizar UI responsiva",
+    "Preparar screenshots do projeto",
+    "Escrever README profissional",
+    "Fazer deploy na Vercel",
+]
 
 export function Goals() {
-    const { productivity, completedTasks, pendingTasks } = useTasks()
+    const navigate = useNavigate()
+
+    const {
+        productivity,
+        completedTasks,
+        pendingTasks,
+        highPriorityTasks,
+    } = useTasks()
 
     return (
         <div className="ly-page px-4 py-6 md:px-8">
-            <header className="mb-8">
-                <p className="ly-muted-soft text-sm">Progress system</p>
+            <PageHeader
+                eyebrow="Progress system"
+                title="Goals"
+                description="Acompanhe metas semanais e evolução do projeto."
+                action={
+                    <Button
+                        size="lg"
+                        icon={<ListTodo size={18} />}
+                        onClick={() => navigate("/tasks")}
+                    >
+                        Ver tarefas
+                    </Button>
+                }
+            />
 
-                <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
-                    Goals
-                </h1>
+            <section className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+                <MetricCard
+                    title="Progresso do MVP"
+                    value={`${productivity}%`}
+                    description="Baseado nas tarefas concluídas."
+                    icon={<Target size={20} className="ly-accent" />}
+                />
 
-                <p className="ly-muted mt-2">
-                    Acompanhe metas semanais e evolução do projeto.
-                </p>
-            </header>
+                <MetricCard
+                    title="Concluídas"
+                    value={completedTasks}
+                    description="Tarefas finalizadas até agora."
+                    icon={<CheckCircle2 size={20} className="ly-accent" />}
+                    delay={0.05}
+                />
 
-            <section className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-                <motion.div
-                    initial={{ opacity: 0, y: 18 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="ly-card rounded-3xl p-5"
-                >
-                    <div className="mb-4 flex items-center gap-2">
-                        <Target className="ly-accent" />
-                        <h2 className="text-xl font-semibold">Finalizar MVP</h2>
-                    </div>
-
-                    <p className="ly-muted text-sm">
-                        Completar as páginas principais, tarefas, dashboard, tema e README.
-                    </p>
-
-                    <div className="mt-5">
-                        <div className="mb-2 flex justify-between text-sm">
-                            <span className="ly-muted-soft">Progresso</span>
-                            <span>{productivity}%</span>
-                        </div>
-
-                        <div className="ly-progress-track h-2 overflow-hidden rounded-full">
-                            <div
-                                className="ly-progress-fill h-full rounded-full"
-                                style={{ width: `${productivity}%` }}
-                            />
-                        </div>
-                    </div>
-                </motion.div>
-
-                <motion.div
-                    initial={{ opacity: 0, y: 18 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.05 }}
-                    className="ly-card rounded-3xl p-5"
-                >
-                    <div className="mb-4 flex items-center gap-2">
-                        <CheckCircle2 className="ly-accent" />
-                        <h2 className="text-xl font-semibold">Tarefas concluídas</h2>
-                    </div>
-
-                    <h3 className="text-4xl font-bold">{completedTasks}</h3>
-
-                    <p className="ly-muted mt-3 text-sm">
-                        Quanto mais tarefas concluídas, mais forte fica a apresentação do
-                        projeto.
-                    </p>
-                </motion.div>
-
-                <motion.div
-                    initial={{ opacity: 0, y: 18 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="ly-card rounded-3xl p-5"
-                >
-                    <div className="mb-4 flex items-center gap-2">
-                        <Flame className="ly-warning" />
-                        <h2 className="text-xl font-semibold">Pendências</h2>
-                    </div>
-
-                    <h3 className="text-4xl font-bold">{pendingTasks}</h3>
-
-                    <p className="ly-muted mt-3 text-sm">
-                        Priorize as tarefas de maior impacto para publicar o projeto.
-                    </p>
-                </motion.div>
+                <MetricCard
+                    title="Pendências"
+                    value={pendingTasks}
+                    description="Itens restantes para fechar o MVP."
+                    icon={<Flame size={20} className="ly-warning" />}
+                    delay={0.1}
+                />
             </section>
 
-            <section className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[1fr_0.9fr]">
-                <div className="ly-card rounded-3xl p-6">
-                    <h2 className="text-xl font-semibold">Plano da semana</h2>
+            <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_0.85fr]">
+                <SectionCard
+                    title="Finalizar MVP"
+                    description="Meta principal para transformar o Lynflow em um projeto publicável."
+                >
+                    <div className="space-y-5">
+                        <p className="ly-muted text-sm leading-6">
+                            Completar as páginas principais, tarefas, dashboard, tema,
+                            README e deploy. Essa meta representa a evolução geral do projeto.
+                        </p>
 
-                    <div className="mt-5 space-y-4">
-                        {[
-                            "Finalizar UI responsiva",
-                            "Preparar screenshots do projeto",
-                            "Escrever README profissional",
-                            "Fazer deploy na Vercel",
-                        ].map((item, index) => (
+                        <ProgressBar label="Progresso geral" value={productivity} />
+
+                        <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4">
+                            <p className="text-sm text-[var(--text)] opacity-85">
+                                Prioridade atual: manter consistência visual, reduzir repetição
+                                de código e preparar o projeto para deploy.
+                            </p>
+                        </div>
+                    </div>
+                </SectionCard>
+
+                <SectionCard title="Resumo técnico">
+                    <div className="space-y-4 text-sm">
+                        <div className="flex justify-between border-b border-[var(--border)] pb-3">
+                            <span className="ly-muted-soft">Alta prioridade</span>
+                            <span>{highPriorityTasks}</span>
+                        </div>
+
+                        <div className="flex justify-between border-b border-[var(--border)] pb-3">
+                            <span className="ly-muted-soft">Tarefas concluídas</span>
+                            <span>{completedTasks}</span>
+                        </div>
+
+                        <div className="flex justify-between">
+                            <span className="ly-muted-soft">Tarefas pendentes</span>
+                            <span>{pendingTasks}</span>
+                        </div>
+                    </div>
+                </SectionCard>
+
+                <SectionCard
+                    title="Plano da semana"
+                    description="Sequência recomendada para finalizar a primeira versão."
+                    className="xl:col-span-2"
+                >
+                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                        {weeklyPlan.map((item, index) => (
                             <div
                                 key={item}
                                 className="flex items-center gap-3 rounded-2xl border border-[var(--border)] bg-[var(--surface-strong)] px-4 py-3"
@@ -110,16 +126,7 @@ export function Goals() {
                             </div>
                         ))}
                     </div>
-                </div>
-
-                <div className="rounded-3xl border border-emerald-500/20 bg-emerald-500/5 p-6">
-                    <h2 className="text-xl font-semibold">Meta principal</h2>
-
-                    <p className="mt-3 text-sm leading-6 text-[var(--text)] opacity-80">
-                        Deixar o Lynflow pronto para ser publicado no GitHub, com visual
-                        consistente, README forte e deploy funcionando.
-                    </p>
-                </div>
+                </SectionCard>
             </section>
         </div>
     )
