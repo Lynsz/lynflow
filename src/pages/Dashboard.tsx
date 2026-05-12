@@ -60,7 +60,7 @@ export function Dashboard() {
         await getTasks()
     }
 
-    // ✔ toggle concluído
+    // ✔ toggle done
     async function toggleDone(task: Task) {
         await supabase
             .from("tasks")
@@ -91,11 +91,11 @@ export function Dashboard() {
         <div className="min-h-screen bg-zinc-950 text-white p-6">
             {/* HEADER */}
             <header className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold">Dashboard</h1>
+                <h1 className="text-3xl font-bold">Dashboard</h1>
 
                 <button
                     onClick={handleLogout}
-                    className="bg-white text-black px-4 py-2 rounded-lg"
+                    className="bg-white text-black px-4 py-2 rounded-lg hover:opacity-80"
                 >
                     Logout
                 </button>
@@ -137,6 +137,7 @@ export function Dashboard() {
                                     type="checkbox"
                                     checked={task.done}
                                     onChange={() => toggleDone(task)}
+                                    aria-label="Marcar tarefa como concluída"
                                 />
 
                                 {editingId === task.id ? (
@@ -145,6 +146,8 @@ export function Dashboard() {
                                         onBlur={(e) =>
                                             handleEdit(task.id, e.target.value)
                                         }
+                                        placeholder="Editar tarefa"
+                                        aria-label="Editar tarefa"
                                         className="bg-zinc-800 p-1 rounded w-full"
                                     />
                                 ) : (
@@ -162,7 +165,8 @@ export function Dashboard() {
                             {/* DELETE */}
                             <button
                                 onClick={() => handleDelete(task.id)}
-                                className="text-red-400"
+                                className="text-red-400 hover:opacity-80"
+                                aria-label="Deletar tarefa"
                             >
                                 Delete
                             </button>
