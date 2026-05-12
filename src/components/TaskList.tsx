@@ -16,16 +16,22 @@ export function TaskList() {
 
     const { tasks, setTasks } = useTaskStore()
 
-    // 🔄 Load inicial
+    // 🔄 função central de sync
+    const refresh = async () => {
+        const data = await getTasks()
+        setTasks(data || [])
+    }
+
+    // 🔄 load inicial
     useEffect(() => {
         async function load() {
-            const data = await getTasks()
-            setTasks(data || [])
+            setLoading(true)
+            await refresh()
             setLoading(false)
         }
 
         load()
-    }, [setTasks])
+    }, [])
 
     // ➕ CREATE
     async function handleAddTask() {
@@ -40,34 +46,19 @@ export function TaskList() {
         await createTask(newTask, user.id)
         setNewTask("")
 
-        const data = await getTasks()
-        setTasks(data || [])
+        await refresh()
     }
 
-    // 🔁 TOGGLE (corrigido)
+    // 🔁 TOGGLE
     async function handleToggle(task: any) {
-        try {
-            await toggleTask(task.id, !task.completed)
-
-            const data = await getTasks()
-            setTasks(data || [])
-        } catch (err) {
-            const data = await getTasks()
-            setTasks(data || [])
-        }
+        await toggleTask(task.id, !task.completed)
+        await refresh()
     }
 
-    // 🗑 DELETE (corrigido)
+    // 🗑 DELETE
     async function handleDelete(id: string) {
-        try {
-            await deleteTask(id)
-
-            const data = await getTasks()
-            setTasks(data || [])
-        } catch (err) {
-            const data = await getTasks()
-            setTasks(data || [])
-        }
+        await deleteTask(id)
+        await refresh()
     }
 
     return (
@@ -99,11 +90,11 @@ export function TaskList() {
             {/* LOADING */}
             {loading && (
                 <p className="text-zinc-400">
-                    Loading...
+                    Loading tasks...
                 </p>
             )}
 
-            {/* EMPTY */}
+            {/* EMPTY STATE */}
             {!loading && tasks.length === 0 && (
                 <div className="text-zinc-500 text-center py-10 border border-dashed border-zinc-800 rounded-xl">
                     No tasks yet 🚀

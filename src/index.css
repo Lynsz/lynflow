@@ -8,6 +8,7 @@ body,
   height: 100%;
 }
 
+/* evita flash de tema */
 html {
-  transition: background-color 0.3s, color 0.3s;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
