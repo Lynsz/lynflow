@@ -1,3 +1,7 @@
+import { useState } from "react"
+
+import { useTaskStore } from "../store/taskStore"
+
 type CreateTaskModalProps = {
     open: boolean
     onClose: () => void
@@ -7,7 +11,20 @@ export function CreateTaskModal({
     open,
     onClose,
 }: CreateTaskModalProps) {
+    const [title, setTitle] = useState("")
+
+    const { addTask } = useTaskStore()
+
     if (!open) return null
+
+    function handleCreateTask() {
+        if (!title.trim()) return
+
+        addTask(title)
+
+        setTitle("")
+        onClose()
+    }
 
     return (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
@@ -19,6 +36,10 @@ export function CreateTaskModal({
                 <input
                     type="text"
                     placeholder="Task title..."
+                    value={title}
+                    onChange={(e) =>
+                        setTitle(e.target.value)
+                    }
                     className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white outline-none mb-4"
                 />
 
@@ -30,7 +51,10 @@ export function CreateTaskModal({
                         Cancel
                     </button>
 
-                    <button className="bg-white text-black px-4 py-2 rounded-xl font-medium">
+                    <button
+                        onClick={handleCreateTask}
+                        className="bg-white text-black px-4 py-2 rounded-xl font-medium"
+                    >
                         Create
                     </button>
                 </div>
