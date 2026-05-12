@@ -31,7 +31,7 @@ const navItems = [
         icon: Target,
     },
     {
-        label: "AI Insights",
+        label: "AI",
         path: "/insights",
         icon: Sparkles,
     },
@@ -54,13 +54,8 @@ export function AppLayout({ children }: AppLayoutProps) {
         <div className="min-h-screen bg-zinc-950 text-white flex">
             <aside className="hidden md:flex w-64 border-r border-zinc-800 bg-zinc-950/80 backdrop-blur-xl p-5 flex-col">
                 <div className="mb-10">
-                    <h1 className="text-2xl font-bold tracking-tight">
-                        Lynflow
-                    </h1>
-
-                    <p className="text-sm text-zinc-500 mt-1">
-                        AI productivity OS
-                    </p>
+                    <h1 className="text-2xl font-bold tracking-tight">Lynflow</h1>
+                    <p className="text-sm text-zinc-500 mt-1">AI productivity OS</p>
                 </div>
 
                 <nav className="flex flex-col gap-2">
@@ -103,7 +98,29 @@ export function AppLayout({ children }: AppLayoutProps) {
                 </div>
             </aside>
 
-            <main className="flex-1 min-w-0">{children}</main>
+            <main className="flex-1 min-w-0 pb-24 md:pb-0">{children}</main>
+
+            <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-zinc-800 bg-zinc-950/95 backdrop-blur-xl md:hidden">
+                <div className="grid grid-cols-5">
+                    {navItems.map((item) => {
+                        const Icon = item.icon
+
+                        return (
+                            <NavLink
+                                key={item.path}
+                                to={item.path}
+                                className={({ isActive }) =>
+                                    `flex flex-col items-center gap-1 px-2 py-3 text-xs transition ${isActive ? "text-white" : "text-zinc-500"
+                                    }`
+                                }
+                            >
+                                <Icon size={18} />
+                                {item.label}
+                            </NavLink>
+                        )
+                    })}
+                </div>
+            </nav>
         </div>
     )
 }
