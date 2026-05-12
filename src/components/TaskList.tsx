@@ -1,5 +1,7 @@
 import { useState } from "react"
 
+import { motion } from "framer-motion"
+
 import { useTaskStore } from "../store/taskStore"
 
 export function TaskList() {
@@ -47,8 +49,12 @@ export function TaskList() {
 
             <div className="flex flex-col gap-4">
                 {tasks.map((task) => (
-                    <div
+                    <motion.div
                         key={task.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
                         className="flex items-center justify-between bg-zinc-950 border border-zinc-800 p-4 rounded-xl"
                     >
                         <span
@@ -84,7 +90,7 @@ export function TaskList() {
                                 Delete
                             </button>
                         </div>
-                    </div>
+                    </motion.div>
                 ))}
             </div>
         </div>
