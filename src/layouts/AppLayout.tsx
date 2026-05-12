@@ -9,6 +9,7 @@ import {
     LogOut,
 } from "lucide-react"
 import { logoutUser } from "../services/auth"
+import { ThemeToggle } from "../components/ThemeToggle"
 
 type AppLayoutProps = {
     children: ReactNode
@@ -51,11 +52,11 @@ export function AppLayout({ children }: AppLayoutProps) {
     }
 
     return (
-        <div className="min-h-screen bg-zinc-950 text-white flex">
-            <aside className="hidden md:flex w-64 border-r border-zinc-800 bg-zinc-950/80 backdrop-blur-xl p-5 flex-col">
+        <div className="flex min-h-screen bg-[var(--bg)] text-[var(--text)]">
+            <aside className="ly-sidebar hidden w-64 flex-col p-5 backdrop-blur-xl md:flex">
                 <div className="mb-10">
                     <h1 className="text-2xl font-bold tracking-tight">Lynflow</h1>
-                    <p className="text-sm text-zinc-500 mt-1">AI productivity OS</p>
+                    <p className="ly-muted-soft mt-1 text-sm">AI productivity OS</p>
                 </div>
 
                 <nav className="flex flex-col gap-2">
@@ -67,9 +68,9 @@ export function AppLayout({ children }: AppLayoutProps) {
                                 key={item.path}
                                 to={item.path}
                                 className={({ isActive }) =>
-                                    `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition ${isActive
-                                        ? "bg-white text-black"
-                                        : "text-zinc-400 hover:text-white hover:bg-zinc-900"
+                                    `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition ${isActive
+                                        ? "ly-button-primary"
+                                        : "ly-muted hover:bg-[var(--surface)] hover:text-[var(--text)]"
                                     }`
                                 }
                             >
@@ -81,16 +82,18 @@ export function AppLayout({ children }: AppLayoutProps) {
                 </nav>
 
                 <div className="mt-auto space-y-3">
-                    <div className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4">
+                    <ThemeToggle />
+
+                    <div className="ly-card rounded-2xl p-4">
                         <p className="text-sm font-medium">Upgrade your flow</p>
-                        <p className="text-xs text-zinc-500 mt-1">
+                        <p className="ly-muted-soft mt-1 text-xs">
                             Organize tasks with AI suggestions.
                         </p>
                     </div>
 
                     <button
                         onClick={handleLogout}
-                        className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-zinc-400 transition hover:bg-red-500/10 hover:text-red-400"
+                        className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-[var(--muted)] transition hover:bg-red-500/10 hover:text-red-500"
                     >
                         <LogOut size={18} />
                         Sair
@@ -98,9 +101,9 @@ export function AppLayout({ children }: AppLayoutProps) {
                 </div>
             </aside>
 
-            <main className="flex-1 min-w-0 pb-24 md:pb-0">{children}</main>
+            <main className="min-w-0 flex-1 pb-24 md:pb-0">{children}</main>
 
-            <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-zinc-800 bg-zinc-950/95 backdrop-blur-xl md:hidden">
+            <nav className="ly-bottom-nav fixed bottom-0 left-0 right-0 z-50 backdrop-blur-xl md:hidden">
                 <div className="grid grid-cols-5">
                     {navItems.map((item) => {
                         const Icon = item.icon
@@ -110,7 +113,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                                 key={item.path}
                                 to={item.path}
                                 className={({ isActive }) =>
-                                    `flex flex-col items-center gap-1 px-2 py-3 text-xs transition ${isActive ? "text-white" : "text-zinc-500"
+                                    `flex flex-col items-center gap-1 px-2 py-3 text-xs transition ${isActive ? "text-[var(--text)]" : "text-[var(--muted-soft)]"
                                     }`
                                 }
                             >

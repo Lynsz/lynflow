@@ -1,29 +1,149 @@
 @import "tailwindcss";
 
-html,
-body,
-#root {
-  height: 100%;
+:root {
+  --bg: #030712;
+  --bg-soft: #09090b;
+  --surface: rgba(24, 24, 27, 0.72);
+  --surface-strong: #09090b;
+  --border: #27272a;
+  --text: #ffffff;
+  --muted: #a1a1aa;
+  --muted-soft: #71717a;
+  --primary: #ffffff;
+  --primary-text: #000000;
+  --accent: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+}
+
+html[data-theme="light"] {
+  --bg: #f4f4f5;
+  --bg-soft: #ffffff;
+  --surface: rgba(255, 255, 255, 0.82);
+  --surface-strong: #ffffff;
+  --border: #e4e4e7;
+  --text: #09090b;
+  --muted: #52525b;
+  --muted-soft: #71717a;
+  --primary: #09090b;
+  --primary-text: #ffffff;
+  --accent: #059669;
+  --danger: #dc2626;
+  --warning: #d97706;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: #0a0a0a;
-  color: white;
+  background: var(--bg);
+  color: var(--text);
 }
 
-input {
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 8px;
-  border: 1px solid #333;
-  background: #111;
-  color: white;
+.ly-page {
+  min-height: 100vh;
+  color: var(--text);
+  background:
+    radial-gradient(circle at top left, rgba(31, 41, 55, 0.42), transparent 34%),
+    linear-gradient(180deg, var(--bg), var(--bg-soft));
 }
 
-button {
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  background: white;
-  color: black;
+html[data-theme="light"] .ly-page {
+  background:
+    radial-gradient(circle at top left, rgba(16, 185, 129, 0.14), transparent 32%),
+    linear-gradient(180deg, #f8fafc, #f4f4f5);
+}
+
+.ly-card {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  backdrop-filter: blur(18px);
+}
+
+.ly-card-strong {
+  border: 1px solid var(--border);
+  background: var(--surface-strong);
+  color: var(--text);
+}
+
+.ly-muted {
+  color: var(--muted);
+}
+
+.ly-muted-soft {
+  color: var(--muted-soft);
+}
+
+.ly-border {
+  border-color: var(--border);
+}
+
+.ly-input {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: var(--surface-strong);
+  color: var(--text);
+  outline: none;
+}
+
+.ly-input::placeholder {
+  color: var(--muted-soft);
+}
+
+.ly-input:focus {
+  border-color: var(--accent);
+}
+
+.ly-button-primary {
+  background: var(--primary);
+  color: var(--primary-text);
+  transition: 0.2s ease;
+}
+
+.ly-button-primary:hover {
+  opacity: 0.86;
+}
+
+.ly-button-secondary {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  transition: 0.2s ease;
+}
+
+.ly-button-secondary:hover {
+  border-color: var(--muted-soft);
+}
+
+.ly-accent {
+  color: var(--accent);
+}
+
+.ly-danger {
+  color: var(--danger);
+}
+
+.ly-warning {
+  color: var(--warning);
+}
+
+.ly-sidebar {
+  border-right: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg-soft) 88%, transparent);
+}
+
+.ly-bottom-nav {
+  border-top: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg-soft) 94%, transparent);
+}
+
+.ly-progress-track {
+  background: color-mix(in srgb, var(--border) 65%, transparent);
+}
+
+.ly-progress-fill {
+  background: var(--accent);
 }
