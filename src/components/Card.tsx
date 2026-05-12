@@ -2,7 +2,7 @@ import { motion } from "framer-motion"
 
 type CardProps = {
     title: string
-    value: string
+    value: string | number
 }
 
 export function Card({
