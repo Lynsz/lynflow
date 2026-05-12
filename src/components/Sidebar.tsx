@@ -5,6 +5,8 @@ import {
     Settings,
 } from "lucide-react"
 
+import { Link } from "react-router-dom"
+
 export function Sidebar() {
     return (
         <aside className="w-64 min-h-screen bg-zinc-950 border-r border-zinc-800 p-6">
@@ -13,37 +15,37 @@ export function Sidebar() {
             </h1>
 
             <nav className="flex flex-col gap-3">
-                <a
-                    href="#"
+                <Link
+                    to="/"
                     className="flex items-center gap-3 text-zinc-300 hover:bg-zinc-900 p-3 rounded-xl transition"
                 >
                     <LayoutDashboard size={20} />
                     Dashboard
-                </a>
+                </Link>
 
-                <a
-                    href="#"
+                <Link
+                    to="/tasks"
                     className="flex items-center gap-3 text-zinc-300 hover:bg-zinc-900 p-3 rounded-xl transition"
                 >
                     <CheckSquare size={20} />
                     Tasks
-                </a>
+                </Link>
 
-                <a
-                    href="#"
+                <Link
+                    to="/analytics"
                     className="flex items-center gap-3 text-zinc-300 hover:bg-zinc-900 p-3 rounded-xl transition"
                 >
                     <BarChart3 size={20} />
                     Analytics
-                </a>
+                </Link>
 
-                <a
-                    href="#"
+                <Link
+                    to="/settings"
                     className="flex items-center gap-3 text-zinc-300 hover:bg-zinc-900 p-3 rounded-xl transition"
                 >
                     <Settings size={20} />
                     Settings
-                </a>
+                </Link>
             </nav>
         </aside>
     )
