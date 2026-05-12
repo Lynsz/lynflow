@@ -11,9 +11,15 @@ function getPriorityLabel(priority: Priority) {
 }
 
 function getPriorityClass(priority: Priority) {
-    if (priority === "high") return "border-red-500/20 bg-red-500/10 text-red-400"
-    if (priority === "medium") return "border-yellow-500/20 bg-yellow-500/10 text-yellow-400"
-    return "border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
+    if (priority === "high") {
+        return "border-red-500/20 bg-red-500/10 text-red-500"
+    }
+
+    if (priority === "medium") {
+        return "border-yellow-500/20 bg-yellow-500/10 text-yellow-500"
+    }
+
+    return "border-emerald-500/20 bg-emerald-500/10 text-emerald-500"
 }
 
 export function Tasks() {
@@ -65,27 +71,30 @@ export function Tasks() {
     }
 
     return (
-        <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,#1f2937_0,#09090b_40%,#000_100%)] px-4 py-6 md:px-8">
+        <div className="ly-page px-4 py-6 md:px-8">
             <header className="mb-8">
-                <p className="text-sm text-zinc-500">Task system</p>
+                <p className="ly-muted-soft text-sm">Task system</p>
+
                 <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
                     Tasks
                 </h1>
-                <p className="mt-2 text-zinc-400">
+
+                <p className="ly-muted mt-2">
                     Crie, organize, edite e conclua tarefas com prioridade e categoria.
                 </p>
             </header>
 
-            <section className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-5">
+            <section className="ly-card rounded-3xl p-5">
                 <div className="mb-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                     <div>
                         <h2 className="text-xl font-semibold">Lista de tarefas</h2>
-                        <p className="text-sm text-zinc-500">
+
+                        <p className="ly-muted-soft text-sm">
                             Clique duas vezes no título para editar.
                         </p>
                     </div>
 
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                         {[
                             { key: "all", label: "Todas" },
                             { key: "todo", label: "Pendentes" },
@@ -93,10 +102,11 @@ export function Tasks() {
                         ].map((item) => (
                             <button
                                 key={item.key}
+                                type="button"
                                 onClick={() => setFilter(item.key as "all" | "todo" | "done")}
                                 className={`rounded-full border px-4 py-2 text-sm transition ${filter === item.key
-                                    ? "border-white bg-white text-black"
-                                    : "border-zinc-800 bg-zinc-950 text-zinc-400 hover:text-white"
+                                        ? "ly-button-primary"
+                                        : "ly-button-secondary"
                                     }`}
                             >
                                 {item.label}
@@ -117,7 +127,9 @@ export function Tasks() {
                         value={title}
                         onChange={(event) => setTitle(event.target.value)}
                         placeholder="Criar nova tarefa..."
-                        className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-emerald-500"
+                        title="Criar nova tarefa"
+                        aria-label="Criar nova tarefa"
+                        className="ly-input rounded-2xl px-4 py-3"
                     />
 
                     <label htmlFor="task-category" className="sr-only">
@@ -128,7 +140,9 @@ export function Tasks() {
                         value={category}
                         onChange={(event) => setCategory(event.target.value)}
                         placeholder="Categoria"
-                        className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-emerald-500"
+                        title="Categoria da tarefa"
+                        aria-label="Categoria da tarefa"
+                        className="ly-input rounded-2xl px-4 py-3"
                     />
 
                     <label htmlFor="task-priority" className="sr-only">
@@ -138,7 +152,9 @@ export function Tasks() {
                         id="task-priority"
                         value={priority}
                         onChange={(event) => setPriority(event.target.value as Priority)}
-                        className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-emerald-500"
+                        title="Prioridade da tarefa"
+                        aria-label="Prioridade da tarefa"
+                        className="ly-input rounded-2xl px-4 py-3"
                     >
                         <option value="low">Baixa</option>
                         <option value="medium">Média</option>
@@ -147,7 +163,7 @@ export function Tasks() {
 
                     <button
                         type="submit"
-                        className="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 font-medium text-black transition hover:bg-emerald-400 active:scale-[0.98]"
+                        className="ly-button-primary inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 font-medium active:scale-[0.98]"
                     >
                         <Plus size={18} />
                         Add
@@ -164,7 +180,7 @@ export function Tasks() {
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.95 }}
                                 whileHover={{ y: -2 }}
-                                className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4"
+                                className="ly-card-strong rounded-2xl p-4"
                             >
                                 <div className="flex items-start gap-4">
                                     <input
@@ -172,6 +188,7 @@ export function Tasks() {
                                         checked={task.done}
                                         onChange={() => toggleTask(task.id)}
                                         aria-label="Concluir tarefa"
+                                        title="Concluir tarefa"
                                         className="mt-1 h-4 w-4 accent-emerald-500"
                                     />
 
@@ -179,7 +196,9 @@ export function Tasks() {
                                         {editingId === task.id ? (
                                             <input
                                                 value={editingTitle}
-                                                onChange={(event) => setEditingTitle(event.target.value)}
+                                                onChange={(event) =>
+                                                    setEditingTitle(event.target.value)
+                                                }
                                                 onBlur={() => saveEdit(task.id)}
                                                 onKeyDown={(event) => {
                                                     if (event.key === "Enter") saveEdit(task.id)
@@ -193,13 +212,15 @@ export function Tasks() {
                                                 aria-label="Editar título da tarefa"
                                                 title="Editar título da tarefa"
                                                 placeholder="Editar título da tarefa"
-                                                className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 outline-none focus:border-emerald-500"
+                                                className="ly-input rounded-xl px-3 py-2"
                                             />
                                         ) : (
                                             <button
                                                 type="button"
                                                 onDoubleClick={() => startEdit(task)}
-                                                className={`block text-left ${task.done ? "text-zinc-500 line-through" : "text-white"
+                                                className={`block text-left ${task.done
+                                                        ? "ly-muted-soft line-through"
+                                                        : "text-[var(--text)]"
                                                     }`}
                                             >
                                                 {task.title}
@@ -207,7 +228,7 @@ export function Tasks() {
                                         )}
 
                                         <div className="mt-3 flex flex-wrap gap-2">
-                                            <span className="rounded-full border border-zinc-800 px-3 py-1 text-xs text-zinc-400">
+                                            <span className="rounded-full border border-[var(--border)] px-3 py-1 text-xs text-[var(--muted)]">
                                                 {task.category}
                                             </span>
 
@@ -222,9 +243,11 @@ export function Tasks() {
                                     </div>
 
                                     <button
+                                        type="button"
                                         onClick={() => deleteTask(task.id)}
                                         aria-label="Deletar tarefa"
-                                        className="rounded-xl p-2 text-zinc-500 transition hover:bg-red-500/10 hover:text-red-400"
+                                        title="Deletar tarefa"
+                                        className="rounded-xl p-2 text-[var(--muted-soft)] transition hover:bg-red-500/10 hover:text-red-500"
                                     >
                                         <Trash2 size={18} />
                                     </button>
@@ -234,7 +257,7 @@ export function Tasks() {
                     </AnimatePresence>
 
                     {filteredTasks.length === 0 && (
-                        <div className="rounded-2xl border border-dashed border-zinc-800 p-10 text-center text-zinc-500">
+                        <div className="rounded-2xl border border-dashed border-[var(--border)] p-10 text-center text-[var(--muted-soft)]">
                             Nenhuma tarefa encontrada.
                         </div>
                     )}
