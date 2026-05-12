@@ -3,13 +3,16 @@ import { useEffect, useState } from "react"
 export function useTheme() {
     const [theme, setTheme] = useState<"dark" | "light">(
         () => {
-            const saved = localStorage.getItem("theme")
-            return saved === "light" ? "light" : "dark"
+            return (
+                (localStorage.getItem("theme") as
+                    | "dark"
+                    | "light") || "dark"
+            )
         }
     )
 
     useEffect(() => {
-        const root = window.document.documentElement
+        const root = document.documentElement
 
         if (theme === "dark") {
             root.classList.add("dark")
