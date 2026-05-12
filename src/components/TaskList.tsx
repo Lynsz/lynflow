@@ -19,18 +19,15 @@ export function TaskList() {
     // 🔄 Load inicial
     useEffect(() => {
         async function load() {
-            setLoading(true)
-
             const data = await getTasks()
             setTasks(data || [])
-
             setLoading(false)
         }
 
         load()
     }, [setTasks])
 
-    // ⚡ Realtime
+    // ⚡ Realtime (mantém sync entre dispositivos)
     useEffect(() => {
         const channel = supabase
             .channel("tasks-realtime")
@@ -53,7 +50,7 @@ export function TaskList() {
         }
     }, [setTasks])
 
-    // ➕ Create task
+    // ➕ CREATE (optimistic)
     async function handleAddTask() {
         if (!newTask.trim()) return
 
@@ -63,8 +60,60 @@ export function TaskList() {
 
         if (!user) return
 
-        await createTask(newTask, user.id)
+        // UI imediata
+        const tempTask = {
+            id: crypto.randomUUID(),
+            title: newTask,
+            completed: false,
+        }
+
+        setTasks([tempTask, ...tasks])
         setNewTask("")
+
+        try {
+            await createTask(newTask, user.id)
+        } catch (err) {
+            // rollback simples
+            const data = await getTasks()
+            setTasks(data || [])
+        }
+    }
+
+    // 🔁 TOGGLE (optimistic)
+    async function handleToggle(task: any) {
+        const updated = tasks.map((t) =>
+            t.id === task.id
+                ? { ...t, completed: !t.completed }
+                : t
+        )
+
+        setTasks(updated)
+
+        try {
+            await toggleTask(
+                task.id,
+                !task.completed
+            )
+        } catch (err) {
+            const data = await getTasks()
+            setTasks(data || [])
+        }
+    }
+
+    // 🗑 DELETE (optimistic)
+    async function handleDelete(id: string) {
+        const filtered = tasks.filter(
+            (t) => t.id !== id
+        )
+
+        setTasks(filtered)
+
+        try {
+            await deleteTask(id)
+        } catch (err) {
+            const data = await getTasks()
+            setTasks(data || [])
+        }
     }
 
     return (
@@ -77,12 +126,11 @@ export function TaskList() {
             {/* INPUT */}
             <div className="flex gap-3 mb-6">
                 <input
-                    type="text"
-                    placeholder="Add a new task..."
                     value={newTask}
                     onChange={(e) =>
                         setNewTask(e.target.value)
                     }
+                    placeholder="Add a new task..."
                     className="flex-1 bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white outline-none"
                 />
 
@@ -96,71 +144,57 @@ export function TaskList() {
 
             {/* LOADING */}
             {loading && (
-                <div className="text-zinc-400 text-sm">
-                    Loading tasks...
-                </div>
+                <p className="text-zinc-400">
+                    Loading...
+                </p>
             )}
 
-            {/* EMPTY STATE */}
+            {/* EMPTY */}
             {!loading && tasks.length === 0 && (
-                <div className="text-zinc-500 text-sm text-center py-10 border border-dashed border-zinc-800 rounded-xl">
-                    No tasks yet. Create your first one 🚀
+                <div className="text-zinc-500 text-center py-10 border border-dashed border-zinc-800 rounded-xl">
+                    No tasks yet 🚀
                 </div>
             )}
 
             {/* LIST */}
             <div className="flex flex-col gap-4">
-                {!loading &&
-                    tasks.map((task) => (
-                        <motion.div
-                            key={task.id}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.2 }}
-                            className="flex items-center justify-between bg-zinc-950 border border-zinc-800 p-4 rounded-xl"
+                {tasks.map((task) => (
+                    <motion.div
+                        key={task.id}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="flex items-center justify-between bg-zinc-950 border border-zinc-800 p-4 rounded-xl"
+                    >
+                        <span
+                            className={`${task.completed
+                                ? "line-through text-zinc-500"
+                                : "text-white"
+                                }`}
                         >
-                            {/* TITLE */}
-                            <span
-                                className={`${task.completed
-                                        ? "line-through text-zinc-500"
-                                        : "text-white"
-                                    }`}
+                            {task.title}
+                        </span>
+
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() =>
+                                    handleToggle(task)
+                                }
+                                className="px-3 py-1 rounded-lg text-sm bg-zinc-800 text-white"
                             >
-                                {task.title}
-                            </span>
+                                Toggle
+                            </button>
 
-                            {/* ACTIONS */}
-                            <div className="flex gap-2">
-                                {/* TOGGLE */}
-                                <button
-                                    onClick={async () => {
-                                        await toggleTask(
-                                            task.id,
-                                            !task.completed
-                                        )
-                                    }}
-                                    className={`px-3 py-1 rounded-lg text-sm font-medium ${task.completed
-                                            ? "bg-green-500 text-black"
-                                            : "bg-zinc-800 text-white"
-                                        }`}
-                                >
-                                    {task.completed
-                                        ? "Done"
-                                        : "Pending"}
-                                </button>
-
-                                {/* DELETE */}
-                                <button
-                                    onClick={async () => {
-                                        await deleteTask(task.id)
-                                    }}
-                                    className="bg-red-500 px-3 py-1 rounded-lg text-black text-sm font-medium"
-                                >
-                                    Delete
-                                </button>
-                            </div>
-                        </motion.div>
-                    ))}
+                            <button
+                                onClick={() =>
+                                    handleDelete(task.id)
+                                }
+                                className="px-3 py-1 rounded-lg text-sm bg-red-500 text-black"
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </motion.div>
+                ))}
             </div>
         </div>
     )
