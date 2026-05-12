@@ -17,7 +17,7 @@ export function Dashboard() {
 
     const navigate = useNavigate()
 
-    // 📥 buscar tasks
+    // 📥 buscar tarefas
     async function getTasks() {
         const { data } = await supabase
             .from("tasks")
@@ -31,7 +31,7 @@ export function Dashboard() {
         getTasks()
     }, [])
 
-    // ➕ criar task
+    // ➕ criar tarefa
     async function handleAddTask(e: React.FormEvent) {
         e.preventDefault()
         setLoading(true)
@@ -54,7 +54,7 @@ export function Dashboard() {
         setLoading(false)
     }
 
-    // 🗑 deletar task
+    // 🗑 deletar tarefa
     async function handleDelete(id: string) {
         await supabase.from("tasks").delete().eq("id", id)
         await getTasks()
@@ -70,7 +70,7 @@ export function Dashboard() {
         await getTasks()
     }
 
-    // ✏ editar task
+    // ✏ editar tarefa
     async function handleEdit(id: string, newTitle: string) {
         await supabase
             .from("tasks")
@@ -95,7 +95,7 @@ export function Dashboard() {
 
                 <button
                     onClick={handleLogout}
-                    className="bg-white text-black px-4 py-2 rounded-lg hover:opacity-80"
+                    className="bg-white text-black px-4 py-2 rounded-lg hover:opacity-80 transition"
                 >
                     Logout
                 </button>
@@ -108,7 +108,7 @@ export function Dashboard() {
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="Nova tarefa"
                     aria-label="Nova tarefa"
-                    className="flex-1 p-2 rounded bg-zinc-900 border border-zinc-700"
+                    className="flex-1 p-2 rounded bg-zinc-900 border border-zinc-700 outline-none"
                 />
 
                 <button
@@ -120,7 +120,7 @@ export function Dashboard() {
             </form>
 
             {/* LISTA */}
-            <div className="space-y-2">
+            <div className="space-y-3">
                 {tasks.length === 0 ? (
                     <p className="text-zinc-500 text-center">
                         Nenhuma tarefa ainda
@@ -129,15 +129,15 @@ export function Dashboard() {
                     tasks.map((task) => (
                         <div
                             key={task.id}
-                            className="flex justify-between items-center bg-zinc-900 p-3 rounded border border-zinc-800"
+                            className="flex items-center justify-between bg-zinc-900 p-4 rounded-xl border border-zinc-800 hover:border-zinc-700 transition"
                         >
-                            {/* CHECK + TITLE */}
+                            {/* LEFT */}
                             <div className="flex items-center gap-3 flex-1">
                                 <input
                                     type="checkbox"
                                     checked={task.done}
                                     onChange={() => toggleDone(task)}
-                                    aria-label="Marcar tarefa como concluída"
+                                    aria-label="Marcar como concluída"
                                 />
 
                                 {editingId === task.id ? (
@@ -148,14 +148,16 @@ export function Dashboard() {
                                         }
                                         placeholder="Editar tarefa"
                                         aria-label="Editar tarefa"
-                                        className="bg-zinc-800 p-1 rounded w-full"
+                                        className="bg-zinc-800 p-2 rounded w-full outline-none"
+                                        autoFocus
                                     />
                                 ) : (
                                     <span
                                         onDoubleClick={() => setEditingId(task.id)}
-                                        className={
-                                            task.done ? "line-through text-zinc-500" : ""
-                                        }
+                                        className={`cursor-pointer ${task.done
+                                                ? "line-through text-zinc-500"
+                                                : "text-white"
+                                            }`}
                                     >
                                         {task.title}
                                     </span>
@@ -165,7 +167,7 @@ export function Dashboard() {
                             {/* DELETE */}
                             <button
                                 onClick={() => handleDelete(task.id)}
-                                className="text-red-400 hover:opacity-80"
+                                className="text-red-400 hover:text-red-300 transition"
                                 aria-label="Deletar tarefa"
                             >
                                 Delete
