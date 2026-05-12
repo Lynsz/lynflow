@@ -10,7 +10,7 @@ import { Settings } from "./pages/Settings"
 export default function App() {
   return (
     <BrowserRouter>
-      <div className="flex min-h-screen bg-black">
+      <div className="flex min-h-screen bg-white dark:bg-black transition-colors">
         <Sidebar />
 
         <main className="flex-1 p-8">
