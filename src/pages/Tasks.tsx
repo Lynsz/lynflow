@@ -9,6 +9,7 @@ import { Input } from "../components/ui/Input"
 import { PageHeader } from "../components/ui/PageHeader"
 import { SectionCard } from "../components/ui/SectionCard"
 import { TaskCard } from "../components/tasks/TaskCard"
+import { useToast } from "../components/ui/ToastProvider"
 
 type Filter = "all" | "todo" | "done"
 
@@ -20,6 +21,7 @@ const filters: Array<{ key: Filter; label: string }> = [
 
 export function Tasks() {
     const { tasks, addTask, updateTask, toggleTask, deleteTask } = useTasks()
+    const { showToast } = useToast()
 
     const [title, setTitle] = useState("")
     const [category, setCategory] = useState("Geral")
@@ -39,12 +41,26 @@ export function Tasks() {
     function handleAddTask(event: React.FormEvent) {
         event.preventDefault()
 
-        if (!title.trim()) return
+        if (!title.trim()) {
+            showToast({
+                type: "warning",
+                title: "Tarefa vazia",
+                description: "Digite um título antes de adicionar.",
+            })
+
+            return
+        }
 
         addTask({
             title,
             category,
             priority,
+        })
+
+        showToast({
+            type: "success",
+            title: "Tarefa criada",
+            description: `"${title.trim()}" foi adicionada.`,
         })
 
         setTitle("")
@@ -61,11 +77,24 @@ export function Tasks() {
         if (!editingTitle.trim()) {
             setEditingId(null)
             setEditingTitle("")
+
+            showToast({
+                type: "warning",
+                title: "Edição cancelada",
+                description: "O título da tarefa não pode ficar vazio.",
+            })
+
             return
         }
 
         updateTask(id, {
             title: editingTitle.trim(),
+        })
+
+        showToast({
+            type: "success",
+            title: "Tarefa atualizada",
+            description: "O título da tarefa foi editado.",
         })
 
         setEditingId(null)
@@ -75,6 +104,35 @@ export function Tasks() {
     function cancelEdit() {
         setEditingId(null)
         setEditingTitle("")
+
+        showToast({
+            type: "info",
+            title: "Edição cancelada",
+        })
+    }
+
+    function handleToggleTask(id: string) {
+        const task = tasks.find((item) => item.id === id)
+
+        toggleTask(id)
+
+        showToast({
+            type: "success",
+            title: task?.done ? "Tarefa reaberta" : "Tarefa concluída",
+            description: task?.title,
+        })
+    }
+
+    function handleDeleteTask(id: string) {
+        const task = tasks.find((item) => item.id === id)
+
+        deleteTask(id)
+
+        showToast({
+            type: "success",
+            title: "Tarefa deletada",
+            description: task?.title,
+        })
     }
 
     return (
@@ -148,11 +206,7 @@ export function Tasks() {
                         <option value="high">Alta</option>
                     </select>
 
-                    <Button
-                        type="submit"
-                        size="lg"
-                        icon={<Plus size={18} />}
-                    >
+                    <Button type="submit" size="lg" icon={<Plus size={18} />}>
                         Add
                     </Button>
                 </form>
@@ -169,8 +223,8 @@ export function Tasks() {
                                 onStartEdit={startEdit}
                                 onSaveEdit={saveEdit}
                                 onCancelEdit={cancelEdit}
-                                onToggle={toggleTask}
-                                onDelete={deleteTask}
+                                onToggle={handleToggleTask}
+                                onDelete={handleDeleteTask}
                             />
                         ))}
                     </AnimatePresence>

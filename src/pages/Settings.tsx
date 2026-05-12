@@ -7,20 +7,45 @@ import { Button } from "../components/ui/Button"
 import { InfoRow } from "../components/ui/InfoRow"
 import { PageHeader } from "../components/ui/PageHeader"
 import { SectionCard } from "../components/ui/SectionCard"
+import { useToast } from "../components/ui/ToastProvider"
 
 export function Settings() {
     const navigate = useNavigate()
     const user = getCurrentUser()
     const { clearTasks } = useTasks()
     const { isDark, toggleTheme } = useTheme()
+    const { showToast } = useToast()
 
     function handleLogout() {
         logoutUser()
+
+        showToast({
+            type: "info",
+            title: "Você saiu da conta",
+            description: "A sessão local foi encerrada.",
+        })
+
         navigate("/login")
     }
 
     function handleClearTasks() {
         clearTasks()
+
+        showToast({
+            type: "success",
+            title: "Tarefas limpas",
+            description: "Todas as tarefas locais foram removidas.",
+        })
+    }
+
+    function handleToggleTheme() {
+        toggleTheme()
+
+        showToast({
+            type: "success",
+            title: "Tema atualizado",
+            description: `Tema ${isDark ? "claro" : "escuro"} ativado.`,
+        })
     }
 
     return (
@@ -39,9 +64,7 @@ export function Settings() {
                         </div>
 
                         <div>
-                            <h3 className="font-semibold">
-                                {user?.name ?? "Usuária"}
-                            </h3>
+                            <h3 className="font-semibold">{user?.name ?? "Usuária"}</h3>
                             <p className="ly-muted-soft text-sm">
                                 {user?.email ?? "Não informado"}
                             </p>
@@ -73,7 +96,7 @@ export function Settings() {
                         <Button
                             variant="secondary"
                             icon={isDark ? <Sun size={18} /> : <Moon size={18} />}
-                            onClick={toggleTheme}
+                            onClick={handleToggleTheme}
                         >
                             Usar tema {isDark ? "claro" : "escuro"}
                         </Button>
@@ -94,10 +117,7 @@ export function Settings() {
                             Limpar tarefas
                         </Button>
 
-                        <Button
-                            icon={<LogOut size={18} />}
-                            onClick={handleLogout}
-                        >
+                        <Button icon={<LogOut size={18} />} onClick={handleLogout}>
                             Sair da conta
                         </Button>
                     </div>

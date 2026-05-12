@@ -5,9 +5,11 @@ import { validateRegisterForm } from "../../utils/validators"
 import { AuthCard } from "../../components/auth/AuthCard"
 import { Button } from "../../components/ui/Button"
 import { Input } from "../../components/ui/Input"
+import { useToast } from "../../components/ui/ToastProvider"
 
 export function Register() {
     const navigate = useNavigate()
+    const { showToast } = useToast()
 
     const [name, setName] = useState("")
     const [email, setEmail] = useState("")
@@ -22,15 +24,35 @@ export function Register() {
 
         if (validationError) {
             setError(validationError)
+
+            showToast({
+                type: "error",
+                title: "Erro no cadastro",
+                description: validationError,
+            })
+
             return
         }
 
         try {
             registerUser(name, email, password)
+
+            showToast({
+                type: "success",
+                title: "Conta criada",
+                description: "Seu acesso ao Lynflow foi criado com sucesso.",
+            })
+
             navigate("/dashboard")
         } catch (err) {
             if (err instanceof Error) {
                 setError(err.message)
+
+                showToast({
+                    type: "error",
+                    title: "Não foi possível criar a conta",
+                    description: err.message,
+                })
             }
         }
     }

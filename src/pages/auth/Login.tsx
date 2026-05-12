@@ -5,9 +5,11 @@ import { validateLoginForm } from "../../utils/validators"
 import { AuthCard } from "../../components/auth/AuthCard"
 import { Button } from "../../components/ui/Button"
 import { Input } from "../../components/ui/Input"
+import { useToast } from "../../components/ui/ToastProvider"
 
 export function Login() {
     const navigate = useNavigate()
+    const { showToast } = useToast()
 
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
@@ -21,15 +23,35 @@ export function Login() {
 
         if (validationError) {
             setError(validationError)
+
+            showToast({
+                type: "error",
+                title: "Erro no login",
+                description: validationError,
+            })
+
             return
         }
 
         try {
             loginUser(email, password)
+
+            showToast({
+                type: "success",
+                title: "Login realizado",
+                description: "Bem-vinda de volta ao Lynflow.",
+            })
+
             navigate("/dashboard")
         } catch (err) {
             if (err instanceof Error) {
                 setError(err.message)
+
+                showToast({
+                    type: "error",
+                    title: "Não foi possível entrar",
+                    description: err.message,
+                })
             }
         }
     }
