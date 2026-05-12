@@ -4,8 +4,17 @@ type User = {
     password: string
 }
 
+type SessionUser = {
+    name: string
+    email: string
+}
+
 const USERS_KEY = "lynflow-users"
 const SESSION_KEY = "lynflow-session"
+
+function normalizeEmail(email: string) {
+    return email.trim().toLowerCase()
+}
 
 function getUsers(): User[] {
     const users = localStorage.getItem(USERS_KEY)
@@ -14,71 +23,85 @@ function getUsers(): User[] {
         return []
     }
 
-    return JSON.parse(users)
+    try {
+        return JSON.parse(users)
+    } catch {
+        localStorage.removeItem(USERS_KEY)
+        return []
+    }
 }
 
 function saveUsers(users: User[]) {
     localStorage.setItem(USERS_KEY, JSON.stringify(users))
 }
 
+function saveSession(user: SessionUser) {
+    localStorage.setItem(SESSION_KEY, JSON.stringify(user))
+}
+
 export function registerUser(name: string, email: string, password: string) {
     const users = getUsers()
+    const normalizedEmail = normalizeEmail(email)
 
-    const userAlreadyExists = users.some((user) => user.email === email)
+    const userAlreadyExists = users.some(
+        (user) => normalizeEmail(user.email) === normalizedEmail
+    )
 
     if (userAlreadyExists) {
         throw new Error("Este e-mail já está cadastrado.")
     }
 
     const newUser: User = {
-        name,
-        email,
+        name: name.trim(),
+        email: normalizedEmail,
         password,
     }
 
     saveUsers([...users, newUser])
 
-    localStorage.setItem(
-        SESSION_KEY,
-        JSON.stringify({
-            name,
-            email,
-        })
-    )
+    saveSession({
+        name: newUser.name,
+        email: newUser.email,
+    })
 }
 
 export function loginUser(email: string, password: string) {
     const users = getUsers()
+    const normalizedEmail = normalizeEmail(email)
 
     const user = users.find(
-        (item) => item.email === email && item.password === password
+        (item) =>
+            normalizeEmail(item.email) === normalizedEmail &&
+            item.password === password
     )
 
     if (!user) {
         throw new Error("E-mail ou senha inválidos.")
     }
 
-    localStorage.setItem(
-        SESSION_KEY,
-        JSON.stringify({
-            name: user.name,
-            email: user.email,
-        })
-    )
+    saveSession({
+        name: user.name,
+        email: user.email,
+    })
 }
 
 export function logoutUser() {
     localStorage.removeItem(SESSION_KEY)
 }
 
-export function getCurrentUser() {
+export function getCurrentUser(): SessionUser | null {
     const session = localStorage.getItem(SESSION_KEY)
 
     if (!session) {
         return null
     }
 
-    return JSON.parse(session)
+    try {
+        return JSON.parse(session)
+    } catch {
+        localStorage.removeItem(SESSION_KEY)
+        return null
+    }
 }
 
 export function isAuthenticated() {

@@ -1,6 +1,7 @@
-import { useState } from "react"
+import { useState, type FormEvent } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { registerUser } from "../../services/auth"
+import { validateRegisterForm } from "../../utils/validators"
 import { AuthCard } from "../../components/auth/AuthCard"
 import { Button } from "../../components/ui/Button"
 import { Input } from "../../components/ui/Input"
@@ -13,12 +14,14 @@ export function Register() {
     const [password, setPassword] = useState("")
     const [error, setError] = useState("")
 
-    function handleRegister(event: React.FormEvent) {
+    function handleRegister(event: FormEvent<HTMLFormElement>) {
         event.preventDefault()
         setError("")
 
-        if (!name.trim() || !email.trim() || !password.trim()) {
-            setError("Preencha todos os campos.")
+        const validationError = validateRegisterForm(name, email, password)
+
+        if (validationError) {
+            setError(validationError)
             return
         }
 
@@ -37,13 +40,10 @@ export function Register() {
             title="Crie sua conta"
             description="Comece a organizar sua produtividade com o Lynflow."
             error={error}
+            onSubmit={handleRegister}
             footer={
                 <>
-                    <Button
-                        type="submit"
-                        className="mt-6 w-full"
-                        onClick={handleRegister}
-                    >
+                    <Button type="submit" className="mt-6 w-full">
                         Criar conta
                     </Button>
 
@@ -69,6 +69,7 @@ export function Register() {
                         placeholder="Seu nome"
                         title="Digite seu nome"
                         aria-label="Digite seu nome"
+                        autoComplete="name"
                     />
                 </div>
 
@@ -85,6 +86,7 @@ export function Register() {
                         placeholder="seu@email.com"
                         title="Digite seu e-mail"
                         aria-label="Digite seu e-mail"
+                        autoComplete="email"
                     />
                 </div>
 
@@ -101,6 +103,7 @@ export function Register() {
                         placeholder="Crie uma senha"
                         title="Crie uma senha"
                         aria-label="Crie uma senha"
+                        autoComplete="new-password"
                     />
                 </div>
             </div>

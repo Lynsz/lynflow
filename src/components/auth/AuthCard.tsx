@@ -1,4 +1,4 @@
-import type { ReactNode } from "react"
+import type { FormEventHandler, ReactNode } from "react"
 import { Link } from "react-router-dom"
 import { motion } from "framer-motion"
 import { Sparkles } from "lucide-react"
@@ -10,6 +10,7 @@ type AuthCardProps = {
     error?: string
     children: ReactNode
     footer: ReactNode
+    onSubmit: FormEventHandler<HTMLFormElement>
 }
 
 export function AuthCard({
@@ -18,6 +19,7 @@ export function AuthCard({
     error,
     children,
     footer,
+    onSubmit,
 }: AuthCardProps) {
     return (
         <div className="ly-page flex min-h-screen items-center justify-center px-4 py-8">
@@ -45,7 +47,11 @@ export function AuthCard({
                     <p className="ly-muted mt-2 text-sm">{description}</p>
                 </div>
 
-                <form className="ly-card rounded-3xl p-6 shadow-2xl shadow-black/10">
+                <form
+                    onSubmit={onSubmit}
+                    noValidate
+                    className="ly-card rounded-3xl p-6 shadow-2xl shadow-black/10"
+                >
                     {error && (
                         <div className="mb-4 rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-500">
                             {error}

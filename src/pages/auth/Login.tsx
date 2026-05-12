@@ -1,6 +1,7 @@
-import { useState } from "react"
+import { useState, type FormEvent } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { loginUser } from "../../services/auth"
+import { validateLoginForm } from "../../utils/validators"
 import { AuthCard } from "../../components/auth/AuthCard"
 import { Button } from "../../components/ui/Button"
 import { Input } from "../../components/ui/Input"
@@ -12,12 +13,14 @@ export function Login() {
     const [password, setPassword] = useState("")
     const [error, setError] = useState("")
 
-    function handleLogin(event: React.FormEvent) {
+    function handleLogin(event: FormEvent<HTMLFormElement>) {
         event.preventDefault()
         setError("")
 
-        if (!email.trim() || !password.trim()) {
-            setError("Preencha e-mail e senha.")
+        const validationError = validateLoginForm(email, password)
+
+        if (validationError) {
+            setError(validationError)
             return
         }
 
@@ -36,13 +39,10 @@ export function Login() {
             title="Bem-vinda ao Lynflow"
             description="Entre para acessar seu dashboard de produtividade."
             error={error}
+            onSubmit={handleLogin}
             footer={
                 <>
-                    <Button
-                        type="submit"
-                        className="mt-6 w-full"
-                        onClick={handleLogin}
-                    >
+                    <Button type="submit" className="mt-6 w-full">
                         Entrar
                     </Button>
 
@@ -69,6 +69,7 @@ export function Login() {
                         placeholder="seu@email.com"
                         title="Digite seu e-mail"
                         aria-label="Digite seu e-mail"
+                        autoComplete="email"
                     />
                 </div>
 
@@ -85,6 +86,7 @@ export function Login() {
                         placeholder="Sua senha"
                         title="Digite sua senha"
                         aria-label="Digite sua senha"
+                        autoComplete="current-password"
                     />
                 </div>
             </div>
