@@ -39,6 +39,7 @@ import { EmptyState } from "../components/ui/EmptyState"
 import { Input } from "../components/ui/Input"
 import { PageHeader } from "../components/ui/PageHeader"
 import { SectionCard } from "../components/ui/SectionCard"
+import { CompletedTasksCleanup } from "../components/tasks/CompletedTasksCleanup"
 import { SortableTaskItem } from "../components/tasks/SortableTaskItem"
 import { TaskKanbanBoard } from "../components/tasks/TaskKanbanBoard"
 import { TaskSummaryCards } from "../components/tasks/TaskSummaryCards"
@@ -422,6 +423,8 @@ export function Tasks() {
                         activeStatus={statusFilter}
                         onStatusSelect={setStatusFilter}
                     />
+
+                    <CompletedTasksCleanup />
                 </div>
 
                 <SectionCard
