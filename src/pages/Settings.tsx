@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import {
+    BookOpen,
     History,
     LogOut,
     Moon,
@@ -97,6 +98,16 @@ export function Settings() {
         })
     }
 
+    function handleOpenOnboarding() {
+        window.dispatchEvent(new CustomEvent("lynflow-open-onboarding"))
+
+        showToast({
+            type: "info",
+            title: "Tutorial aberto",
+            description: "O onboarding do Lynflow foi reaberto.",
+        })
+    }
+
     return (
         <>
             <div className="ly-page px-4 py-6 md:px-8">
@@ -155,6 +166,31 @@ export function Settings() {
                                 onClick={handleToggleTheme}
                             >
                                 Usar tema {isDark ? "claro" : "escuro"}
+                            </Button>
+                        </div>
+                    </SectionCard>
+
+                    <SectionCard
+                        title="Ajuda e onboarding"
+                        description="Reabra o tutorial inicial para revisar o fluxo do Lynflow."
+                        className="xl:col-span-2"
+                    >
+                        <div className="flex flex-col gap-4 rounded-2xl border border-[var(--border)] bg-[var(--surface-strong)] p-4 md:flex-row md:items-center md:justify-between">
+                            <div>
+                                <p className="font-medium">Tutorial do produto</p>
+
+                                <p className="ly-muted-soft mt-1 text-sm leading-6">
+                                    Revise como criar tarefas, usar analytics, acessar histórico
+                                    e navegar com atalhos.
+                                </p>
+                            </div>
+
+                            <Button
+                                variant="secondary"
+                                icon={<BookOpen size={18} />}
+                                onClick={handleOpenOnboarding}
+                            >
+                                Abrir tutorial
                             </Button>
                         </div>
                     </SectionCard>

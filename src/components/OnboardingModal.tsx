@@ -59,6 +59,7 @@ export function OnboardingModal() {
     const [activeStep, setActiveStep] = useState(0)
 
     const currentStep = onboardingSteps[activeStep]
+    const CurrentStepIcon = currentStep.icon
     const isLastStep = activeStep === onboardingSteps.length - 1
 
     useEffect(() => {
@@ -72,6 +73,22 @@ export function OnboardingModal() {
             return () => {
                 window.clearTimeout(timeoutId)
             }
+        }
+    }, [])
+
+    useEffect(() => {
+        function handleOpenOnboarding() {
+            setActiveStep(0)
+            setIsOpen(true)
+        }
+
+        window.addEventListener("lynflow-open-onboarding", handleOpenOnboarding)
+
+        return () => {
+            window.removeEventListener(
+                "lynflow-open-onboarding",
+                handleOpenOnboarding
+            )
         }
     }, [])
 
@@ -131,7 +148,7 @@ export function OnboardingModal() {
                         initial={{ opacity: 0, y: 24, scale: 0.96 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 24, scale: 0.96 }}
-                        className="fixed left-1/2 top-1/2 z-[9995] w-[calc(100%-2rem)] max-w-3xl -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[2rem] border border-[var(--border)] bg-[var(--surface-strong)] shadow-2xl shadow-black/30"
+                        className="fixed left-1/2 top-1/2 z-[9995] max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-3xl -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[2rem] border border-[var(--border)] bg-[var(--surface-strong)] shadow-2xl shadow-black/30"
                     >
                         <div className="border-b border-[var(--border)] p-5 sm:p-6">
                             <div className="flex items-start justify-between gap-4">
@@ -170,7 +187,7 @@ export function OnboardingModal() {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 gap-0 lg:grid-cols-[260px_1fr]">
+                        <div className="grid max-h-[calc(100dvh-14rem)] grid-cols-1 overflow-y-auto lg:grid-cols-[260px_1fr]">
                             <aside className="border-b border-[var(--border)] p-4 lg:border-b-0 lg:border-r">
                                 <div className="grid grid-cols-1 gap-2">
                                     {onboardingSteps.map((step, index) => {
@@ -206,7 +223,7 @@ export function OnboardingModal() {
                                     className="min-h-[260px]"
                                 >
                                     <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)] text-[var(--muted)]">
-                                        <currentStep.icon size={30} />
+                                        <CurrentStepIcon size={30} />
                                     </div>
 
                                     <p className="ly-muted-soft text-sm">
@@ -258,10 +275,7 @@ export function OnboardingModal() {
                                             </Button>
                                         )}
 
-                                        <Button
-                                            variant="secondary"
-                                            onClick={handleGoToTasks}
-                                        >
+                                        <Button variant="secondary" onClick={handleGoToTasks}>
                                             Criar tarefa
                                         </Button>
 
