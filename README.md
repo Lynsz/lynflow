@@ -43,7 +43,7 @@ A proposta principal é demonstrar domínio em:
 > Adicione aqui o link depois do deploy na Vercel.
 
 ```txt
-https://lynflow.vercel.app
+https://lynflow.vercel.app/s
 ```
 
 ---
