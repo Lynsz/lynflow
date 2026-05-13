@@ -5,7 +5,22 @@
 </p>
 
 <p align="center">
-  <strong>Dashboard de produtividade com tarefas, analytics, histórico, atalhos, onboarding e experiência SaaS.</strong>
+  <strong>Dashboard de produtividade com tarefas, analytics, histórico, atalhos, onboarding, PWA e experiência SaaS.</strong>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/github/actions/workflow/status/Lynsz/lynflow/ci.yml?branch=main&label=CI&style=for-the-badge" alt="CI Status" />
+  <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=111827" alt="React" />
+  <img src="https://img.shields.io/badge/TypeScript-6-3178C6?style=for-the-badge&logo=typescript&logoColor=ffffff" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Vite-8-646CFF?style=for-the-badge&logo=vite&logoColor=ffffff" alt="Vite" />
+  <img src="https://img.shields.io/badge/Supabase-Optional-3FCF8E?style=for-the-badge&logo=supabase&logoColor=ffffff" alt="Supabase" />
+  <img src="https://img.shields.io/badge/Vercel-Deploy-000000?style=for-the-badge&logo=vercel&logoColor=ffffff" alt="Vercel" />
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Status-MVP%20Portfolio--Ready-14B8A6?style=for-the-badge" alt="Project Status" />
+  <img src="https://img.shields.io/badge/Tests-Vitest-FCC72B?style=for-the-badge&logo=vitest&logoColor=111827" alt="Vitest" />
+  <img src="https://img.shields.io/badge/PWA-Ready-5A0FC8?style=for-the-badge&logo=pwa&logoColor=ffffff" alt="PWA Ready" />
 </p>
 
 <p align="center">
@@ -24,7 +39,7 @@
 
 O **Lynflow** é um dashboard de produtividade desenvolvido com foco em experiência de usuário, organização pessoal e apresentação profissional para portfólio front-end.
 
-O projeto simula um produto SaaS moderno, com autenticação local, rotas protegidas, gerenciamento de tarefas, métricas, gráficos, histórico de atividades, tema claro/escuro, onboarding, command palette e atalhos de teclado.
+O projeto simula um produto SaaS moderno, com autenticação local, autenticação opcional com Supabase, rotas protegidas, gerenciamento de tarefas, métricas, gráficos, histórico de atividades, tema claro/escuro, onboarding, command palette, atalhos de teclado, testes automatizados, CI e suporte básico a PWA.
 
 A proposta principal é demonstrar domínio em:
 
@@ -32,9 +47,12 @@ A proposta principal é demonstrar domínio em:
 - componentização;
 - estado global;
 - persistência local;
+- backend opcional com Supabase;
 - rotas protegidas;
 - UI responsiva;
 - experiência de produto;
+- testes automatizados;
+- integração contínua;
 - arquitetura front-end escalável;
 - deploy com Vercel.
 
@@ -86,14 +104,16 @@ lynflow.vercel.app
 
 ## ✨ Funcionalidades
 
-### Autenticação local
+### Autenticação
 
 - Cadastro de usuário.
-- Login local.
+- Login.
 - Logout.
 - Rotas protegidas.
 - Edição de perfil.
 - Sessão salva no navegador.
+- Autenticação local por padrão.
+- Autenticação real com Supabase quando configurado.
 
 ### Dashboard
 
@@ -116,6 +136,7 @@ lynflow.vercel.app
 - Reabrir tarefas.
 - Categorizar tarefas.
 - Definir prioridade.
+- Definir data de vencimento.
 - Buscar tarefas.
 - Filtrar por status.
 - Filtrar por prioridade.
@@ -123,6 +144,7 @@ lynflow.vercel.app
 - Ordenar por data, prioridade, título ou ordem manual.
 - Reordenar com drag and drop.
 - Persistência local com `localStorage`.
+- Persistência remota opcional com Supabase.
 
 ### Goals
 
@@ -155,7 +177,7 @@ lynflow.vercel.app
 
 ### Profile
 
-- Dados da conta local.
+- Dados da conta.
 - Avatar com iniciais.
 - Edição de nome e e-mail.
 - Métricas pessoais.
@@ -166,13 +188,29 @@ lynflow.vercel.app
 
 - Alternância entre tema claro e escuro.
 - Controle de dados locais.
+- Modo de persistência local ou Supabase.
+- Exportação de backup em JSON.
+- Importação de backup em JSON.
 - Restaurar tarefas demo.
 - Limpar tarefas.
 - Limpar histórico.
 - Reabrir onboarding.
 - Checklist pré-deploy.
 - Guia de deploy.
+- Status de PWA.
+- Status online/offline.
+- Status de instalação do app.
 - Logout.
+
+### PWA
+
+- Manifest configurado.
+- Service worker registrado em produção.
+- Página offline personalizada.
+- Status online/offline em Settings.
+- Status de instalação do app.
+- Botão de instalação quando o navegador permite.
+- Cache básico de assets e navegação.
 
 ### Experiência de produto
 
@@ -191,6 +229,10 @@ lynflow.vercel.app
 - Favicon.
 - Manifest.
 - Preview social com `og-image`.
+- PWA básico.
+- Página offline.
+- Status de instalação do app.
+- Indicador online/offline.
 
 ---
 
@@ -224,6 +266,10 @@ lynflow.vercel.app
 - DnD Kit
 - LocalStorage
 - Supabase opcional
+- Vitest
+- Testing Library
+- GitHub Actions
+- PWA
 - Vercel
 
 ---
@@ -240,6 +286,9 @@ lynflow.vercel.app
 | `@dnd-kit/sortable` | Ordenação manual das tarefas |
 | `@dnd-kit/utilities` | Transformações do drag and drop |
 | `@supabase/supabase-js` | Backend, autenticação e persistência remota opcional |
+| `vitest` | Testes automatizados |
+| `@testing-library/react` | Testes de componentes React |
+| `@testing-library/jest-dom` | Matchers de DOM para testes |
 | `tailwindcss` | Estilização |
 
 ---
@@ -306,6 +355,12 @@ src/
 ├── App.tsx
 ├── index.css
 └── main.tsx
+
+tests/
+├── components/
+├── utils/
+├── app-auth-flow.test.ts
+└── setup.ts
 ```
 
 Arquivos importantes na raiz/pasta pública:
@@ -313,11 +368,20 @@ Arquivos importantes na raiz/pasta pública:
 ```txt
 public/
 ├── favicon.svg
+├── offline.html
 ├── og-image.png
 ├── og-preview.html
 ├── preview.gif
 ├── robots.txt
-└── site.webmanifest
+├── site.webmanifest
+└── sw.js
+
+.github/
+└── workflows/
+    └── ci.yml
+
+supabase/
+└── schema.sql
 
 vercel.json
 README.md
@@ -347,6 +411,7 @@ O projeto foi dividido em componentes reutilizáveis, como:
 - `DeployChecklist`
 - `DeployGuide`
 - `ErrorBoundary`
+- `PwaStatus`
 
 ### Estado global
 
@@ -376,7 +441,7 @@ Quando `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` são configuradas, o app u
 
 ### Rotas protegidas
 
-Páginas internas só podem ser acessadas com sessão local ativa.
+Páginas internas só podem ser acessadas com sessão ativa.
 
 ```txt
 ProtectedRoute
@@ -388,22 +453,23 @@ Página protegida
 
 ---
 
-## 🔐 Autenticação local
+## 🔐 Autenticação
 
-O Lynflow possui autenticação simulada usando `localStorage`.
+O Lynflow possui autenticação local usando `localStorage` e suporte opcional a autenticação real com Supabase.
 
-Esse modelo foi escolhido para manter o projeto simples, fácil de testar e focado em front-end.
+No modo local, o objetivo é manter o projeto simples, fácil de testar e focado no front-end.
 
-Funcionalidades:
+No modo Supabase, o projeto usa:
 
-- cadastro;
-- login;
-- logout;
-- sessão persistente;
-- edição de perfil;
-- proteção de rotas.
+- `supabase.auth.signUp`;
+- `supabase.auth.signInWithPassword`;
+- sessão autenticada;
+- tabela `profiles`;
+- RLS nas tabelas;
+- persistência remota de tarefas e atividades;
+- realtime com filtro por usuário.
 
-> Observação: por ser um projeto de portfólio front-end, as senhas ficam apenas em ambiente local de demonstração. Em produção real, o correto seria usar backend, Supabase, Firebase Auth, Auth.js ou outro serviço seguro.
+> Observação: por ser um projeto de portfólio front-end, o modo local é apenas demonstrativo. Em produção real, o correto é usar backend seguro, Supabase, Firebase Auth, Auth.js ou outro serviço de autenticação.
 
 ---
 
@@ -486,7 +552,7 @@ A página `public/og-preview.html` foi criada para gerar uma arte de preview soc
 Clone o repositório:
 
 ```bash
-git clone https://github.com/SEU-USUARIO/lynflow.git
+git clone https://github.com/Lynsz/lynflow.git
 ```
 
 Entre na pasta:
@@ -533,6 +599,28 @@ Acesse:
 
 ```txt
 http://localhost:4173
+```
+
+---
+
+## 🧪 Testes
+
+Para rodar os testes uma vez:
+
+```bash
+npm run test:run
+```
+
+Para rodar os testes em modo watch:
+
+```bash
+npm run test
+```
+
+Para rodar lint, testes e build em sequência:
+
+```bash
+npm run check
 ```
 
 ---
@@ -603,16 +691,16 @@ Depois:
 
 ```txt
 /
- /login
- /register
- /dashboard
- /tasks
- /goals
- /insights
- /activity
- /profile
- /settings
- /qualquer-rota
+/login
+/register
+/dashboard
+/tasks
+/goals
+/insights
+/activity
+/profile
+/settings
+/qualquer-rota
 ```
 
 A rota `/qualquer-rota` deve abrir a página 404 personalizada do Lynflow.
@@ -665,6 +753,8 @@ src/assets/preview.gif
 ## ✅ Checklist pré-deploy
 
 - [ ] Build sem erros.
+- [ ] Testes passando.
+- [ ] CI passando no GitHub Actions.
 - [ ] Login testado.
 - [ ] Cadastro testado.
 - [ ] Dashboard testado.
@@ -673,6 +763,9 @@ src/assets/preview.gif
 - [ ] Activity testado.
 - [ ] Profile testado.
 - [ ] Settings testado.
+- [ ] Exportação de backup testada.
+- [ ] Importação de backup testada.
+- [ ] Página offline testada.
 - [ ] Página 404 testada.
 - [ ] Responsividade revisada.
 - [ ] Preview social gerado.
@@ -690,6 +783,10 @@ src/assets/preview.gif
 ### Por que `localStorage`?
 
 Para manter o projeto simples, rápido e focado no front-end. O objetivo é demonstrar interface, experiência, arquitetura, estado global e persistência local.
+
+### Por que Supabase opcional?
+
+Para evoluir o projeto sem quebrar o modo de demonstração. O app funciona localmente sem backend, mas pode usar autenticação real, banco remoto, RLS e realtime quando as variáveis de ambiente são configuradas.
 
 ### Por que Context API?
 
@@ -711,9 +808,17 @@ Porque melhora a experiência de produto e aproxima o projeto de aplicações Sa
 
 Para evitar tela branca em produção caso algum erro inesperado aconteça na renderização.
 
+### Por que Service Worker?
+
+Para adicionar uma camada básica de PWA, página offline e cache inicial de assets/navegação.
+
 ### Por que `vercel.json`?
 
 Para configurar build, pasta de saída e suporte a rotas internas do React Router no deploy da Vercel.
+
+### Por que testes automatizados?
+
+Para proteger regras de negócio, validações, fluxos principais e evitar regressões conforme o projeto cresce.
 
 ---
 
@@ -751,20 +856,28 @@ Para configurar build, pasta de saída e suporte a rotas internas do React Route
 - [x] Configuração Vercel
 - [x] Supabase opcional
 - [x] Realtime com Supabase
+- [x] Datas de vencimento em tarefas
+- [x] Exportação de backup
+- [x] Importação de backup
 - [x] Testes automatizados
 - [x] CI com GitHub Actions
-- [x] Datas de vencimento em tarefas
+- [x] PWA básico
+- [x] Service worker
+- [x] Página offline
+- [x] Status de instalação do app
 
 ### Melhorias futuras
 
 - [ ] Kanban view.
 - [ ] Calendário.
-- [ ] Exportar dados.
 - [ ] Integração com IA real.
 - [ ] Testes de componentes críticos.
-- [ ] PWA.
 - [ ] Notificações.
 - [ ] Multiusuário.
+- [ ] Dashboard com dados por período.
+- [ ] Sincronização avançada entre dispositivos.
+- [ ] Melhorias de acessibilidade.
+- [ ] Testes end-to-end.
 
 ---
 
@@ -775,7 +888,7 @@ Para configurar build, pasta de saída e suporte a rotas internas do React Route
 | `npm run dev` | Roda o projeto em desenvolvimento |
 | `npm run build` | Gera build de produção |
 | `npm run preview` | Visualiza o build localmente |
-| `npm run lint` | Roda lint, caso configurado |
+| `npm run lint` | Roda lint |
 | `npm run test` | Roda os testes em modo watch |
 | `npm run test:run` | Roda os testes uma vez |
 | `npm run check` | Roda lint, testes e build em sequência |
@@ -784,7 +897,7 @@ Para configurar build, pasta de saída e suporte a rotas internas do React Route
 
 ## Qualidade automatizada
 
-O Lynflow possui uma base inicial de testes com Vitest para proteger regras de negócio e integrações internas.
+O Lynflow possui uma base inicial de testes com Vitest para proteger regras de negócio, fluxos principais e integrações internas.
 
 Cobertura inicial:
 
@@ -792,7 +905,10 @@ Cobertura inicial:
 - filtros e ordenação de tarefas;
 - filtros e ordenação de atividades;
 - analytics de tarefas;
-- mappers entre Supabase e o formato usado no front-end.
+- mappers entre Supabase e o formato usado no front-end;
+- exportação e importação de backup;
+- fluxo de autenticação local;
+- status visual de PWA em Settings.
 
 Antes de abrir PR, publicar deploy ou seguir para uma nova fase, rode:
 
@@ -846,6 +962,6 @@ Versão: 1.0.0
 
 ```bash
 git add .
-git commit -m "docs: update Lynflow README with deploy and preview instructions"
+git commit -m "docs: update Lynflow README with badges and PWA status"
 git push
 ```
