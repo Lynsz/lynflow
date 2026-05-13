@@ -30,6 +30,7 @@ import {
     getProductivityStatus,
     getWeeklyProductivity,
 } from "../utils/taskAnalytics"
+import { ActivityFeed } from "../components/tasks/ActivityFeed"
 import { Button } from "../components/ui/Button"
 import { EmptyState } from "../components/ui/EmptyState"
 import { InfoRow } from "../components/ui/InfoRow"
@@ -42,6 +43,7 @@ export function Dashboard() {
     const {
         isReady,
         tasks,
+        activities,
         completedTasks,
         pendingTasks,
         highPriorityTasks,
@@ -281,12 +283,12 @@ export function Dashboard() {
                 </SectionCard>
             </section>
 
-            <section className="mt-6">
+            <section className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[1fr_0.9fr]">
                 <SectionCard
                     title="Análise rápida"
                     description="Leitura automática dos dados atuais do projeto."
                 >
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-3 xl:grid-cols-1">
                         <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-strong)] p-4">
                             <div className="mb-3 flex items-center gap-2">
                                 <Activity size={18} className="ly-accent" />
@@ -323,6 +325,13 @@ export function Dashboard() {
                             </p>
                         </div>
                     </div>
+                </SectionCard>
+
+                <SectionCard
+                    title="Atividade recente"
+                    description="Histórico local das últimas ações feitas nas tarefas."
+                >
+                    <ActivityFeed activities={activities} limit={6} />
                 </SectionCard>
             </section>
         </div>

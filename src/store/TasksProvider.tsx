@@ -6,9 +6,11 @@ import {
     useState,
     type ReactNode,
 } from "react"
+import type { TaskActivity, ActivityType } from "../types/activity"
 import type { Priority, Task } from "../types/task"
 
 const TASKS_KEY = "lynflow-tasks"
+const ACTIVITIES_KEY = "lynflow-activities"
 
 type AddTaskData = {
     title: string
@@ -19,6 +21,7 @@ type AddTaskData = {
 type TasksContextValue = {
     isReady: boolean
     tasks: Task[]
+    activities: TaskActivity[]
     completedTasks: number
     pendingTasks: number
     highPriorityTasks: number
@@ -31,6 +34,7 @@ type TasksContextValue = {
     reorderTasks: (activeId: string, overId: string) => void
     clearTasks: () => void
     resetTasks: () => void
+    clearActivities: () => void
 }
 
 type TasksProviderProps = {
@@ -113,6 +117,22 @@ function normalizeTasks(tasks: Partial<Task>[]): Task[] {
         .sort((a, b) => a.order - b.order)
 }
 
+function normalizeActivities(activities: Partial<TaskActivity>[]): TaskActivity[] {
+    return activities
+        .map((activity) => ({
+            id: activity.id ?? createId(),
+            type: activity.type ?? "created",
+            title: activity.title ?? "Atividade registrada",
+            description: activity.description ?? "Uma ação foi registrada no Lynflow.",
+            createdAt: activity.createdAt ?? new Date().toISOString(),
+        }))
+        .sort(
+            (a, b) =>
+                new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        )
+        .slice(0, 30)
+}
+
 function reorderArray<T>(items: T[], fromIndex: number, toIndex: number) {
     const result = [...items]
     const [removed] = result.splice(fromIndex, 1)
@@ -124,10 +144,12 @@ function reorderArray<T>(items: T[], fromIndex: number, toIndex: number) {
 
 export function TasksProvider({ children }: TasksProviderProps) {
     const [tasks, setTasks] = useState<Task[]>([])
+    const [activities, setActivities] = useState<TaskActivity[]>([])
     const [isReady, setIsReady] = useState(false)
 
     useEffect(() => {
         const savedTasks = localStorage.getItem(TASKS_KEY)
+        const savedActivities = localStorage.getItem(ACTIVITIES_KEY)
 
         if (savedTasks) {
             try {
@@ -141,6 +163,16 @@ export function TasksProvider({ children }: TasksProviderProps) {
             setTasks(createDemoTasks())
         }
 
+        if (savedActivities) {
+            try {
+                const parsedActivities = JSON.parse(savedActivities)
+                setActivities(normalizeActivities(parsedActivities))
+            } catch {
+                localStorage.removeItem(ACTIVITIES_KEY)
+                setActivities([])
+            }
+        }
+
         setIsReady(true)
     }, [])
 
@@ -149,6 +181,12 @@ export function TasksProvider({ children }: TasksProviderProps) {
 
         localStorage.setItem(TASKS_KEY, JSON.stringify(tasks))
     }, [tasks, isReady])
+
+    useEffect(() => {
+        if (!isReady) return
+
+        localStorage.setItem(ACTIVITIES_KEY, JSON.stringify(activities))
+    }, [activities, isReady])
 
     const completedTasks = tasks.filter((task) => task.done).length
     const pendingTasks = tasks.filter((task) => !task.done).length
@@ -163,6 +201,24 @@ export function TasksProvider({ children }: TasksProviderProps) {
     const categories = useMemo(() => {
         return Array.from(new Set(tasks.map((task) => task.category)))
     }, [tasks])
+
+    function addActivity(
+        type: ActivityType,
+        title: string,
+        description: string
+    ) {
+        const newActivity: TaskActivity = {
+            id: createId(),
+            type,
+            title,
+            description,
+            createdAt: new Date().toISOString(),
+        }
+
+        setActivities((currentActivities) =>
+            [newActivity, ...currentActivities].slice(0, 30)
+        )
+    }
 
     function addTask(data: AddTaskData) {
         if (!data.title.trim()) return
@@ -181,6 +237,12 @@ export function TasksProvider({ children }: TasksProviderProps) {
         }
 
         setTasks((currentTasks) => [newTask, ...currentTasks])
+
+        addActivity(
+            "created",
+            "Tarefa criada",
+            `"${newTask.title}" foi adicionada em ${newTask.category}.`
+        )
     }
 
     function updateTask(id: string, data: Partial<Omit<Task, "id">>) {
@@ -192,16 +254,36 @@ export function TasksProvider({ children }: TasksProviderProps) {
     }
 
     function toggleTask(id: string) {
+        const task = tasks.find((item) => item.id === id)
+
         setTasks((currentTasks) =>
-            currentTasks.map((task) =>
-                task.id === id ? { ...task, done: !task.done } : task
+            currentTasks.map((taskItem) =>
+                taskItem.id === id ? { ...taskItem, done: !taskItem.done } : taskItem
             )
+        )
+
+        if (!task) return
+
+        addActivity(
+            task.done ? "reopened" : "completed",
+            task.done ? "Tarefa reaberta" : "Tarefa concluída",
+            `"${task.title}" foi ${task.done ? "reaberta" : "marcada como concluída"}.`
         )
     }
 
     function deleteTask(id: string) {
+        const task = tasks.find((item) => item.id === id)
+
         setTasks((currentTasks) =>
-            currentTasks.filter((task) => task.id !== id)
+            currentTasks.filter((taskItem) => taskItem.id !== id)
+        )
+
+        if (!task) return
+
+        addActivity(
+            "deleted",
+            "Tarefa deletada",
+            `"${task.title}" foi removida da lista.`
         )
     }
 
@@ -225,19 +307,42 @@ export function TasksProvider({ children }: TasksProviderProps) {
                 })
             )
         })
+
+        addActivity(
+            "reordered",
+            "Ordem atualizada",
+            "A ordem manual das tarefas foi alterada."
+        )
     }
 
     function clearTasks() {
         setTasks([])
+
+        addActivity(
+            "cleared",
+            "Tarefas limpas",
+            "Todas as tarefas locais foram removidas."
+        )
     }
 
     function resetTasks() {
         setTasks(createDemoTasks())
+
+        addActivity(
+            "reset",
+            "Demo restaurada",
+            "As tarefas iniciais do Lynflow foram restauradas."
+        )
+    }
+
+    function clearActivities() {
+        setActivities([])
     }
 
     const value: TasksContextValue = {
         isReady,
         tasks,
+        activities,
         completedTasks,
         pendingTasks,
         highPriorityTasks,
@@ -250,6 +355,7 @@ export function TasksProvider({ children }: TasksProviderProps) {
         reorderTasks,
         clearTasks,
         resetTasks,
+        clearActivities,
     }
 
     return (
