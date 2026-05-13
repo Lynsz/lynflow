@@ -751,18 +751,19 @@ Para configurar build, pasta de saída e suporte a rotas internas do React Route
 - [x] Manifest
 - [x] Preview social
 - [x] Configuração Vercel
+- [x] Supabase opcional
+- [x] Testes automatizados
+- [x] CI com GitHub Actions
 
 ### Melhorias futuras
 
-- [ ] Integração real com Supabase.
-- [ ] Autenticação real.
-- [ ] Banco de dados remoto.
+- [ ] Realtime com Supabase.
 - [ ] Tarefas com data de vencimento.
 - [ ] Kanban view.
 - [ ] Calendário.
 - [ ] Exportar dados.
 - [ ] Integração com IA real.
-- [ ] Testes automatizados.
+- [ ] Testes de componentes críticos.
 - [ ] PWA.
 - [ ] Notificações.
 - [ ] Multiusuário.
@@ -798,6 +799,23 @@ Cobertura inicial:
 Antes de abrir PR, publicar deploy ou seguir para uma nova fase, rode:
 
 ```bash
+npm run check
+```
+
+### Integração contínua
+
+O repositório possui um workflow em:
+
+```txt
+.github/workflows/ci.yml
+```
+
+Ele roda automaticamente em push para `main`, pull requests para `main` e também pode ser executado manualmente pelo GitHub Actions.
+
+Fluxo executado:
+
+```bash
+npm ci
 npm run check
 ```
 
