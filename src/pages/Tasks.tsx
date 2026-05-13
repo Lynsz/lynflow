@@ -41,6 +41,7 @@ import { PageHeader } from "../components/ui/PageHeader"
 import { SectionCard } from "../components/ui/SectionCard"
 import { CompletedTasksCleanup } from "../components/tasks/CompletedTasksCleanup"
 import { SortableTaskItem } from "../components/tasks/SortableTaskItem"
+import { TaskDeadlineOverview } from "../components/tasks/TaskDeadlineOverview"
 import { TaskKanbanBoard } from "../components/tasks/TaskKanbanBoard"
 import { TaskSummaryCards } from "../components/tasks/TaskSummaryCards"
 import { useToast } from "../components/ui/ToastProvider"
@@ -425,6 +426,11 @@ export function Tasks() {
                     />
 
                     <CompletedTasksCleanup />
+
+                    <TaskDeadlineOverview
+                        tasks={tasks}
+                        onStatusSelect={setStatusFilter}
+                    />
                 </div>
 
                 <SectionCard
