@@ -1,21 +1,31 @@
+import { useState, type FormEvent } from "react"
 import { useNavigate } from "react-router-dom"
 import {
     BarChart3,
     CheckCircle2,
     Clock3,
     LayoutDashboard,
+    Pencil,
+    Save,
     Settings,
     Target,
+    X,
 } from "lucide-react"
-import { getCurrentUser } from "../services/auth"
+import {
+    getCurrentUser,
+    updateCurrentUserProfile,
+} from "../services/auth"
+import { validateProfileForm } from "../utils/validators"
 import { useTasks } from "../hooks/useTasks"
 import { Button } from "../components/ui/Button"
 import { InfoRow } from "../components/ui/InfoRow"
+import { Input } from "../components/ui/Input"
 import { MetricCard } from "../components/ui/MetricCard"
 import { PageHeader } from "../components/ui/PageHeader"
 import { ProgressBar } from "../components/ui/ProgressBar"
 import { SectionCard } from "../components/ui/SectionCard"
 import { DashboardSkeleton } from "../components/skeletons/DashboardSkeleton"
+import { useToast } from "../components/ui/ToastProvider"
 
 function getInitials(name: string) {
     return name
@@ -36,7 +46,13 @@ function getProductivityLabel(productivity: number) {
 
 export function Profile() {
     const navigate = useNavigate()
-    const user = getCurrentUser()
+    const { showToast } = useToast()
+
+    const [savedUser, setSavedUser] = useState(() => getCurrentUser())
+    const [isEditing, setIsEditing] = useState(false)
+    const [name, setName] = useState(savedUser?.name ?? "")
+    const [email, setEmail] = useState(savedUser?.email ?? "")
+    const [error, setError] = useState("")
 
     const {
         isReady,
@@ -52,10 +68,71 @@ export function Profile() {
         return <DashboardSkeleton />
     }
 
-    const userName = user?.name ?? "Usuária"
-    const userEmail = user?.email ?? "Não informado"
+    const userName = savedUser?.name ?? "Usuária"
+    const userEmail = savedUser?.email ?? "Não informado"
     const initials = getInitials(userName)
     const productivityLabel = getProductivityLabel(productivity)
+
+    const hasProfileChanges =
+        name.trim() !== userName || email.trim().toLowerCase() !== userEmail
+
+    function handleStartEdit() {
+        setName(userName)
+        setEmail(userEmail)
+        setError("")
+        setIsEditing(true)
+    }
+
+    function handleCancelEdit() {
+        setName(userName)
+        setEmail(userEmail)
+        setError("")
+        setIsEditing(false)
+    }
+
+    function handleSubmit(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault()
+        setError("")
+
+        const validationError = validateProfileForm(name, email)
+
+        if (validationError) {
+            setError(validationError)
+
+            showToast({
+                type: "error",
+                title: "Erro ao atualizar perfil",
+                description: validationError,
+            })
+
+            return
+        }
+
+        try {
+            const updatedUser = updateCurrentUserProfile(name, email)
+
+            setSavedUser(updatedUser)
+            setName(updatedUser.name)
+            setEmail(updatedUser.email)
+            setIsEditing(false)
+
+            showToast({
+                type: "success",
+                title: "Perfil atualizado",
+                description: "Nome e e-mail foram salvos localmente.",
+            })
+        } catch (err) {
+            if (err instanceof Error) {
+                setError(err.message)
+
+                showToast({
+                    type: "error",
+                    title: "Não foi possível atualizar",
+                    description: err.message,
+                })
+            }
+        }
+    }
 
     return (
         <div className="ly-page px-4 py-6 md:px-8">
@@ -75,7 +152,29 @@ export function Profile() {
             />
 
             <section className="mb-8 grid grid-cols-1 gap-6 xl:grid-cols-[0.85fr_1.15fr]">
-                <SectionCard title="Conta local" description="Dados salvos no navegador.">
+                <SectionCard
+                    title="Conta local"
+                    description="Dados salvos no navegador."
+                    action={
+                        isEditing ? (
+                            <Button
+                                variant="secondary"
+                                icon={<X size={18} />}
+                                onClick={handleCancelEdit}
+                            >
+                                Cancelar
+                            </Button>
+                        ) : (
+                            <Button
+                                variant="secondary"
+                                icon={<Pencil size={18} />}
+                                onClick={handleStartEdit}
+                            >
+                                Editar perfil
+                            </Button>
+                        )
+                    }
+                >
                     <div className="flex flex-col gap-5 md:flex-row md:items-center">
                         <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-[2rem] bg-[var(--primary)] text-3xl font-bold text-[var(--primary-text)]">
                             {initials}
@@ -91,15 +190,76 @@ export function Profile() {
                         </div>
                     </div>
 
-                    <div className="mt-6 space-y-4">
-                        <InfoRow label="Nome" value={userName} />
-                        <InfoRow label="E-mail" value={userEmail} />
-                        <InfoRow
-                            label="Persistência"
-                            value="localStorage"
-                            bordered={false}
-                        />
-                    </div>
+                    {isEditing ? (
+                        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+                            {error && (
+                                <div className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-500">
+                                    {error}
+                                </div>
+                            )}
+
+                            <div>
+                                <label htmlFor="profile-name" className="mb-2 block text-sm">
+                                    Nome
+                                </label>
+
+                                <Input
+                                    id="profile-name"
+                                    value={name}
+                                    onChange={(event) => setName(event.target.value)}
+                                    placeholder="Seu nome"
+                                    title="Editar nome"
+                                    aria-label="Editar nome"
+                                    autoComplete="name"
+                                />
+                            </div>
+
+                            <div>
+                                <label htmlFor="profile-email" className="mb-2 block text-sm">
+                                    E-mail
+                                </label>
+
+                                <Input
+                                    id="profile-email"
+                                    type="email"
+                                    value={email}
+                                    onChange={(event) => setEmail(event.target.value)}
+                                    placeholder="seu@email.com"
+                                    title="Editar e-mail"
+                                    aria-label="Editar e-mail"
+                                    autoComplete="email"
+                                />
+                            </div>
+
+                            <div className="flex flex-col gap-3 md:flex-row">
+                                <Button
+                                    type="submit"
+                                    icon={<Save size={18} />}
+                                    disabled={!hasProfileChanges}
+                                >
+                                    Salvar alterações
+                                </Button>
+
+                                <Button
+                                    variant="secondary"
+                                    icon={<X size={18} />}
+                                    onClick={handleCancelEdit}
+                                >
+                                    Cancelar
+                                </Button>
+                            </div>
+                        </form>
+                    ) : (
+                        <div className="mt-6 space-y-4">
+                            <InfoRow label="Nome" value={userName} />
+                            <InfoRow label="E-mail" value={userEmail} />
+                            <InfoRow
+                                label="Persistência"
+                                value="localStorage"
+                                bordered={false}
+                            />
+                        </div>
+                    )}
                 </SectionCard>
 
                 <SectionCard

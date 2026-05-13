@@ -85,6 +85,57 @@ export function loginUser(email: string, password: string) {
     })
 }
 
+export function updateCurrentUserProfile(name: string, email: string) {
+    const session = getCurrentUser()
+
+    if (!session) {
+        throw new Error("Nenhuma sessão ativa encontrada.")
+    }
+
+    const users = getUsers()
+    const normalizedEmail = normalizeEmail(email)
+    const currentEmail = normalizeEmail(session.email)
+
+    const emailAlreadyInUse = users.some(
+        (user) =>
+            normalizeEmail(user.email) === normalizedEmail &&
+            normalizeEmail(user.email) !== currentEmail
+    )
+
+    if (emailAlreadyInUse) {
+        throw new Error("Este e-mail já está sendo usado por outra conta.")
+    }
+
+    let userWasUpdated = false
+
+    const updatedUsers = users.map((user) => {
+        if (normalizeEmail(user.email) !== currentEmail) {
+            return user
+        }
+
+        userWasUpdated = true
+
+        return {
+            ...user,
+            name: name.trim(),
+            email: normalizedEmail,
+        }
+    })
+
+    if (userWasUpdated) {
+        saveUsers(updatedUsers)
+    }
+
+    const updatedSession: SessionUser = {
+        name: name.trim(),
+        email: normalizedEmail,
+    }
+
+    saveSession(updatedSession)
+
+    return updatedSession
+}
+
 export function logoutUser() {
     localStorage.removeItem(SESSION_KEY)
 }

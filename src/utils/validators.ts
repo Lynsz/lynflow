@@ -37,3 +37,19 @@ export function validateRegisterForm(
 
     return null
 }
+
+export function validateProfileForm(name: string, email: string) {
+    if (!name.trim() || !email.trim()) {
+        return "Preencha nome e e-mail."
+    }
+
+    if (name.trim().length < 2) {
+        return "Digite um nome com pelo menos 2 caracteres."
+    }
+
+    if (!isValidEmail(email)) {
+        return "Digite um e-mail válido."
+    }
+
+    return null
+}
