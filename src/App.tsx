@@ -12,6 +12,7 @@ import { Goals } from "./pages/Goals"
 import { Insights } from "./pages/Insights"
 import { Settings } from "./pages/Settings"
 import { Profile } from "./pages/Profile"
+import { ActivityPage } from "./pages/Activity"
 import { ProtectedRoute } from "./routes/ProtectedRoute"
 import { AppLayout } from "./layouts/AppLayout"
 
@@ -70,6 +71,15 @@ export default function App() {
                 element={
                   <ProtectedScreen>
                     <Insights />
+                  </ProtectedScreen>
+                }
+              />
+
+              <Route
+                path="/activity"
+                element={
+                  <ProtectedScreen>
+                    <ActivityPage />
                   </ProtectedScreen>
                 }
               />

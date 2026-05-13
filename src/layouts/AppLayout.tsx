@@ -8,6 +8,7 @@ import {
     Target,
     LogOut,
     UserRound,
+    History,
 } from "lucide-react"
 import { logoutUser } from "../services/auth"
 import { ThemeToggle } from "../components/ThemeToggle"
@@ -36,6 +37,11 @@ const navItems = [
         label: "AI",
         path: "/insights",
         icon: Sparkles,
+    },
+    {
+        label: "Activity",
+        path: "/activity",
+        icon: History,
     },
     {
         label: "Profile",
@@ -110,7 +116,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             <main className="min-w-0 flex-1 pb-24 md:pb-0">{children}</main>
 
             <nav className="ly-bottom-nav fixed bottom-0 left-0 right-0 z-50 backdrop-blur-xl md:hidden">
-                <div className="grid grid-cols-6">
+                <div className="grid grid-cols-[repeat(7,minmax(0,1fr))]">
                     {navItems.map((item) => {
                         const Icon = item.icon
 
@@ -119,11 +125,11 @@ export function AppLayout({ children }: AppLayoutProps) {
                                 key={item.path}
                                 to={item.path}
                                 className={({ isActive }) =>
-                                    `flex flex-col items-center gap-1 px-2 py-3 text-[11px] transition ${isActive ? "text-[var(--text)]" : "text-[var(--muted-soft)]"
+                                    `flex flex-col items-center gap-1 px-1 py-3 text-[10px] transition ${isActive ? "text-[var(--text)]" : "text-[var(--muted-soft)]"
                                     }`
                                 }
                             >
-                                <Icon size={17} />
+                                <Icon size={16} />
                                 {item.label}
                             </NavLink>
                         )
