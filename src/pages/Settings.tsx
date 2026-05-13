@@ -1,6 +1,14 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { LogOut, Moon, RotateCcw, Sun, Trash2, User } from "lucide-react"
+import {
+    History,
+    LogOut,
+    Moon,
+    RotateCcw,
+    Sun,
+    Trash2,
+    User,
+} from "lucide-react"
 import { getCurrentUser, logoutUser } from "../services/auth"
 import { useTasks } from "../hooks/useTasks"
 import { useTheme } from "../hooks/useTheme"
@@ -14,12 +22,22 @@ import { useToast } from "../components/ui/ToastProvider"
 export function Settings() {
     const navigate = useNavigate()
     const user = getCurrentUser()
-    const { clearTasks, resetTasks } = useTasks()
+
+    const {
+        tasks,
+        activities,
+        clearTasks,
+        resetTasks,
+        clearActivities,
+    } = useTasks()
+
     const { isDark, toggleTheme } = useTheme()
     const { showToast } = useToast()
 
     const [isClearDialogOpen, setIsClearDialogOpen] = useState(false)
     const [isResetDialogOpen, setIsResetDialogOpen] = useState(false)
+    const [isClearActivitiesDialogOpen, setIsClearActivitiesDialogOpen] =
+        useState(false)
 
     function handleLogout() {
         logoutUser()
@@ -55,6 +73,18 @@ export function Settings() {
         })
 
         setIsResetDialogOpen(false)
+    }
+
+    function confirmClearActivities() {
+        clearActivities()
+
+        showToast({
+            type: "success",
+            title: "Histórico limpo",
+            description: "As atividades recentes foram removidas.",
+        })
+
+        setIsClearActivitiesDialogOpen(false)
     }
 
     function handleToggleTheme() {
@@ -130,11 +160,25 @@ export function Settings() {
                     </SectionCard>
 
                     <SectionCard
-                        title="Dados do MVP"
+                        title="Dados locais"
                         description="Controle rápido para testar o projeto durante desenvolvimento."
                         className="xl:col-span-2"
                     >
-                        <div className="flex flex-col gap-3 md:flex-row">
+                        <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-strong)] p-4">
+                                <p className="ly-muted-soft text-sm">Tarefas salvas</p>
+                                <strong className="mt-2 block text-3xl">{tasks.length}</strong>
+                            </div>
+
+                            <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-strong)] p-4">
+                                <p className="ly-muted-soft text-sm">Atividades registradas</p>
+                                <strong className="mt-2 block text-3xl">
+                                    {activities.length}
+                                </strong>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col gap-3 md:flex-row md:flex-wrap">
                             <Button
                                 variant="secondary"
                                 icon={<RotateCcw size={18} />}
@@ -144,9 +188,19 @@ export function Settings() {
                             </Button>
 
                             <Button
+                                variant="secondary"
+                                icon={<History size={18} />}
+                                onClick={() => setIsClearActivitiesDialogOpen(true)}
+                                disabled={activities.length === 0}
+                            >
+                                Limpar histórico
+                            </Button>
+
+                            <Button
                                 variant="danger"
                                 icon={<Trash2 size={18} />}
                                 onClick={() => setIsClearDialogOpen(true)}
+                                disabled={tasks.length === 0}
                             >
                                 Limpar tarefas
                             </Button>
@@ -179,6 +233,17 @@ export function Settings() {
                 variant="primary"
                 onConfirm={confirmResetTasks}
                 onClose={() => setIsResetDialogOpen(false)}
+            />
+
+            <ConfirmDialog
+                isOpen={isClearActivitiesDialogOpen}
+                title="Limpar histórico de atividades?"
+                description="Essa ação vai remover o histórico local de atividades recentes exibido no Dashboard. As tarefas não serão apagadas."
+                confirmLabel="Limpar histórico"
+                cancelLabel="Cancelar"
+                variant="danger"
+                onConfirm={confirmClearActivities}
+                onClose={() => setIsClearActivitiesDialogOpen(false)}
             />
         </>
     )

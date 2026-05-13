@@ -117,13 +117,16 @@ function normalizeTasks(tasks: Partial<Task>[]): Task[] {
         .sort((a, b) => a.order - b.order)
 }
 
-function normalizeActivities(activities: Partial<TaskActivity>[]): TaskActivity[] {
+function normalizeActivities(
+    activities: Partial<TaskActivity>[]
+): TaskActivity[] {
     return activities
         .map((activity) => ({
             id: activity.id ?? createId(),
             type: activity.type ?? "created",
             title: activity.title ?? "Atividade registrada",
-            description: activity.description ?? "Uma ação foi registrada no Lynflow.",
+            description:
+                activity.description ?? "Uma ação foi registrada no Lynflow.",
             createdAt: activity.createdAt ?? new Date().toISOString(),
         }))
         .sort(
@@ -267,7 +270,8 @@ export function TasksProvider({ children }: TasksProviderProps) {
         addActivity(
             task.done ? "reopened" : "completed",
             task.done ? "Tarefa reaberta" : "Tarefa concluída",
-            `"${task.title}" foi ${task.done ? "reaberta" : "marcada como concluída"}.`
+            `"${task.title}" foi ${task.done ? "reaberta" : "marcada como concluída"
+            }.`
         )
     }
 
