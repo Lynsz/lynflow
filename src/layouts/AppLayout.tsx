@@ -3,6 +3,7 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom"
 import { AnimatePresence, motion } from "framer-motion"
 import {
     CheckSquare,
+    Command,
     History,
     LayoutDashboard,
     LogOut,
@@ -15,6 +16,7 @@ import {
 } from "lucide-react"
 import { logoutUser } from "../services/auth"
 import { ThemeToggle } from "../components/ThemeToggle"
+import { CommandPalette } from "../components/CommandPalette"
 
 type AppLayoutProps = {
     children: ReactNode
@@ -120,10 +122,25 @@ export function AppLayout({ children }: AppLayoutProps) {
 
     return (
         <div className="flex min-h-screen bg-[var(--bg)] text-[var(--text)]">
+            <CommandPalette />
+
             <aside className="ly-sidebar hidden w-64 flex-col p-5 backdrop-blur-xl md:flex">
-                <div className="mb-10">
+                <div className="mb-8">
                     <h1 className="text-2xl font-bold tracking-tight">Lynflow</h1>
                     <p className="ly-muted-soft mt-1 text-sm">AI productivity OS</p>
+                </div>
+
+                <div className="mb-5">
+                    <div className="flex items-center justify-between rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--muted)]">
+                        <div className="flex items-center gap-2">
+                            <Command size={15} />
+                            <span>Command</span>
+                        </div>
+
+                        <span className="rounded-lg border border-[var(--border)] px-2 py-1 text-[10px]">
+                            Ctrl K
+                        </span>
+                    </div>
                 </div>
 
                 <nav className="flex flex-col gap-2">
