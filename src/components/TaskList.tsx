@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { motion } from "framer-motion"
 
 import { useTaskStore } from "../store/taskStore"
@@ -23,10 +23,10 @@ export function TaskList() {
     const { tasks, setTasks } = useTaskStore()
 
     // 🔄 função central de sync
-    const refresh = async () => {
+    const refresh = useCallback(async () => {
         const data = await getTasks()
         setTasks(data || [])
-    }
+    }, [setTasks])
 
     // 🔄 load inicial
     useEffect(() => {
@@ -37,7 +37,7 @@ export function TaskList() {
         }
 
         load()
-    }, [])
+    }, [refresh])
 
     // ➕ CREATE
     async function handleAddTask() {

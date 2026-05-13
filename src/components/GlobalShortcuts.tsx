@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react"
+import { useCallback, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import { useToast } from "./ui/ToastProvider"
 
@@ -24,16 +24,16 @@ export function GlobalShortcuts() {
     const sequenceRef = useRef("")
     const timerRef = useRef<number | null>(null)
 
-    function resetSequence() {
+    const resetSequence = useCallback(() => {
         sequenceRef.current = ""
 
         if (timerRef.current) {
             window.clearTimeout(timerRef.current)
             timerRef.current = null
         }
-    }
+    }, [])
 
-    function startSequence(key: string) {
+    const startSequence = useCallback((key: string) => {
         sequenceRef.current = key
 
         if (timerRef.current) {
@@ -43,9 +43,9 @@ export function GlobalShortcuts() {
         timerRef.current = window.setTimeout(() => {
             resetSequence()
         }, 900)
-    }
+    }, [resetSequence])
 
-    function goTo(path: string, label: string) {
+    const goTo = useCallback((path: string, label: string) => {
         navigate(path)
 
         showToast({
@@ -53,9 +53,9 @@ export function GlobalShortcuts() {
             title: "Atalho executado",
             description: `Abrindo ${label}.`,
         })
-    }
+    }, [navigate, showToast])
 
-    function focusNewTask() {
+    const focusNewTask = useCallback(() => {
         navigate("/tasks", {
             state: {
                 focusNewTask: true,
@@ -72,7 +72,7 @@ export function GlobalShortcuts() {
             title: "Nova tarefa",
             description: "Campo de criação de tarefa selecionado.",
         })
-    }
+    }, [navigate, showToast])
 
     useEffect(() => {
         function handleKeyDown(event: KeyboardEvent) {
@@ -146,7 +146,7 @@ export function GlobalShortcuts() {
                 window.clearTimeout(timerRef.current)
             }
         }
-    }, [navigate, showToast])
+    }, [focusNewTask, goTo, resetSequence, startSequence])
 
     return null
 }
