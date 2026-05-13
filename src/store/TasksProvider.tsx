@@ -43,12 +43,35 @@ type TasksProviderProps = {
 
 const TasksContext = createContext<TasksContextValue | null>(null)
 
+const validPriorities: Priority[] = ["low", "medium", "high"]
+
+const validActivityTypes: ActivityType[] = [
+    "created",
+    "completed",
+    "reopened",
+    "deleted",
+    "reordered",
+    "cleared",
+    "reset",
+]
+
 function createId() {
     if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
         return crypto.randomUUID()
     }
 
     return String(Date.now() + Math.random())
+}
+
+function isValidPriority(priority: unknown): priority is Priority {
+    return typeof priority === "string" && validPriorities.includes(priority as Priority)
+}
+
+function isValidActivityType(type: unknown): type is ActivityType {
+    return (
+        typeof type === "string" &&
+        validActivityTypes.includes(type as ActivityType)
+    )
 }
 
 function createDemoTasks(): Task[] {
@@ -106,12 +129,21 @@ function createDemoTasks(): Task[] {
 function normalizeTasks(tasks: Partial<Task>[]): Task[] {
     return tasks
         .map((task, index) => ({
-            id: task.id ?? createId(),
-            title: task.title ?? "Tarefa sem título",
-            category: task.category ?? "Geral",
-            priority: task.priority ?? "medium",
+            id: typeof task.id === "string" ? task.id : createId(),
+            title:
+                typeof task.title === "string" && task.title.trim()
+                    ? task.title
+                    : "Tarefa sem título",
+            category:
+                typeof task.category === "string" && task.category.trim()
+                    ? task.category
+                    : "Geral",
+            priority: isValidPriority(task.priority) ? task.priority : "medium",
             done: Boolean(task.done),
-            createdAt: task.createdAt ?? new Date().toISOString(),
+            createdAt:
+                typeof task.createdAt === "string"
+                    ? task.createdAt
+                    : new Date().toISOString(),
             order: typeof task.order === "number" ? task.order : index,
         }))
         .sort((a, b) => a.order - b.order)
@@ -122,18 +154,42 @@ function normalizeActivities(
 ): TaskActivity[] {
     return activities
         .map((activity) => ({
-            id: activity.id ?? createId(),
-            type: activity.type ?? "created",
-            title: activity.title ?? "Atividade registrada",
+            id: typeof activity.id === "string" ? activity.id : createId(),
+            type: isValidActivityType(activity.type) ? activity.type : "created",
+            title:
+                typeof activity.title === "string" && activity.title.trim()
+                    ? activity.title
+                    : "Atividade registrada",
             description:
-                activity.description ?? "Uma ação foi registrada no Lynflow.",
-            createdAt: activity.createdAt ?? new Date().toISOString(),
+                typeof activity.description === "string" && activity.description.trim()
+                    ? activity.description
+                    : "Uma ação foi registrada no Lynflow.",
+            createdAt:
+                typeof activity.createdAt === "string"
+                    ? activity.createdAt
+                    : new Date().toISOString(),
         }))
         .sort(
             (a, b) =>
                 new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         )
         .slice(0, 30)
+}
+
+function parseStoredArray<T>(value: string | null): T[] | null {
+    if (!value) return null
+
+    try {
+        const parsedValue = JSON.parse(value)
+
+        if (!Array.isArray(parsedValue)) {
+            return null
+        }
+
+        return parsedValue as T[]
+    } catch {
+        return null
+    }
 }
 
 function reorderArray<T>(items: T[], fromIndex: number, toIndex: number) {
@@ -151,29 +207,26 @@ export function TasksProvider({ children }: TasksProviderProps) {
     const [isReady, setIsReady] = useState(false)
 
     useEffect(() => {
-        const savedTasks = localStorage.getItem(TASKS_KEY)
-        const savedActivities = localStorage.getItem(ACTIVITIES_KEY)
+        const parsedTasks = parseStoredArray<Partial<Task>>(
+            localStorage.getItem(TASKS_KEY)
+        )
 
-        if (savedTasks) {
-            try {
-                const parsedTasks = JSON.parse(savedTasks)
-                setTasks(normalizeTasks(parsedTasks))
-            } catch {
-                localStorage.removeItem(TASKS_KEY)
-                setTasks(createDemoTasks())
-            }
+        const parsedActivities = parseStoredArray<Partial<TaskActivity>>(
+            localStorage.getItem(ACTIVITIES_KEY)
+        )
+
+        if (parsedTasks) {
+            setTasks(normalizeTasks(parsedTasks))
         } else {
+            localStorage.removeItem(TASKS_KEY)
             setTasks(createDemoTasks())
         }
 
-        if (savedActivities) {
-            try {
-                const parsedActivities = JSON.parse(savedActivities)
-                setActivities(normalizeActivities(parsedActivities))
-            } catch {
-                localStorage.removeItem(ACTIVITIES_KEY)
-                setActivities([])
-            }
+        if (parsedActivities) {
+            setActivities(normalizeActivities(parsedActivities))
+        } else {
+            localStorage.removeItem(ACTIVITIES_KEY)
+            setActivities([])
         }
 
         setIsReady(true)

@@ -1,7 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from "react"
 import { AlertTriangle, Home, RefreshCcw, Trash2 } from "lucide-react"
 import { Button } from "./ui/Button"
-import { LinkButton } from "./ui/LinkButton"
 import { ThemeToggle } from "./ThemeToggle"
 
 type ErrorBoundaryProps = {
@@ -49,6 +48,10 @@ export class ErrorBoundary extends Component<
 
     handleReload = () => {
         window.location.reload()
+    }
+
+    handleGoHome = () => {
+        window.location.href = "/"
     }
 
     handleResetLocalData = () => {
@@ -111,14 +114,14 @@ export class ErrorBoundary extends Component<
                                 Recarregar
                             </Button>
 
-                            <LinkButton
-                                to="/"
+                            <Button
                                 size="lg"
                                 variant="secondary"
                                 icon={<Home size={18} />}
+                                onClick={this.handleGoHome}
                             >
                                 Ir para início
-                            </LinkButton>
+                            </Button>
 
                             <Button
                                 size="lg"

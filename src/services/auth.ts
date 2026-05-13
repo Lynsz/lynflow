@@ -16,6 +16,30 @@ function normalizeEmail(email: string) {
     return email.trim().toLowerCase()
 }
 
+function isUser(value: unknown): value is User {
+    if (!value || typeof value !== "object") {
+        return false
+    }
+
+    const user = value as Partial<User>
+
+    return (
+        typeof user.name === "string" &&
+        typeof user.email === "string" &&
+        typeof user.password === "string"
+    )
+}
+
+function isSessionUser(value: unknown): value is SessionUser {
+    if (!value || typeof value !== "object") {
+        return false
+    }
+
+    const user = value as Partial<SessionUser>
+
+    return typeof user.name === "string" && typeof user.email === "string"
+}
+
 function getUsers(): User[] {
     const users = localStorage.getItem(USERS_KEY)
 
@@ -24,7 +48,14 @@ function getUsers(): User[] {
     }
 
     try {
-        return JSON.parse(users)
+        const parsedUsers = JSON.parse(users)
+
+        if (!Array.isArray(parsedUsers)) {
+            localStorage.removeItem(USERS_KEY)
+            return []
+        }
+
+        return parsedUsers.filter(isUser)
     } catch {
         localStorage.removeItem(USERS_KEY)
         return []
@@ -148,7 +179,14 @@ export function getCurrentUser(): SessionUser | null {
     }
 
     try {
-        return JSON.parse(session)
+        const parsedSession = JSON.parse(session)
+
+        if (!isSessionUser(parsedSession)) {
+            localStorage.removeItem(SESSION_KEY)
+            return null
+        }
+
+        return parsedSession
     } catch {
         localStorage.removeItem(SESSION_KEY)
         return null
