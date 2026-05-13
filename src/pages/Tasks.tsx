@@ -25,6 +25,7 @@ import {
     SlidersHorizontal,
 } from "lucide-react"
 import { useTasks } from "../hooks/useTasks"
+import { usePersistentState } from "../hooks/usePersistentState"
 import type { Priority, Task } from "../types/task"
 import {
     filterAndSortTasks,
@@ -45,6 +46,12 @@ import { useToast } from "../components/ui/ToastProvider"
 import { TasksSkeleton } from "../components/skeletons/TasksSkeleton"
 
 type ViewMode = "list" | "kanban"
+
+const TASKS_VIEW_MODE_STORAGE_KEY = "lynflow:tasks-view-mode"
+
+function isViewMode(value: string): value is ViewMode {
+    return value === "list" || value === "kanban"
+}
 
 const statusFilters: Array<{ key: StatusFilter; label: string }> = [
     { key: "all", label: "Todas" },
@@ -96,7 +103,11 @@ export function Tasks() {
     const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>("all")
     const [categoryFilter, setCategoryFilter] = useState("all")
     const [sortBy, setSortBy] = useState<SortOption>("manual")
-    const [viewMode, setViewMode] = useState<ViewMode>("list")
+    const [viewMode, setViewMode] = usePersistentState<ViewMode>({
+        storageKey: TASKS_VIEW_MODE_STORAGE_KEY,
+        defaultValue: "list",
+        isValidValue: isViewMode,
+    })
 
     const [editingId, setEditingId] = useState<string | null>(null)
     const [editingTitle, setEditingTitle] = useState("")
