@@ -9,6 +9,7 @@ const tasks: Task[] = [
         category: "Deploy",
         priority: "high",
         done: false,
+        dueDate: "2026-05-20",
         createdAt: "2026-05-13T10:00:00.000Z",
         order: 2,
     },
@@ -18,6 +19,7 @@ const tasks: Task[] = [
         category: "Portfolio",
         priority: "medium",
         done: true,
+        dueDate: "2026-05-15",
         createdAt: "2026-05-12T10:00:00.000Z",
         order: 1,
     },
@@ -27,6 +29,7 @@ const tasks: Task[] = [
         category: "Design",
         priority: "low",
         done: false,
+        dueDate: null,
         createdAt: "2026-05-11T10:00:00.000Z",
         order: 0,
     },
@@ -71,5 +74,18 @@ describe("filterAndSortTasks", () => {
         })
 
         expect(result.map((task) => task.priority)).toEqual(["high", "medium", "low"])
+    })
+
+    it("sorts tasks by due date with undated tasks last", () => {
+        const result = filterAndSortTasks({
+            tasks,
+            search: "",
+            status: "all",
+            priority: "all",
+            category: "all",
+            sortBy: "dueDate",
+        })
+
+        expect(result.map((task) => task.id)).toEqual(["2", "1", "3"])
     })
 })

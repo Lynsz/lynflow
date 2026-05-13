@@ -65,7 +65,10 @@ function isTask(value: unknown): value is Task {
         isPriority(value.priority) &&
         typeof value.done === "boolean" &&
         typeof value.createdAt === "string" &&
-        typeof value.order === "number"
+        typeof value.order === "number" &&
+        (typeof value.dueDate === "string" ||
+            value.dueDate === null ||
+            typeof value.dueDate === "undefined")
     )
 }
 

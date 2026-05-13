@@ -21,6 +21,7 @@ type AddTaskData = {
     title: string
     category: string
     priority: Priority
+    dueDate?: string | null
 }
 
 type TasksContextValue = {
@@ -149,6 +150,10 @@ function normalizeTasks(tasks: Partial<Task>[]): Task[] {
                     : "Geral",
             priority: isValidPriority(task.priority) ? task.priority : "medium",
             done: Boolean(task.done),
+            dueDate:
+                typeof task.dueDate === "string" && task.dueDate.trim()
+                    ? task.dueDate
+                    : null,
             createdAt:
                 typeof task.createdAt === "string"
                     ? task.createdAt
@@ -421,6 +426,7 @@ export function TasksProvider({ children }: TasksProviderProps) {
             category: data.category.trim() || "Geral",
             priority: data.priority,
             done: false,
+            dueDate: data.dueDate || null,
             createdAt: new Date().toISOString(),
             order: smallestOrder - 1,
         }
@@ -440,6 +446,7 @@ export function TasksProvider({ children }: TasksProviderProps) {
                         category: newTask.category,
                         priority: newTask.priority,
                         done: newTask.done,
+                        due_date: newTask.dueDate ?? null,
                         order_index: newTask.order,
                     })
                     .select("*")
@@ -481,6 +488,7 @@ export function TasksProvider({ children }: TasksProviderProps) {
             priority?: Priority
             done?: boolean
             order_index?: number
+            due_date?: string | null
         } = {}
 
         if (typeof data.title === "string") payload.title = data.title
@@ -488,6 +496,9 @@ export function TasksProvider({ children }: TasksProviderProps) {
         if (data.priority) payload.priority = data.priority
         if (typeof data.done === "boolean") payload.done = data.done
         if (typeof data.order === "number") payload.order_index = data.order
+        if (typeof data.dueDate === "string" || data.dueDate === null) {
+            payload.due_date = data.dueDate
+        }
 
         const client = supabase
 
@@ -667,6 +678,7 @@ export function TasksProvider({ children }: TasksProviderProps) {
                         category: task.category,
                         priority: task.priority,
                         done: task.done,
+                        due_date: task.dueDate ?? null,
                         order_index: task.order,
                     }))
                 )
@@ -749,6 +761,7 @@ export function TasksProvider({ children }: TasksProviderProps) {
                     category: task.category,
                     priority: task.priority,
                     done: task.done,
+                    due_date: task.dueDate ?? null,
                     order_index: task.order,
                 }))
             )

@@ -752,11 +752,11 @@ Para configurar build, pasta de saída e suporte a rotas internas do React Route
 - [x] Supabase opcional
 - [x] Testes automatizados
 - [x] CI com GitHub Actions
+- [x] Datas de vencimento em tarefas
 
 ### Melhorias futuras
 
 - [ ] Realtime com Supabase.
-- [ ] Tarefas com data de vencimento.
 - [ ] Kanban view.
 - [ ] Calendário.
 - [ ] Exportar dados.

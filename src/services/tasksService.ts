@@ -42,6 +42,7 @@ export async function createTask(title: string, userId: string) {
             category: "Geral",
             priority: "medium" satisfies Priority,
             done: false,
+            due_date: null,
             order_index: 0,
             user_id: userId,
         })

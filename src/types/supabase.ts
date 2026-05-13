@@ -17,6 +17,7 @@ export type SupabaseTask = {
     category: string
     priority: Priority
     done: boolean
+    due_date: string | null
     order_index: number
     created_at: string
     updated_at: string
@@ -67,6 +68,7 @@ export function mapSupabaseTask(task: SupabaseTask): Task {
         category: task.category,
         priority: task.priority,
         done: task.done,
+        dueDate: task.due_date,
         createdAt: task.created_at,
         order: task.order_index,
     }

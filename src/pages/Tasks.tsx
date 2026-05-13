@@ -59,6 +59,7 @@ const sortOptions: Array<{ key: SortOption; label: string }> = [
     { key: "manual", label: "Manual" },
     { key: "newest", label: "Mais recentes" },
     { key: "oldest", label: "Mais antigas" },
+    { key: "dueDate", label: "Vencimento" },
     { key: "priority", label: "Prioridade" },
     { key: "title", label: "Título A-Z" },
 ]
@@ -83,6 +84,7 @@ export function Tasks() {
     const [title, setTitle] = useState("")
     const [category, setCategory] = useState("Geral")
     const [priority, setPriority] = useState<Priority>("medium")
+    const [dueDate, setDueDate] = useState("")
 
     const [search, setSearch] = useState("")
     const [statusFilter, setStatusFilter] = useState<StatusFilter>("all")
@@ -175,6 +177,7 @@ export function Tasks() {
             title,
             category,
             priority,
+            dueDate: dueDate || null,
         })
 
         showToast({
@@ -186,6 +189,7 @@ export function Tasks() {
         setTitle("")
         setCategory("Geral")
         setPriority("medium")
+        setDueDate("")
 
         window.setTimeout(() => {
             titleInputRef.current?.focus()
@@ -312,7 +316,7 @@ export function Tasks() {
                 >
                     <form
                         onSubmit={handleAddTask}
-                        className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_160px_140px_auto]"
+                        className="grid grid-cols-1 gap-3 xl:grid-cols-[1fr_160px_140px_160px_auto]"
                     >
                         <label htmlFor="task-title" className="sr-only">
                             Nova tarefa
@@ -357,6 +361,19 @@ export function Tasks() {
                             <option value="medium">Média</option>
                             <option value="high">Alta</option>
                         </select>
+
+                        <label htmlFor="task-due-date" className="sr-only">
+                            Vencimento
+                        </label>
+
+                        <Input
+                            id="task-due-date"
+                            type="date"
+                            value={dueDate}
+                            onChange={(event) => setDueDate(event.target.value)}
+                            title="Data de vencimento"
+                            aria-label="Data de vencimento"
+                        />
 
                         <Button type="submit" size="lg" icon={<Plus size={18} />}>
                             Add

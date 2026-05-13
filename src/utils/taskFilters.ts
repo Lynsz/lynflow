@@ -2,7 +2,13 @@ import type { Priority, Task } from "../types/task"
 
 export type StatusFilter = "all" | "todo" | "done"
 export type PriorityFilter = "all" | Priority
-export type SortOption = "manual" | "newest" | "oldest" | "priority" | "title"
+export type SortOption =
+    | "manual"
+    | "newest"
+    | "oldest"
+    | "priority"
+    | "title"
+    | "dueDate"
 
 type FilterTasksParams = {
     tasks: Task[]
@@ -61,6 +67,14 @@ export function filterAndSortTasks({
 
         if (sortBy === "priority") {
             return priorityWeight[b.priority] - priorityWeight[a.priority]
+        }
+
+        if (sortBy === "dueDate") {
+            if (!a.dueDate && !b.dueDate) return a.order - b.order
+            if (!a.dueDate) return 1
+            if (!b.dueDate) return -1
+
+            return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
         }
 
         return a.title.localeCompare(b.title)

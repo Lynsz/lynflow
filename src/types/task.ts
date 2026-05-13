@@ -8,4 +8,5 @@ export type Task = {
     done: boolean
     createdAt: string
     order: number
+    dueDate?: string | null
 }

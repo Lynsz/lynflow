@@ -1,5 +1,5 @@
 import { motion } from "framer-motion"
-import { GripVertical, Trash2 } from "lucide-react"
+import { CalendarDays, GripVertical, Trash2 } from "lucide-react"
 import type { Priority, Task } from "../../types/task"
 import { Input } from "../ui/Input"
 
@@ -34,6 +34,25 @@ function getPriorityClass(priority: Priority) {
     return "border-emerald-500/20 bg-emerald-500/10 text-emerald-500"
 }
 
+function formatDueDate(dueDate: string) {
+    return new Intl.DateTimeFormat("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+    }).format(new Date(`${dueDate}T00:00:00`))
+}
+
+function isTaskOverdue(task: Task) {
+    if (!task.dueDate || task.done) return false
+
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    const dueDate = new Date(`${task.dueDate}T00:00:00`)
+
+    return dueDate.getTime() < today.getTime()
+}
+
 export function TaskCard({
     task,
     isEditing,
@@ -46,6 +65,8 @@ export function TaskCard({
     onDelete,
     isDragDisabled = false,
 }: TaskCardProps) {
+    const isOverdue = isTaskOverdue(task)
+
     return (
         <motion.div
             layout
@@ -128,6 +149,20 @@ export function TaskCard({
                         >
                             {getPriorityLabel(task.priority)}
                         </span>
+
+                        {task.dueDate ? (
+                            <span
+                                className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs ${
+                                    isOverdue
+                                        ? "border-red-500/20 bg-red-500/10 text-red-500"
+                                        : "border-[var(--border)] text-[var(--muted)]"
+                                }`}
+                            >
+                                <CalendarDays size={13} />
+                                {isOverdue ? "Atrasada: " : "Vence: "}
+                                {formatDueDate(task.dueDate)}
+                            </span>
+                        ) : null}
                     </div>
                 </div>
 
