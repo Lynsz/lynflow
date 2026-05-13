@@ -48,8 +48,6 @@ O Lynflow está disponível online pela Vercel:
 lynflow.vercel.app
 ```
 
-> Depois do deploy, substitua o link acima pelo link real gerado pela Vercel.
-
 ---
 
 ## 🖼️ Preview

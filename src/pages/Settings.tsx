@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"
 import {
     BookOpen,
     Database,
+    Download,
     History,
     LogOut,
     Moon,
@@ -22,6 +23,11 @@ import { SectionCard } from "../components/ui/SectionCard"
 import { useToast } from "../components/ui/ToastProvider"
 import { DeployChecklist } from "../components/settings/DeployChecklist"
 import { DeployGuide } from "../components/settings/DeployGuide"
+import {
+    createLynflowExportPayload,
+    downloadJsonFile,
+    getLynflowExportFileName,
+} from "../utils/exportData"
 
 export function Settings() {
     const navigate = useNavigate()
@@ -111,6 +117,23 @@ export function Settings() {
             type: "info",
             title: "Tutorial aberto",
             description: "O onboarding do Lynflow foi reaberto.",
+        })
+    }
+
+    function handleExportData() {
+        const payload = createLynflowExportPayload({
+            dataMode,
+            user,
+            tasks,
+            activities,
+        })
+
+        downloadJsonFile(payload, getLynflowExportFileName())
+
+        showToast({
+            type: "success",
+            title: "Backup exportado",
+            description: "Seus dados atuais foram salvos em um arquivo JSON.",
         })
     }
 
@@ -265,6 +288,14 @@ export function Settings() {
                         </div>
 
                         <div className="flex flex-col gap-3 md:flex-row md:flex-wrap">
+                            <Button
+                                variant="secondary"
+                                icon={<Download size={18} />}
+                                onClick={handleExportData}
+                            >
+                                Exportar dados
+                            </Button>
+
                             <Button
                                 variant="secondary"
                                 icon={<RotateCcw size={18} />}
