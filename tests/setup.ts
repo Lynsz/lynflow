@@ -1,3 +1,6 @@
+import { cleanup } from "@testing-library/react"
+import { afterEach } from "vitest"
+
 class ResizeObserverMock {
     observe() {}
     unobserve() {}
@@ -35,4 +38,11 @@ Object.defineProperty(globalThis, "ResizeObserver", {
 Object.defineProperty(globalThis, "IntersectionObserver", {
     writable: true,
     value: IntersectionObserverMock,
+})
+
+afterEach(() => {
+    cleanup()
+    localStorage.clear()
+    sessionStorage.clear()
+    window.history.pushState({}, "", "/")
 })
