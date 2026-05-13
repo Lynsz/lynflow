@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { LogOut, Moon, Sun, Trash2, User } from "lucide-react"
+import { LogOut, Moon, RotateCcw, Sun, Trash2, User } from "lucide-react"
 import { getCurrentUser, logoutUser } from "../services/auth"
 import { useTasks } from "../hooks/useTasks"
 import { useTheme } from "../hooks/useTheme"
@@ -14,11 +14,12 @@ import { useToast } from "../components/ui/ToastProvider"
 export function Settings() {
     const navigate = useNavigate()
     const user = getCurrentUser()
-    const { clearTasks } = useTasks()
+    const { clearTasks, resetTasks } = useTasks()
     const { isDark, toggleTheme } = useTheme()
     const { showToast } = useToast()
 
     const [isClearDialogOpen, setIsClearDialogOpen] = useState(false)
+    const [isResetDialogOpen, setIsResetDialogOpen] = useState(false)
 
     function handleLogout() {
         logoutUser()
@@ -42,6 +43,18 @@ export function Settings() {
         })
 
         setIsClearDialogOpen(false)
+    }
+
+    function confirmResetTasks() {
+        resetTasks()
+
+        showToast({
+            type: "success",
+            title: "Demo restaurada",
+            description: "As tarefas iniciais do Lynflow foram restauradas.",
+        })
+
+        setIsResetDialogOpen(false)
     }
 
     function handleToggleTheme() {
@@ -117,11 +130,19 @@ export function Settings() {
                     </SectionCard>
 
                     <SectionCard
-                        title="Ações"
-                        description="Controle rápido para testar o MVP."
+                        title="Dados do MVP"
+                        description="Controle rápido para testar o projeto durante desenvolvimento."
                         className="xl:col-span-2"
                     >
                         <div className="flex flex-col gap-3 md:flex-row">
+                            <Button
+                                variant="secondary"
+                                icon={<RotateCcw size={18} />}
+                                onClick={() => setIsResetDialogOpen(true)}
+                            >
+                                Restaurar demo
+                            </Button>
+
                             <Button
                                 variant="danger"
                                 icon={<Trash2 size={18} />}
@@ -147,6 +168,17 @@ export function Settings() {
                 variant="danger"
                 onConfirm={confirmClearTasks}
                 onClose={() => setIsClearDialogOpen(false)}
+            />
+
+            <ConfirmDialog
+                isOpen={isResetDialogOpen}
+                title="Restaurar tarefas demo?"
+                description="Essa ação vai substituir a lista atual pelas tarefas iniciais do Lynflow. Use isso para voltar o projeto para um estado de demonstração."
+                confirmLabel="Restaurar demo"
+                cancelLabel="Cancelar"
+                variant="primary"
+                onConfirm={confirmResetTasks}
+                onClose={() => setIsResetDialogOpen(false)}
             />
         </>
     )

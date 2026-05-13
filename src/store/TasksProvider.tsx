@@ -30,6 +30,7 @@ type TasksContextValue = {
     deleteTask: (id: string) => void
     reorderTasks: (activeId: string, overId: string) => void
     clearTasks: () => void
+    resetTasks: () => void
 }
 
 type TasksProviderProps = {
@@ -46,35 +47,57 @@ function createId() {
     return String(Date.now() + Math.random())
 }
 
-const initialTasks: Task[] = [
-    {
-        id: createId(),
-        title: "Finalizar layout premium do Lynflow",
-        category: "Projeto",
-        priority: "high",
-        done: false,
-        createdAt: new Date().toISOString(),
-        order: 0,
-    },
-    {
-        id: createId(),
-        title: "Criar README profissional",
-        category: "Portfólio",
-        priority: "medium",
-        done: false,
-        createdAt: new Date().toISOString(),
-        order: 1,
-    },
-    {
-        id: createId(),
-        title: "Estudar React Router por 30 minutos",
-        category: "Estudos",
-        priority: "medium",
-        done: true,
-        createdAt: new Date().toISOString(),
-        order: 2,
-    },
-]
+function createDemoTasks(): Task[] {
+    const now = new Date().toISOString()
+
+    return [
+        {
+            id: createId(),
+            title: "Finalizar layout premium do Lynflow",
+            category: "Projeto",
+            priority: "high",
+            done: false,
+            createdAt: now,
+            order: 0,
+        },
+        {
+            id: createId(),
+            title: "Criar README profissional",
+            category: "Portfólio",
+            priority: "medium",
+            done: false,
+            createdAt: now,
+            order: 1,
+        },
+        {
+            id: createId(),
+            title: "Estudar React Router por 30 minutos",
+            category: "Estudos",
+            priority: "medium",
+            done: true,
+            createdAt: now,
+            order: 2,
+        },
+        {
+            id: createId(),
+            title: "Preparar deploy na Vercel",
+            category: "Deploy",
+            priority: "high",
+            done: false,
+            createdAt: now,
+            order: 3,
+        },
+        {
+            id: createId(),
+            title: "Criar prints para o README",
+            category: "Portfólio",
+            priority: "low",
+            done: false,
+            createdAt: now,
+            order: 4,
+        },
+    ]
+}
 
 function normalizeTasks(tasks: Partial<Task>[]): Task[] {
     return tasks
@@ -112,10 +135,10 @@ export function TasksProvider({ children }: TasksProviderProps) {
                 setTasks(normalizeTasks(parsedTasks))
             } catch {
                 localStorage.removeItem(TASKS_KEY)
-                setTasks(initialTasks)
+                setTasks(createDemoTasks())
             }
         } else {
-            setTasks(initialTasks)
+            setTasks(createDemoTasks())
         }
 
         setIsReady(true)
@@ -208,6 +231,10 @@ export function TasksProvider({ children }: TasksProviderProps) {
         setTasks([])
     }
 
+    function resetTasks() {
+        setTasks(createDemoTasks())
+    }
+
     const value: TasksContextValue = {
         isReady,
         tasks,
@@ -222,6 +249,7 @@ export function TasksProvider({ children }: TasksProviderProps) {
         deleteTask,
         reorderTasks,
         clearTasks,
+        resetTasks,
     }
 
     return (
