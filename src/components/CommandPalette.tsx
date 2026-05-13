@@ -38,6 +38,10 @@ export function CommandPalette() {
     const [search, setSearch] = useState("")
     const [selectedIndex, setSelectedIndex] = useState(0)
 
+    function openPalette() {
+        setIsOpen(true)
+    }
+
     function closePalette() {
         setIsOpen(false)
         setSearch("")
@@ -156,10 +160,22 @@ export function CommandPalette() {
             }
         }
 
+        function handleOpenCommandPalette() {
+            openPalette()
+        }
+
         window.addEventListener("keydown", handleKeyDown)
+        window.addEventListener(
+            "lynflow-open-command-palette",
+            handleOpenCommandPalette
+        )
 
         return () => {
             window.removeEventListener("keydown", handleKeyDown)
+            window.removeEventListener(
+                "lynflow-open-command-palette",
+                handleOpenCommandPalette
+            )
         }
     }, [])
 

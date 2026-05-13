@@ -18,6 +18,7 @@ import { logoutUser } from "../services/auth"
 import { ThemeToggle } from "../components/ThemeToggle"
 import { CommandPalette } from "../components/CommandPalette"
 import { GlobalShortcuts } from "../components/GlobalShortcuts"
+import { AppTopbar } from "../components/AppTopbar"
 
 type AppLayoutProps = {
     children: ReactNode
@@ -121,6 +122,10 @@ export function AppLayout({ children }: AppLayoutProps) {
         setIsMoreOpen(false)
     }
 
+    function openCommandPalette() {
+        window.dispatchEvent(new CustomEvent("lynflow-open-command-palette"))
+    }
+
     return (
         <div className="flex min-h-screen bg-[var(--bg)] text-[var(--text)]">
             <CommandPalette />
@@ -132,18 +137,28 @@ export function AppLayout({ children }: AppLayoutProps) {
                     <p className="ly-muted-soft mt-1 text-sm">AI productivity OS</p>
                 </div>
 
-                <div className="mb-5">
-                    <div className="flex items-center justify-between rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--muted)]">
-                        <div className="flex items-center gap-2">
-                            <Command size={15} />
-                            <span>Command</span>
-                        </div>
+                <button
+                    type="button"
+                    onClick={openCommandPalette}
+                    className="mb-5 flex w-full items-center justify-between rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--muted)] transition hover:border-[var(--muted-soft)] hover:text-[var(--text)]"
+                    aria-label="Abrir Command Palette"
+                    title="Abrir Command Palette"
+                >
+                    <div className="flex items-center gap-2">
+                        <Command size={15} />
+                        <span>Command</span>
+                    </div>
 
+                    <div className="flex items-center gap-1">
                         <span className="rounded-lg border border-[var(--border)] px-2 py-1 text-[10px]">
                             Ctrl K
                         </span>
+
+                        <span className="rounded-lg border border-[var(--border)] px-2 py-1 text-[10px]">
+                            G ?
+                        </span>
                     </div>
-                </div>
+                </button>
 
                 <nav className="flex flex-col gap-2">
                     {navItems.map((item) => {
@@ -188,7 +203,10 @@ export function AppLayout({ children }: AppLayoutProps) {
                 </div>
             </aside>
 
-            <main className="min-w-0 flex-1 pb-24 md:pb-0">{children}</main>
+            <main className="min-w-0 flex-1 pb-24 md:pb-0">
+                <AppTopbar />
+                {children}
+            </main>
 
             <AnimatePresence>
                 {isMoreOpen && (
@@ -292,8 +310,8 @@ export function AppLayout({ children }: AppLayoutProps) {
                         type="button"
                         onClick={() => setIsMoreOpen((currentValue) => !currentValue)}
                         className={`flex flex-col items-center gap-1 px-2 py-3 text-[11px] transition ${isMoreOpen || isMoreActive
-                            ? "text-[var(--text)]"
-                            : "text-[var(--muted-soft)]"
+                                ? "text-[var(--text)]"
+                                : "text-[var(--muted-soft)]"
                             }`}
                         aria-label="Abrir mais opções"
                         title="Abrir mais opções"
