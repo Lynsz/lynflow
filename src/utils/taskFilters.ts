@@ -1,6 +1,7 @@
 import type { Priority, Task } from "../types/task"
+import { isTaskOverdue } from "./taskStatus"
 
-export type StatusFilter = "all" | "todo" | "done"
+export type StatusFilter = "all" | "todo" | "done" | "overdue"
 export type PriorityFilter = "all" | Priority
 export type SortOption =
     | "manual"
@@ -17,12 +18,33 @@ type FilterTasksParams = {
     priority: PriorityFilter
     category: string
     sortBy: SortOption
+    referenceDate?: Date
 }
 
 const priorityWeight: Record<Priority, number> = {
     high: 3,
     medium: 2,
     low: 1,
+}
+
+function getMatchesStatus(task: Task, status: StatusFilter, referenceDate: Date) {
+    if (status === "all") {
+        return true
+    }
+
+    if (status === "done") {
+        return task.done
+    }
+
+    if (status === "todo") {
+        return !task.done
+    }
+
+    if (status === "overdue") {
+        return isTaskOverdue(task, referenceDate)
+    }
+
+    return true
 }
 
 export function filterAndSortTasks({
@@ -32,6 +54,7 @@ export function filterAndSortTasks({
     priority,
     category,
     sortBy,
+    referenceDate = new Date(),
 }: FilterTasksParams) {
     const normalizedSearch = search.trim().toLowerCase()
 
@@ -40,10 +63,7 @@ export function filterAndSortTasks({
             task.title.toLowerCase().includes(normalizedSearch) ||
             task.category.toLowerCase().includes(normalizedSearch)
 
-        const matchesStatus =
-            status === "all" ||
-            (status === "done" && task.done) ||
-            (status === "todo" && !task.done)
+        const matchesStatus = getMatchesStatus(task, status, referenceDate)
 
         const matchesPriority = priority === "all" || task.priority === priority
 

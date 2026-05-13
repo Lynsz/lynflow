@@ -49,6 +49,7 @@ type ViewMode = "list" | "kanban"
 const statusFilters: Array<{ key: StatusFilter; label: string }> = [
     { key: "all", label: "Todas" },
     { key: "todo", label: "Pendentes" },
+    { key: "overdue", label: "Atrasadas" },
     { key: "done", label: "Concluídas" },
 ]
 

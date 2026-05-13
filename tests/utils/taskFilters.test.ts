@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest"
 import type { Task } from "../../src/types/task"
 import { filterAndSortTasks } from "../../src/utils/taskFilters"
 
+const referenceDate = new Date("2026-05-13T12:00:00.000Z")
+
 const tasks: Task[] = [
     {
         id: "1",
@@ -33,6 +35,16 @@ const tasks: Task[] = [
         createdAt: "2026-05-11T10:00:00.000Z",
         order: 0,
     },
+    {
+        id: "4",
+        title: "Corrigir tarefa atrasada",
+        category: "Bugfix",
+        priority: "high",
+        done: false,
+        dueDate: "2026-05-12",
+        createdAt: "2026-05-10T10:00:00.000Z",
+        order: 3,
+    },
 ]
 
 describe("filterAndSortTasks", () => {
@@ -44,10 +56,51 @@ describe("filterAndSortTasks", () => {
             priority: "high",
             category: "Deploy",
             sortBy: "manual",
+            referenceDate,
         })
 
         expect(result).toHaveLength(1)
         expect(result[0].id).toBe("1")
+    })
+
+    it("filters overdue tasks", () => {
+        const result = filterAndSortTasks({
+            tasks,
+            search: "",
+            status: "overdue",
+            priority: "all",
+            category: "all",
+            sortBy: "manual",
+            referenceDate,
+        })
+
+        expect(result).toHaveLength(1)
+        expect(result[0].id).toBe("4")
+    })
+
+    it("does not include completed tasks in overdue filter", () => {
+        const result = filterAndSortTasks({
+            tasks: [
+                {
+                    id: "completed-overdue",
+                    title: "Tarefa concluída vencida",
+                    category: "Teste",
+                    priority: "medium",
+                    done: true,
+                    dueDate: "2026-05-12",
+                    createdAt: "2026-05-10T10:00:00.000Z",
+                    order: 1,
+                },
+            ],
+            search: "",
+            status: "overdue",
+            priority: "all",
+            category: "all",
+            sortBy: "manual",
+            referenceDate,
+        })
+
+        expect(result).toHaveLength(0)
     })
 
     it("sorts tasks by manual order", () => {
@@ -58,9 +111,10 @@ describe("filterAndSortTasks", () => {
             priority: "all",
             category: "all",
             sortBy: "manual",
+            referenceDate,
         })
 
-        expect(result.map((task) => task.id)).toEqual(["3", "2", "1"])
+        expect(result.map((task) => task.id)).toEqual(["3", "2", "1", "4"])
     })
 
     it("sorts tasks by priority weight", () => {
@@ -71,9 +125,15 @@ describe("filterAndSortTasks", () => {
             priority: "all",
             category: "all",
             sortBy: "priority",
+            referenceDate,
         })
 
-        expect(result.map((task) => task.priority)).toEqual(["high", "medium", "low"])
+        expect(result.map((task) => task.priority)).toEqual([
+            "high",
+            "high",
+            "medium",
+            "low",
+        ])
     })
 
     it("sorts tasks by due date with undated tasks last", () => {
@@ -84,8 +144,9 @@ describe("filterAndSortTasks", () => {
             priority: "all",
             category: "all",
             sortBy: "dueDate",
+            referenceDate,
         })
 
-        expect(result.map((task) => task.id)).toEqual(["2", "1", "3"])
+        expect(result.map((task) => task.id)).toEqual(["4", "2", "1", "3"])
     })
 })
