@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import { loginUser } from "../../services/auth"
+import { useAuth } from "../../hooks/useAuth"
 import { validateLoginForm } from "../../utils/validators"
 import { AuthCard } from "../../components/auth/AuthCard"
 import { Button } from "../../components/ui/Button"
@@ -10,12 +10,14 @@ import { useToast } from "../../components/ui/ToastProvider"
 export function Login() {
     const navigate = useNavigate()
     const { showToast } = useToast()
+    const { login, dataMode } = useAuth()
 
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [error, setError] = useState("")
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
-    function handleLogin(event: FormEvent<HTMLFormElement>) {
+    async function handleLogin(event: FormEvent<HTMLFormElement>) {
         event.preventDefault()
         setError("")
 
@@ -34,12 +36,16 @@ export function Login() {
         }
 
         try {
-            loginUser(email, password)
+            setIsSubmitting(true)
+            await login(email, password)
 
             showToast({
                 type: "success",
                 title: "Login realizado",
-                description: "Bem-vinda de volta ao Lynflow.",
+                description:
+                    dataMode === "supabase"
+                        ? "Sessao Supabase iniciada."
+                        : "Bem-vinda de volta ao Lynflow.",
             })
 
             navigate("/dashboard")
@@ -53,6 +59,8 @@ export function Login() {
                     description: err.message,
                 })
             }
+        } finally {
+            setIsSubmitting(false)
         }
     }
 
@@ -64,8 +72,8 @@ export function Login() {
             onSubmit={handleLogin}
             footer={
                 <>
-                    <Button type="submit" className="mt-6 w-full">
-                        Entrar
+                    <Button type="submit" className="mt-6 w-full" disabled={isSubmitting}>
+                        {isSubmitting ? "Entrando..." : "Entrar"}
                     </Button>
 
                     <p className="ly-muted mt-5 text-center text-sm">

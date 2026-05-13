@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import {
     createContext,
     useContext,
@@ -6,8 +7,12 @@ import {
     useState,
     type ReactNode,
 } from "react"
+import { useAuth } from "../hooks/useAuth"
+import { useToast } from "../components/ui/ToastProvider"
+import { supabase } from "../services/supabase"
 import type { TaskActivity, ActivityType } from "../types/activity"
 import type { Priority, Task } from "../types/task"
+import { mapSupabaseActivity, mapSupabaseTask } from "../types/supabase"
 
 const TASKS_KEY = "lynflow-tasks"
 const ACTIVITIES_KEY = "lynflow-activities"
@@ -90,7 +95,7 @@ function createDemoTasks(): Task[] {
         {
             id: createId(),
             title: "Criar README profissional",
-            category: "Portfólio",
+            category: "Portfolio",
             priority: "medium",
             done: false,
             createdAt: now,
@@ -117,7 +122,7 @@ function createDemoTasks(): Task[] {
         {
             id: createId(),
             title: "Criar prints para o README",
-            category: "Portfólio",
+            category: "Portfolio",
             priority: "low",
             done: false,
             createdAt: now,
@@ -133,7 +138,7 @@ function normalizeTasks(tasks: Partial<Task>[]): Task[] {
             title:
                 typeof task.title === "string" && task.title.trim()
                     ? task.title
-                    : "Tarefa sem título",
+                    : "Tarefa sem titulo",
             category:
                 typeof task.category === "string" && task.category.trim()
                     ? task.category
@@ -163,7 +168,7 @@ function normalizeActivities(
             description:
                 typeof activity.description === "string" && activity.description.trim()
                     ? activity.description
-                    : "Uma ação foi registrada no Lynflow.",
+                    : "Uma acao foi registrada no Lynflow.",
             createdAt:
                 typeof activity.createdAt === "string"
                     ? activity.createdAt
@@ -202,47 +207,130 @@ function reorderArray<T>(items: T[], fromIndex: number, toIndex: number) {
 }
 
 export function TasksProvider({ children }: TasksProviderProps) {
+    const { user, dataMode, isLoading: isAuthLoading } = useAuth()
+    const { showToast } = useToast()
+
     const [tasks, setTasks] = useState<Task[]>([])
     const [activities, setActivities] = useState<TaskActivity[]>([])
     const [isReady, setIsReady] = useState(false)
 
-    useEffect(() => {
-        const parsedTasks = parseStoredArray<Partial<Task>>(
-            localStorage.getItem(TASKS_KEY)
-        )
-
-        const parsedActivities = parseStoredArray<Partial<TaskActivity>>(
-            localStorage.getItem(ACTIVITIES_KEY)
-        )
-
-        if (parsedTasks) {
-            setTasks(normalizeTasks(parsedTasks))
-        } else {
-            localStorage.removeItem(TASKS_KEY)
-            setTasks(createDemoTasks())
-        }
-
-        if (parsedActivities) {
-            setActivities(normalizeActivities(parsedActivities))
-        } else {
-            localStorage.removeItem(ACTIVITIES_KEY)
-            setActivities([])
-        }
-
-        setIsReady(true)
-    }, [])
+    const isRemoteMode = dataMode === "supabase"
 
     useEffect(() => {
-        if (!isReady) return
+        if (isAuthLoading) {
+            return
+        }
+
+        let isMounted = true
+
+        async function loadRemoteData(userId: string) {
+            if (!supabase) {
+                return
+            }
+
+            const [tasksResponse, activitiesResponse] = await Promise.all([
+                supabase
+                    .from("tasks")
+                    .select("*")
+                    .eq("user_id", userId)
+                    .order("order_index", { ascending: true }),
+                supabase
+                    .from("task_activities")
+                    .select("*")
+                    .eq("user_id", userId)
+                    .order("created_at", { ascending: false })
+                    .limit(30),
+            ])
+
+            if (tasksResponse.error) {
+                throw tasksResponse.error
+            }
+
+            if (activitiesResponse.error) {
+                throw activitiesResponse.error
+            }
+
+            if (!isMounted) {
+                return
+            }
+
+            setTasks(tasksResponse.data.map(mapSupabaseTask))
+            setActivities(activitiesResponse.data.map(mapSupabaseActivity))
+        }
+
+        async function loadData() {
+            setIsReady(false)
+
+            if (isRemoteMode) {
+                if (!user?.id) {
+                    setTasks([])
+                    setActivities([])
+                    setIsReady(true)
+                    return
+                }
+
+                try {
+                    await loadRemoteData(user.id)
+                } catch (err) {
+                    if (err instanceof Error) {
+                        showToast({
+                            type: "error",
+                            title: "Erro ao carregar dados",
+                            description: err.message,
+                        })
+                    }
+                } finally {
+                    if (isMounted) {
+                        setIsReady(true)
+                    }
+                }
+
+                return
+            }
+
+            const parsedTasks = parseStoredArray<Partial<Task>>(
+                localStorage.getItem(TASKS_KEY)
+            )
+
+            const parsedActivities = parseStoredArray<Partial<TaskActivity>>(
+                localStorage.getItem(ACTIVITIES_KEY)
+            )
+
+            if (parsedTasks) {
+                setTasks(normalizeTasks(parsedTasks))
+            } else {
+                localStorage.removeItem(TASKS_KEY)
+                setTasks(createDemoTasks())
+            }
+
+            if (parsedActivities) {
+                setActivities(normalizeActivities(parsedActivities))
+            } else {
+                localStorage.removeItem(ACTIVITIES_KEY)
+                setActivities([])
+            }
+
+            setIsReady(true)
+        }
+
+        loadData()
+
+        return () => {
+            isMounted = false
+        }
+    }, [isAuthLoading, isRemoteMode, showToast, user?.id])
+
+    useEffect(() => {
+        if (!isReady || isRemoteMode) return
 
         localStorage.setItem(TASKS_KEY, JSON.stringify(tasks))
-    }, [tasks, isReady])
+    }, [tasks, isReady, isRemoteMode])
 
     useEffect(() => {
-        if (!isReady) return
+        if (!isReady || isRemoteMode) return
 
         localStorage.setItem(ACTIVITIES_KEY, JSON.stringify(activities))
-    }, [activities, isReady])
+    }, [activities, isReady, isRemoteMode])
 
     const completedTasks = tasks.filter((task) => task.done).length
     const pendingTasks = tasks.filter((task) => !task.done).length
@@ -258,7 +346,17 @@ export function TasksProvider({ children }: TasksProviderProps) {
         return Array.from(new Set(tasks.map((task) => task.category)))
     }, [tasks])
 
-    function addActivity(
+    function showRemoteError(error: unknown) {
+        if (error instanceof Error) {
+            showToast({
+                type: "error",
+                title: "Nao foi possivel sincronizar",
+                description: error.message,
+            })
+        }
+    }
+
+    async function persistActivity(
         type: ActivityType,
         title: string,
         description: string
@@ -274,6 +372,37 @@ export function TasksProvider({ children }: TasksProviderProps) {
         setActivities((currentActivities) =>
             [newActivity, ...currentActivities].slice(0, 30)
         )
+
+        if (!isRemoteMode || !supabase || !user?.id) {
+            return
+        }
+
+        const { data, error } = await supabase
+            .from("task_activities")
+            .insert({
+                user_id: user.id,
+                type,
+                title,
+                description,
+            })
+            .select("*")
+            .single()
+
+        if (error) {
+            throw error
+        }
+
+        setActivities((currentActivities) =>
+            [mapSupabaseActivity(data), ...currentActivities.filter((item) => item.id !== newActivity.id)].slice(0, 30)
+        )
+    }
+
+    function addActivity(
+        type: ActivityType,
+        title: string,
+        description: string
+    ) {
+        persistActivity(type, title, description).catch(showRemoteError)
     }
 
     function addTask(data: AddTaskData) {
@@ -294,6 +423,36 @@ export function TasksProvider({ children }: TasksProviderProps) {
 
         setTasks((currentTasks) => [newTask, ...currentTasks])
 
+        if (isRemoteMode && supabase && user?.id) {
+            const client = supabase
+            const userId = user.id
+
+            ; (async () => {
+                const { data: insertedTask, error } = await client
+                    .from("tasks")
+                    .insert({
+                        user_id: userId,
+                        title: newTask.title,
+                        category: newTask.category,
+                        priority: newTask.priority,
+                        done: newTask.done,
+                        order_index: newTask.order,
+                    })
+                    .select("*")
+                    .single()
+
+                if (error) {
+                    throw error
+                }
+
+                setTasks((currentTasks) =>
+                    currentTasks.map((task) =>
+                        task.id === newTask.id ? mapSupabaseTask(insertedTask) : task
+                    )
+                )
+            })().catch(showRemoteError)
+        }
+
         addActivity(
             "created",
             "Tarefa criada",
@@ -307,6 +466,34 @@ export function TasksProvider({ children }: TasksProviderProps) {
                 task.id === id ? { ...task, ...data } : task
             )
         )
+
+        if (!isRemoteMode || !supabase) {
+            return
+        }
+
+        const payload: {
+            title?: string
+            category?: string
+            priority?: Priority
+            done?: boolean
+            order_index?: number
+        } = {}
+
+        if (typeof data.title === "string") payload.title = data.title
+        if (typeof data.category === "string") payload.category = data.category
+        if (data.priority) payload.priority = data.priority
+        if (typeof data.done === "boolean") payload.done = data.done
+        if (typeof data.order === "number") payload.order_index = data.order
+
+        const client = supabase
+
+        ; (async () => {
+            const { error } = await client.from("tasks").update(payload).eq("id", id)
+
+            if (error) {
+                throw error
+            }
+        })().catch(showRemoteError)
     }
 
     function toggleTask(id: string) {
@@ -320,11 +507,25 @@ export function TasksProvider({ children }: TasksProviderProps) {
 
         if (!task) return
 
+        if (isRemoteMode && supabase) {
+            const client = supabase
+
+            ; (async () => {
+                const { error } = await client
+                    .from("tasks")
+                    .update({ done: !task.done })
+                    .eq("id", id)
+
+                if (error) {
+                    throw error
+                }
+            })().catch(showRemoteError)
+        }
+
         addActivity(
             task.done ? "reopened" : "completed",
-            task.done ? "Tarefa reaberta" : "Tarefa concluída",
-            `"${task.title}" foi ${task.done ? "reaberta" : "marcada como concluída"
-            }.`
+            task.done ? "Tarefa reaberta" : "Tarefa concluida",
+            `"${task.title}" foi ${task.done ? "reaberta" : "marcada como concluida"}.`
         )
     }
 
@@ -334,6 +535,18 @@ export function TasksProvider({ children }: TasksProviderProps) {
         setTasks((currentTasks) =>
             currentTasks.filter((taskItem) => taskItem.id !== id)
         )
+
+        if (isRemoteMode && supabase) {
+            const client = supabase
+
+            ; (async () => {
+                const { error } = await client.from("tasks").delete().eq("id", id)
+
+                if (error) {
+                    throw error
+                }
+            })().catch(showRemoteError)
+        }
 
         if (!task) return
 
@@ -347,6 +560,8 @@ export function TasksProvider({ children }: TasksProviderProps) {
     function reorderTasks(activeId: string, overId: string) {
         if (activeId === overId) return
 
+        let reorderedTasks: Task[] = []
+
         setTasks((currentTasks) => {
             const sortedTasks = [...currentTasks].sort((a, b) => a.order - b.order)
 
@@ -357,13 +572,36 @@ export function TasksProvider({ children }: TasksProviderProps) {
                 return currentTasks
             }
 
-            return reorderArray(sortedTasks, activeIndex, overIndex).map(
+            reorderedTasks = reorderArray(sortedTasks, activeIndex, overIndex).map(
                 (task, index) => ({
                     ...task,
                     order: index,
                 })
             )
+
+            return reorderedTasks
         })
+
+        if (isRemoteMode && supabase) {
+            const client = supabase
+
+            ; (async () => {
+                const responses = await Promise.all(
+                    reorderedTasks.map((task) =>
+                        client
+                            .from("tasks")
+                            .update({ order_index: task.order })
+                            .eq("id", task.id)
+                    )
+                )
+
+                const failedResponse = responses.find((response) => response.error)
+
+                if (failedResponse?.error) {
+                    throw failedResponse.error
+                }
+            })().catch(showRemoteError)
+        }
 
         addActivity(
             "reordered",
@@ -375,15 +613,65 @@ export function TasksProvider({ children }: TasksProviderProps) {
     function clearTasks() {
         setTasks([])
 
+        if (isRemoteMode && supabase) {
+            const client = supabase
+
+            ; (async () => {
+                const { error } = await client
+                    .from("tasks")
+                    .delete()
+                    .neq("id", "00000000-0000-0000-0000-000000000000")
+
+                if (error) {
+                    throw error
+                }
+            })().catch(showRemoteError)
+        }
+
         addActivity(
             "cleared",
             "Tarefas limpas",
-            "Todas as tarefas locais foram removidas."
+            isRemoteMode
+                ? "Todas as tarefas sincronizadas foram removidas."
+                : "Todas as tarefas locais foram removidas."
         )
     }
 
     function resetTasks() {
-        setTasks(createDemoTasks())
+        const demoTasks = createDemoTasks()
+
+        setTasks(demoTasks)
+
+        if (isRemoteMode && supabase && user?.id) {
+            const client = supabase
+            const userId = user.id
+
+            ; (async () => {
+                const { error: deleteError } = await client
+                    .from("tasks")
+                    .delete()
+                    .neq("id", "00000000-0000-0000-0000-000000000000")
+
+                if (deleteError) {
+                    throw deleteError
+                }
+
+                const { error: insertError } = await client.from("tasks").insert(
+                    demoTasks.map((task) => ({
+                        user_id: userId,
+                        title: task.title,
+                        category: task.category,
+                        priority: task.priority,
+                        done: task.done,
+                        order_index: task.order,
+                    }))
+                )
+
+                if (insertError) {
+                    throw insertError
+                }
+            })().catch(showRemoteError)
+        }
 
         addActivity(
             "reset",
@@ -394,6 +682,23 @@ export function TasksProvider({ children }: TasksProviderProps) {
 
     function clearActivities() {
         setActivities([])
+
+        if (!isRemoteMode || !supabase) {
+            return
+        }
+
+        const client = supabase
+
+        ; (async () => {
+            const { error } = await client
+                .from("task_activities")
+                .delete()
+                .neq("id", "00000000-0000-0000-0000-000000000000")
+
+            if (error) {
+                throw error
+            }
+        })().catch(showRemoteError)
     }
 
     const value: TasksContextValue = {

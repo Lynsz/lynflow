@@ -10,6 +10,12 @@ import {
     getTasks,
 } from "../services/tasksService"
 
+type LegacyTask = {
+    id: string
+    title: string
+    completed: boolean
+}
+
 export function TaskList() {
     const [newTask, setNewTask] = useState("")
     const [loading, setLoading] = useState(true)
@@ -36,6 +42,7 @@ export function TaskList() {
     // ➕ CREATE
     async function handleAddTask() {
         if (!newTask.trim()) return
+        if (!supabase) return
 
         const {
             data: { user },
@@ -50,7 +57,7 @@ export function TaskList() {
     }
 
     // 🔁 TOGGLE
-    async function handleToggle(task: any) {
+    async function handleToggle(task: LegacyTask) {
         await toggleTask(task.id, !task.completed)
         await refresh()
     }

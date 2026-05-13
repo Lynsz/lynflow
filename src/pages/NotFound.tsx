@@ -1,14 +1,14 @@
 import { Link } from "react-router-dom"
 import { ArrowLeft, Home, SearchX, Sparkles } from "lucide-react"
-import { isAuthenticated } from "../services/auth"
+import { useAuth } from "../hooks/useAuth"
 import { Button } from "../components/ui/Button"
 import { LinkButton } from "../components/ui/LinkButton"
 import { ThemeToggle } from "../components/ThemeToggle"
 
 export function NotFound() {
-    const hasSession = isAuthenticated()
-    const primaryPath = hasSession ? "/dashboard" : "/"
-    const primaryLabel = hasSession ? "Voltar ao Dashboard" : "Voltar ao início"
+    const { isAuthenticated } = useAuth()
+    const primaryPath = isAuthenticated ? "/dashboard" : "/"
+    const primaryLabel = isAuthenticated ? "Voltar ao Dashboard" : "Voltar ao início"
 
     return (
         <div className="ly-page flex min-h-screen items-center justify-center px-4 py-8">

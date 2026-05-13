@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { AnimatePresence, motion } from "framer-motion"
 import {
@@ -15,7 +15,7 @@ import {
     X,
     type LucideIcon,
 } from "lucide-react"
-import { logoutUser } from "../services/auth"
+import { useAuth } from "../hooks/useAuth"
 
 type CommandItem = {
     id: string
@@ -31,6 +31,7 @@ type CommandItem = {
 export function CommandPalette() {
     const navigate = useNavigate()
     const location = useLocation()
+    const { logout } = useAuth()
 
     const inputRef = useRef<HTMLInputElement | null>(null)
 
@@ -48,11 +49,11 @@ export function CommandPalette() {
         setSelectedIndex(0)
     }
 
-    function handleLogout() {
-        logoutUser()
+    const handleLogout = useCallback(async () => {
+        await logout()
         closePalette()
         navigate("/login")
-    }
+    }, [logout, navigate])
 
     const commands: CommandItem[] = useMemo(
         () => [
@@ -122,7 +123,7 @@ export function CommandPalette() {
                 danger: true,
             },
         ],
-        []
+        [handleLogout]
     )
 
     const filteredCommands = useMemo(() => {
@@ -186,10 +187,6 @@ export function CommandPalette() {
             inputRef.current?.focus()
         }, 50)
     }, [isOpen])
-
-    useEffect(() => {
-        setSelectedIndex(0)
-    }, [search])
 
     function executeCommand(command: CommandItem) {
         if (command.action) {
@@ -293,7 +290,10 @@ export function CommandPalette() {
                                 <input
                                     ref={inputRef}
                                     value={search}
-                                    onChange={(event) => setSearch(event.target.value)}
+                                    onChange={(event) => {
+                                        setSearch(event.target.value)
+                                        setSelectedIndex(0)
+                                    }}
                                     onKeyDown={handleInputKeyDown}
                                     placeholder="Buscar página ou ação..."
                                     title="Buscar comando"

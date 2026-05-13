@@ -15,6 +15,7 @@ export function CreateTaskModal({
 
     async function handleCreate() {
         if (!title.trim()) return
+        if (!supabase) return
 
         const {
             data: { user },

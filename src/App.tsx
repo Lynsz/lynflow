@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { ThemeProvider } from "./components/ThemeProvider"
 import { ErrorBoundary } from "./components/ErrorBoundary"
 import { ToastProvider } from "./components/ui/ToastProvider"
+import { AuthProvider } from "./store/AuthProvider"
 import { TasksProvider } from "./store/TasksProvider"
 import { Landing } from "./pages/Landing"
 import { Login } from "./pages/auth/Login"
@@ -35,12 +36,13 @@ export default function App() {
     <ErrorBoundary>
       <ThemeProvider>
         <ToastProvider>
-          <TasksProvider>
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Landing />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
+          <AuthProvider>
+            <TasksProvider>
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/" element={<Landing />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
 
                 <Route
                   path="/dashboard"
@@ -105,10 +107,11 @@ export default function App() {
                   }
                 />
 
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
-          </TasksProvider>
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </BrowserRouter>
+            </TasksProvider>
+          </AuthProvider>
         </ToastProvider>
       </ThemeProvider>
     </ErrorBoundary>

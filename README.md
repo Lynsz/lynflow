@@ -225,6 +225,7 @@ lynflow.vercel.app
 - Lucide React
 - DnD Kit
 - LocalStorage
+- Supabase opcional
 - Vercel
 
 ---
@@ -240,7 +241,46 @@ lynflow.vercel.app
 | `@dnd-kit/core` | Drag and drop |
 | `@dnd-kit/sortable` | Ordenação manual das tarefas |
 | `@dnd-kit/utilities` | Transformações do drag and drop |
+| `@supabase/supabase-js` | Backend, autenticação e persistência remota opcional |
 | `tailwindcss` | Estilização |
+
+---
+
+## Backend e persistência
+
+O Lynflow funciona em **modo local por padrão**. Quando as variáveis do Supabase não existem, autenticação, tarefas, perfil, configurações e histórico continuam usando `localStorage`, sem exigir backend.
+
+Também é possível ativar o **modo Supabase** para autenticação real e persistência remota de tarefas e atividades. O app detecta automaticamente as variáveis abaixo:
+
+```env
+VITE_SUPABASE_URL=
+VITE_SUPABASE_ANON_KEY=
+```
+
+Arquivos relacionados:
+
+- `.env.example`: modelo das variáveis de ambiente.
+- `supabase/schema.sql`: schema com tabelas, triggers, RLS e policies.
+
+Para ativar:
+
+1. Crie um projeto no Supabase.
+2. Rode o SQL de `supabase/schema.sql` no SQL Editor.
+3. Copie a Project URL e a anon key do projeto.
+4. Crie um arquivo `.env.local` na raiz:
+
+```env
+VITE_SUPABASE_URL=sua_project_url
+VITE_SUPABASE_ANON_KEY=sua_anon_key
+```
+
+5. Rode o projeto novamente:
+
+```bash
+npm run dev
+```
+
+O app não usa service role key no front-end. A segurança do banco fica protegida por RLS, e o fallback localStorage permanece disponível quando as variáveis não são configuradas.
 
 ---
 
@@ -333,6 +373,8 @@ O projeto usa `localStorage` para salvar:
 - tema;
 - onboarding;
 - checklist pré-deploy.
+
+Quando `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` são configuradas, o app usa Supabase para autenticação, tarefas e atividades, preservando a mesma UI e as mesmas rotas.
 
 ### Rotas protegidas
 

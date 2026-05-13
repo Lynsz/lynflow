@@ -14,7 +14,7 @@ import {
     UserRound,
     X,
 } from "lucide-react"
-import { logoutUser } from "../services/auth"
+import { useAuth } from "../hooks/useAuth"
 import { ThemeToggle } from "../components/ThemeToggle"
 import { CommandPalette } from "../components/CommandPalette"
 import { GlobalShortcuts } from "../components/GlobalShortcuts"
@@ -107,14 +107,15 @@ const mobileMoreItems = [
 export function AppLayout({ children }: AppLayoutProps) {
     const navigate = useNavigate()
     const location = useLocation()
+    const { logout } = useAuth()
     const [isMoreOpen, setIsMoreOpen] = useState(false)
 
     const isMoreActive = mobileMoreItems.some(
         (item) => item.path === location.pathname
     )
 
-    function handleLogout() {
-        logoutUser()
+    async function handleLogout() {
+        await logout()
         setIsMoreOpen(false)
         navigate("/login")
     }

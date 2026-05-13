@@ -1,24 +1,48 @@
-import { supabase } from "../lib/supabase"
+import { supabase } from "./supabase"
+import type { Priority } from "../types/task"
 
-export async function getTasks() {
-    const { data, error } = await supabase
+type LegacyTask = {
+    id: string
+    title: string
+    completed: boolean
+}
+
+function requireSupabase() {
+    if (!supabase) {
+        throw new Error("Supabase nao esta configurado.")
+    }
+
+    return supabase
+}
+
+export async function getTasks(): Promise<LegacyTask[]> {
+    const client = requireSupabase()
+
+    const { data, error } = await client
         .from("tasks")
         .select("*")
         .order("created_at", { ascending: false })
 
     if (error) throw error
-    return data
+
+    return data.map((task) => ({
+        id: task.id,
+        title: task.title,
+        completed: task.done,
+    }))
 }
 
-export async function createTask(
-    title: string,
-    userId: string
-) {
-    const { data, error } = await supabase
+export async function createTask(title: string, userId: string) {
+    const client = requireSupabase()
+
+    const { data, error } = await client
         .from("tasks")
         .insert({
             title,
-            completed: false,
+            category: "Geral",
+            priority: "medium" satisfies Priority,
+            done: false,
+            order_index: 0,
             user_id: userId,
         })
         .select()
@@ -27,20 +51,21 @@ export async function createTask(
     return data
 }
 
-export async function toggleTask(
-    id: string,
-    completed: boolean
-) {
-    const { error } = await supabase
+export async function toggleTask(id: string, completed: boolean) {
+    const client = requireSupabase()
+
+    const { error } = await client
         .from("tasks")
-        .update({ completed })
+        .update({ done: completed })
         .eq("id", id)
 
     if (error) throw error
 }
 
 export async function deleteTask(id: string) {
-    const { error } = await supabase
+    const client = requireSupabase()
+
+    const { error } = await client
         .from("tasks")
         .delete()
         .eq("id", id)

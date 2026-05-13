@@ -6,7 +6,7 @@ export function Header() {
     const { setTasks } = useTaskStore()
 
     async function handleLogout() {
-        await supabase.auth.signOut()
+        await supabase?.auth.signOut()
 
         // 🧹 limpa estado local
         setTasks([])

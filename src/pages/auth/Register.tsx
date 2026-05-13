@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import { registerUser } from "../../services/auth"
+import { useAuth } from "../../hooks/useAuth"
 import { validateRegisterForm } from "../../utils/validators"
 import { AuthCard } from "../../components/auth/AuthCard"
 import { Button } from "../../components/ui/Button"
@@ -10,13 +10,15 @@ import { useToast } from "../../components/ui/ToastProvider"
 export function Register() {
     const navigate = useNavigate()
     const { showToast } = useToast()
+    const { register, dataMode } = useAuth()
 
     const [name, setName] = useState("")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [error, setError] = useState("")
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
-    function handleRegister(event: FormEvent<HTMLFormElement>) {
+    async function handleRegister(event: FormEvent<HTMLFormElement>) {
         event.preventDefault()
         setError("")
 
@@ -35,12 +37,16 @@ export function Register() {
         }
 
         try {
-            registerUser(name, email, password)
+            setIsSubmitting(true)
+            await register(name, email, password)
 
             showToast({
                 type: "success",
                 title: "Conta criada",
-                description: "Seu acesso ao Lynflow foi criado com sucesso.",
+                description:
+                    dataMode === "supabase"
+                        ? "Conta criada com autenticacao Supabase."
+                        : "Seu acesso ao Lynflow foi criado com sucesso.",
             })
 
             navigate("/dashboard")
@@ -54,6 +60,8 @@ export function Register() {
                     description: err.message,
                 })
             }
+        } finally {
+            setIsSubmitting(false)
         }
     }
 
@@ -65,8 +73,8 @@ export function Register() {
             onSubmit={handleRegister}
             footer={
                 <>
-                    <Button type="submit" className="mt-6 w-full">
-                        Criar conta
+                    <Button type="submit" className="mt-6 w-full" disabled={isSubmitting}>
+                        {isSubmitting ? "Criando..." : "Criar conta"}
                     </Button>
 
                     <p className="ly-muted mt-5 text-center text-sm">

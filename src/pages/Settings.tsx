@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import {
     BookOpen,
+    Database,
     History,
     LogOut,
     Moon,
@@ -10,7 +11,7 @@ import {
     Trash2,
     User,
 } from "lucide-react"
-import { getCurrentUser, logoutUser } from "../services/auth"
+import { useAuth } from "../hooks/useAuth"
 import { useTasks } from "../hooks/useTasks"
 import { useTheme } from "../hooks/useTheme"
 import { Button } from "../components/ui/Button"
@@ -24,7 +25,7 @@ import { DeployGuide } from "../components/settings/DeployGuide"
 
 export function Settings() {
     const navigate = useNavigate()
-    const user = getCurrentUser()
+    const { user, logout, dataMode } = useAuth()
 
     const {
         tasks,
@@ -42,13 +43,16 @@ export function Settings() {
     const [isClearActivitiesDialogOpen, setIsClearActivitiesDialogOpen] =
         useState(false)
 
-    function handleLogout() {
-        logoutUser()
+    async function handleLogout() {
+        await logout()
 
         showToast({
             type: "info",
             title: "Você saiu da conta",
-            description: "A sessão local foi encerrada.",
+            description:
+                dataMode === "supabase"
+                    ? "A sessão Supabase foi encerrada."
+                    : "A sessão local foi encerrada.",
         })
 
         navigate("/login")
@@ -121,8 +125,12 @@ export function Settings() {
 
                 <section className="grid grid-cols-1 gap-6 xl:grid-cols-[0.8fr_1fr]">
                     <SectionCard
-                        title="Conta local"
-                        description="Dados salvos no navegador."
+                        title={dataMode === "supabase" ? "Conta Supabase" : "Conta local"}
+                        description={
+                            dataMode === "supabase"
+                                ? "Dados sincronizados com backend."
+                                : "Dados salvos no navegador."
+                        }
                     >
                         <div className="mb-5 flex items-center gap-3">
                             <div className="ly-button-primary flex h-11 w-11 items-center justify-center rounded-2xl">
@@ -144,6 +152,30 @@ export function Settings() {
                                 value={user?.email ?? "Não informado"}
                                 bordered={false}
                             />
+                        </div>
+                    </SectionCard>
+
+                    <SectionCard
+                        title="Persistência"
+                        description="Modo atual de dados do Lynflow."
+                    >
+                        <div className="flex items-start gap-3">
+                            <div className="ly-button-primary flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl">
+                                <Database size={21} />
+                            </div>
+
+                            <div>
+                                <p className="font-medium">
+                                    Modo de dados:{" "}
+                                    {dataMode === "supabase" ? "Supabase" : "Local"}
+                                </p>
+
+                                <p className="ly-muted-soft mt-1 text-sm leading-6">
+                                    {dataMode === "supabase"
+                                        ? "Dados sincronizados com backend Supabase."
+                                        : "Dados salvos no navegador via localStorage."}
+                                </p>
+                            </div>
                         </div>
                     </SectionCard>
 

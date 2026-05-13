@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import type { Session } from "@supabase/supabase-js"
 import { supabase } from "../lib/supabase"
 import { Login } from "../pages/auth/Login"
 
@@ -7,11 +8,15 @@ export function AuthGuard({
 }: {
     children: React.ReactNode
 }) {
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(() => Boolean(supabase))
     const [session, setSession] =
-        useState<any>(null)
+        useState<Session | null>(null)
 
     useEffect(() => {
+        if (!supabase) {
+            return
+        }
+
         supabase.auth
             .getSession()
             .then(({ data }) => {

@@ -11,10 +11,7 @@ import {
     Target,
     X,
 } from "lucide-react"
-import {
-    getCurrentUser,
-    updateCurrentUserProfile,
-} from "../services/auth"
+import { useAuth } from "../hooks/useAuth"
 import { validateProfileForm } from "../utils/validators"
 import { useTasks } from "../hooks/useTasks"
 import { Button } from "../components/ui/Button"
@@ -47,11 +44,11 @@ function getProductivityLabel(productivity: number) {
 export function Profile() {
     const navigate = useNavigate()
     const { showToast } = useToast()
+    const { user, updateProfile, dataMode } = useAuth()
 
-    const [savedUser, setSavedUser] = useState(() => getCurrentUser())
     const [isEditing, setIsEditing] = useState(false)
-    const [name, setName] = useState(savedUser?.name ?? "")
-    const [email, setEmail] = useState(savedUser?.email ?? "")
+    const [name, setName] = useState(user?.name ?? "")
+    const [email, setEmail] = useState(user?.email ?? "")
     const [error, setError] = useState("")
 
     const {
@@ -68,8 +65,8 @@ export function Profile() {
         return <DashboardSkeleton />
     }
 
-    const userName = savedUser?.name ?? "Usuária"
-    const userEmail = savedUser?.email ?? "Não informado"
+    const userName = user?.name ?? "Usuaria"
+    const userEmail = user?.email ?? "Nao informado"
     const initials = getInitials(userName)
     const productivityLabel = getProductivityLabel(productivity)
 
@@ -90,7 +87,7 @@ export function Profile() {
         setIsEditing(false)
     }
 
-    function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault()
         setError("")
 
@@ -109,9 +106,8 @@ export function Profile() {
         }
 
         try {
-            const updatedUser = updateCurrentUserProfile(name, email)
+            const updatedUser = await updateProfile(name, email)
 
-            setSavedUser(updatedUser)
             setName(updatedUser.name)
             setEmail(updatedUser.email)
             setIsEditing(false)
@@ -119,7 +115,10 @@ export function Profile() {
             showToast({
                 type: "success",
                 title: "Perfil atualizado",
-                description: "Nome e e-mail foram salvos localmente.",
+                description:
+                    dataMode === "supabase"
+                        ? "Nome e e-mail foram sincronizados."
+                        : "Nome e e-mail foram salvos localmente.",
             })
         } catch (err) {
             if (err instanceof Error) {
@@ -153,8 +152,12 @@ export function Profile() {
 
             <section className="mb-8 grid grid-cols-1 gap-6 xl:grid-cols-[0.85fr_1.15fr]">
                 <SectionCard
-                    title="Conta local"
-                    description="Dados salvos no navegador."
+                    title={dataMode === "supabase" ? "Conta Supabase" : "Conta local"}
+                    description={
+                        dataMode === "supabase"
+                            ? "Dados sincronizados com backend."
+                            : "Dados salvos no navegador."
+                    }
                     action={
                         isEditing ? (
                             <Button
@@ -185,7 +188,7 @@ export function Profile() {
                             <p className="ly-muted mt-1 break-all text-sm">{userEmail}</p>
 
                             <div className="mt-4 inline-flex rounded-full border border-emerald-500/20 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-500">
-                                Conta local ativa
+                                {dataMode === "supabase" ? "Conta Supabase ativa" : "Conta local ativa"}
                             </div>
                         </div>
                     </div>
@@ -255,7 +258,7 @@ export function Profile() {
                             <InfoRow label="E-mail" value={userEmail} />
                             <InfoRow
                                 label="Persistência"
-                                value="localStorage"
+                                value={dataMode === "supabase" ? "Supabase" : "localStorage"}
                                 bordered={false}
                             />
                         </div>
