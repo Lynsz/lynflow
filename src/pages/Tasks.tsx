@@ -41,8 +41,10 @@ import { PageHeader } from "../components/ui/PageHeader"
 import { SectionCard } from "../components/ui/SectionCard"
 import { CompletedTasksCleanup } from "../components/tasks/CompletedTasksCleanup"
 import { SortableTaskItem } from "../components/tasks/SortableTaskItem"
+import { TaskBulkActions } from "../components/tasks/TaskBulkActions"
 import { TaskDeadlineOverview } from "../components/tasks/TaskDeadlineOverview"
 import { TaskExportActions } from "../components/tasks/TaskExportActions"
+import { TaskInsightsPanel } from "../components/tasks/TaskInsightsPanel"
 import { TaskKanbanBoard } from "../components/tasks/TaskKanbanBoard"
 import { TaskSummaryCards } from "../components/tasks/TaskSummaryCards"
 import { useToast } from "../components/ui/ToastProvider"
@@ -430,6 +432,13 @@ export function Tasks() {
 
                     <TaskExportActions visibleTasks={filteredTasks} />
 
+                    <TaskBulkActions visibleTasks={filteredTasks} />
+
+                    <TaskInsightsPanel
+                        visibleTasks={filteredTasks}
+                        totalTasks={tasks.length}
+                    />
+
                     <TaskDeadlineOverview
                         tasks={tasks}
                         onStatusSelect={setStatusFilter}
@@ -618,7 +627,9 @@ export function Tasks() {
 
                             <SlidersHorizontal size={16} />
 
-                            <span>{hasActiveFilters ? "Filtros ativos" : "Sem filtros"}</span>
+                            <span>
+                                {hasActiveFilters ? "Filtros ativos" : "Sem filtros"}
+                            </span>
 
                             <ArrowUpDown size={16} />
                         </div>
