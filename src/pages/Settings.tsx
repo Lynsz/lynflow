@@ -20,6 +20,7 @@ import { PageHeader } from "../components/ui/PageHeader"
 import { SectionCard } from "../components/ui/SectionCard"
 import { useToast } from "../components/ui/ToastProvider"
 import { DeployChecklist } from "../components/settings/DeployChecklist"
+import { DeployGuide } from "../components/settings/DeployGuide"
 
 export function Settings() {
     const navigate = useNavigate()
@@ -202,6 +203,14 @@ export function Settings() {
                         className="xl:col-span-2"
                     >
                         <DeployChecklist />
+                    </SectionCard>
+
+                    <SectionCard
+                        title="Guia de deploy"
+                        description="Comandos e passos finais para publicar o Lynflow."
+                        className="xl:col-span-2"
+                    >
+                        <DeployGuide />
                     </SectionCard>
 
                     <SectionCard
