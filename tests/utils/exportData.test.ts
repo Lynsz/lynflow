@@ -4,6 +4,7 @@ import type { Task } from "../../src/types/task"
 import {
     createLynflowExportPayload,
     getLynflowExportFileName,
+    parseLynflowBackupFileContent,
 } from "../../src/utils/exportData"
 
 const tasks: Task[] = [
@@ -76,5 +77,30 @@ describe("exportData", () => {
         )
 
         expect(fileName).toBe("lynflow-backup-2026-05-13-0907.json")
+    })
+
+    it("parses valid backup file content", () => {
+        const content = JSON.stringify(
+            createLynflowExportPayload({
+                dataMode: "local",
+                user: null,
+                tasks,
+                activities,
+                exportedAt: "2026-05-13T12:00:00.000Z",
+            })
+        )
+
+        const payload = parseLynflowBackupFileContent(content)
+
+        expect(payload.tasks).toHaveLength(2)
+        expect(payload.activities).toHaveLength(1)
+    })
+
+    it("rejects invalid backup file content", () => {
+        expect(() =>
+            parseLynflowBackupFileContent(JSON.stringify({ app: "Other" }))
+        ).toThrow("backup valido")
+
+        expect(() => parseLynflowBackupFileContent("{invalid-json")).toThrow()
     })
 })

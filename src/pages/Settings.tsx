@@ -1,9 +1,10 @@
-import { useState } from "react"
+import { useRef, useState, type ChangeEvent } from "react"
 import { useNavigate } from "react-router-dom"
 import {
     BookOpen,
     Database,
     Download,
+    FileUp,
     History,
     LogOut,
     Moon,
@@ -27,6 +28,7 @@ import {
     createLynflowExportPayload,
     downloadJsonFile,
     getLynflowExportFileName,
+    parseLynflowBackupFileContent,
 } from "../utils/exportData"
 
 export function Settings() {
@@ -39,10 +41,12 @@ export function Settings() {
         clearTasks,
         resetTasks,
         clearActivities,
+        importBackup,
     } = useTasks()
 
     const { isDark, toggleTheme } = useTheme()
     const { showToast } = useToast()
+    const importInputRef = useRef<HTMLInputElement | null>(null)
 
     const [isClearDialogOpen, setIsClearDialogOpen] = useState(false)
     const [isResetDialogOpen, setIsResetDialogOpen] = useState(false)
@@ -135,6 +139,43 @@ export function Settings() {
             title: "Backup exportado",
             description: "Seus dados atuais foram salvos em um arquivo JSON.",
         })
+    }
+
+    function handleOpenImportFile() {
+        importInputRef.current?.click()
+    }
+
+    async function handleImportFile(event: ChangeEvent<HTMLInputElement>) {
+        const file = event.target.files?.[0]
+        event.target.value = ""
+
+        if (!file) {
+            return
+        }
+
+        try {
+            const content = await file.text()
+            const backup = parseLynflowBackupFileContent(content)
+
+            await importBackup({
+                tasks: backup.tasks,
+                activities: backup.activities,
+            })
+
+            showToast({
+                type: "success",
+                title: "Backup importado",
+                description: "Tarefas e atividades foram restauradas com sucesso.",
+            })
+        } catch (err) {
+            if (err instanceof Error) {
+                showToast({
+                    type: "error",
+                    title: "Nao foi possivel importar",
+                    description: err.message,
+                })
+            }
+        }
     }
 
     return (
@@ -288,12 +329,28 @@ export function Settings() {
                         </div>
 
                         <div className="flex flex-col gap-3 md:flex-row md:flex-wrap">
+                            <input
+                                ref={importInputRef}
+                                type="file"
+                                accept="application/json,.json"
+                                className="hidden"
+                                onChange={handleImportFile}
+                            />
+
                             <Button
                                 variant="secondary"
                                 icon={<Download size={18} />}
                                 onClick={handleExportData}
                             >
                                 Exportar dados
+                            </Button>
+
+                            <Button
+                                variant="secondary"
+                                icon={<FileUp size={18} />}
+                                onClick={handleOpenImportFile}
+                            >
+                                Importar backup
                             </Button>
 
                             <Button

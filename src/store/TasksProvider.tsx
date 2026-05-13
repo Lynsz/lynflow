@@ -40,6 +40,10 @@ type TasksContextValue = {
     clearTasks: () => void
     resetTasks: () => void
     clearActivities: () => void
+    importBackup: (data: {
+        tasks: Task[]
+        activities: TaskActivity[]
+    }) => Promise<void>
 }
 
 type TasksProviderProps = {
@@ -701,6 +705,75 @@ export function TasksProvider({ children }: TasksProviderProps) {
         })().catch(showRemoteError)
     }
 
+    async function importBackup(data: {
+        tasks: Task[]
+        activities: TaskActivity[]
+    }) {
+        const importedTasks = normalizeTasks(data.tasks)
+        const importedActivities = normalizeActivities(data.activities)
+
+        setTasks(importedTasks)
+        setActivities(importedActivities)
+
+        if (!isRemoteMode || !supabase || !user?.id) {
+            return
+        }
+
+        const client = supabase
+        const userId = user.id
+
+        const [deleteTasksResponse, deleteActivitiesResponse] = await Promise.all([
+            client
+                .from("tasks")
+                .delete()
+                .neq("id", "00000000-0000-0000-0000-000000000000"),
+            client
+                .from("task_activities")
+                .delete()
+                .neq("id", "00000000-0000-0000-0000-000000000000"),
+        ])
+
+        if (deleteTasksResponse.error) {
+            throw deleteTasksResponse.error
+        }
+
+        if (deleteActivitiesResponse.error) {
+            throw deleteActivitiesResponse.error
+        }
+
+        if (importedTasks.length > 0) {
+            const { error } = await client.from("tasks").insert(
+                importedTasks.map((task) => ({
+                    user_id: userId,
+                    title: task.title,
+                    category: task.category,
+                    priority: task.priority,
+                    done: task.done,
+                    order_index: task.order,
+                }))
+            )
+
+            if (error) {
+                throw error
+            }
+        }
+
+        if (importedActivities.length > 0) {
+            const { error } = await client.from("task_activities").insert(
+                importedActivities.map((activity) => ({
+                    user_id: userId,
+                    type: activity.type,
+                    title: activity.title,
+                    description: activity.description,
+                }))
+            )
+
+            if (error) {
+                throw error
+            }
+        }
+    }
+
     const value: TasksContextValue = {
         isReady,
         tasks,
@@ -718,6 +791,7 @@ export function TasksProvider({ children }: TasksProviderProps) {
         clearTasks,
         resetTasks,
         clearActivities,
+        importBackup,
     }
 
     return (
