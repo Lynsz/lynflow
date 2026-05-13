@@ -11,6 +11,7 @@ import { Tasks } from "./pages/Tasks"
 import { Goals } from "./pages/Goals"
 import { Insights } from "./pages/Insights"
 import { Settings } from "./pages/Settings"
+import { Profile } from "./pages/Profile"
 import { ProtectedRoute } from "./routes/ProtectedRoute"
 import { AppLayout } from "./layouts/AppLayout"
 
@@ -69,6 +70,15 @@ export default function App() {
                 element={
                   <ProtectedScreen>
                     <Insights />
+                  </ProtectedScreen>
+                }
+              />
+
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedScreen>
+                    <Profile />
                   </ProtectedScreen>
                 }
               />
