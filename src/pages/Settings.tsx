@@ -19,6 +19,7 @@ import { InfoRow } from "../components/ui/InfoRow"
 import { PageHeader } from "../components/ui/PageHeader"
 import { SectionCard } from "../components/ui/SectionCard"
 import { useToast } from "../components/ui/ToastProvider"
+import { DeployChecklist } from "../components/settings/DeployChecklist"
 
 export function Settings() {
     const navigate = useNavigate()
@@ -193,6 +194,14 @@ export function Settings() {
                                 Abrir tutorial
                             </Button>
                         </div>
+                    </SectionCard>
+
+                    <SectionCard
+                        title="Checklist pré-deploy"
+                        description="Controle visual para finalizar o projeto antes de publicar."
+                        className="xl:col-span-2"
+                    >
+                        <DeployChecklist />
                     </SectionCard>
 
                     <SectionCard
