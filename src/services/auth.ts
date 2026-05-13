@@ -143,7 +143,7 @@ export async function registerUser(
     name: string,
     email: string,
     password: string
-) {
+): Promise<SessionUser | null> {
     const normalizedName = normalizeName(name)
     const normalizedEmail = normalizeEmail(email)
 
@@ -165,9 +165,15 @@ export async function registerUser(
         }
 
         saveUsers([...users, newUser])
-        saveSession({ name: newUser.name, email: newUser.email })
 
-        return { name: newUser.name, email: newUser.email }
+        const sessionUser = {
+            name: newUser.name,
+            email: newUser.email,
+        }
+
+        saveSession(sessionUser)
+
+        return sessionUser
     }
 
     const { data, error } = await supabase.auth.signUp({
@@ -192,6 +198,11 @@ export async function registerUser(
         id: data.user.id,
         name: normalizedName,
         email: data.user.email ?? normalizedEmail,
+    }
+
+    if (!data.session) {
+        clearSession()
+        return null
     }
 
     const { error: profileError } = await supabase.from("profiles").upsert({
@@ -247,12 +258,19 @@ export async function loginUser(email: string, password: string) {
         throw new Error("Nao foi possivel iniciar a sessao.")
     }
 
-    const profile = await getSupabaseProfile(data.user.id, data.user.email ?? normalizedEmail)
+    const profile = await getSupabaseProfile(
+        data.user.id,
+        data.user.email ?? normalizedEmail
+    )
+
     const sessionUser =
         profile ??
         {
             id: data.user.id,
-            name: getSupabaseDisplayName(data.user.user_metadata.name, normalizedEmail),
+            name: getSupabaseDisplayName(
+                data.user.user_metadata.name,
+                normalizedEmail
+            ),
             email: data.user.email ?? normalizedEmail,
         }
 
@@ -387,7 +405,9 @@ export async function getCurrentUserAsync(): Promise<SessionUser | null> {
     }
 
     const email = authUser.email ?? ""
+
     const profile = await getSupabaseProfile(authUser.id, email)
+
     const sessionUser =
         profile ??
         {

@@ -38,7 +38,20 @@ export function Register() {
 
         try {
             setIsSubmitting(true)
-            await register(name, email, password)
+
+            const registeredUser = await register(name, email, password)
+
+            if (!registeredUser && dataMode === "supabase") {
+                showToast({
+                    type: "info",
+                    title: "Confirme seu e-mail",
+                    description:
+                        "Sua conta foi criada. Verifique seu e-mail antes de fazer login.",
+                })
+
+                navigate("/login")
+                return
+            }
 
             showToast({
                 type: "success",

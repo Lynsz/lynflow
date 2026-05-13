@@ -24,6 +24,41 @@ create table if not exists public.profiles (
   updated_at timestamptz default now()
 );
 
+-- Automatically creates a profile when a Supabase Auth user is created.
+-- This keeps signup stable even when email confirmation is enabled.
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  insert into public.profiles (id, name, email)
+  values (
+    new.id,
+    coalesce(
+      nullif(new.raw_user_meta_data ->> 'name', ''),
+      nullif(split_part(coalesce(new.email, ''), '@', 1), ''),
+      'Usuaria'
+    ),
+    coalesce(new.email, '')
+  )
+  on conflict (id) do update
+  set
+    name = excluded.name,
+    email = excluded.email,
+    updated_at = now();
+
+  return new;
+end;
+$$;
+
+drop trigger if exists on_auth_user_created on auth.users;
+
+create trigger on_auth_user_created
+after insert on auth.users
+for each row execute function public.handle_new_user();
+
 -- User-owned tasks. The front-end maps order_index to Task.order.
 create table if not exists public.tasks (
   id uuid primary key default gen_random_uuid(),
@@ -46,7 +81,17 @@ add column if not exists due_date date;
 create table if not exists public.task_activities (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
-  type text not null check (type in ('created', 'completed', 'reopened', 'deleted', 'reordered', 'cleared', 'reset')),
+  type text not null check (
+    type in (
+      'created',
+      'completed',
+      'reopened',
+      'deleted',
+      'reordered',
+      'cleared',
+      'reset'
+    )
+  ),
   title text not null,
   description text not null,
   created_at timestamptz default now()
@@ -54,11 +99,13 @@ create table if not exists public.task_activities (
 
 -- Keep updated_at fresh on mutable tables.
 drop trigger if exists profiles_set_updated_at on public.profiles;
+
 create trigger profiles_set_updated_at
 before update on public.profiles
 for each row execute function public.set_updated_at();
 
 drop trigger if exists tasks_set_updated_at on public.tasks;
+
 create trigger tasks_set_updated_at
 before update on public.tasks
 for each row execute function public.set_updated_at();
@@ -100,18 +147,21 @@ alter table public.task_activities enable row level security;
 
 -- Profiles policies: each authenticated user manages only their own profile.
 drop policy if exists "Users can select own profile" on public.profiles;
+
 create policy "Users can select own profile"
 on public.profiles for select
 to authenticated
 using (auth.uid() = id);
 
 drop policy if exists "Users can insert own profile" on public.profiles;
+
 create policy "Users can insert own profile"
 on public.profiles for insert
 to authenticated
 with check (auth.uid() = id);
 
 drop policy if exists "Users can update own profile" on public.profiles;
+
 create policy "Users can update own profile"
 on public.profiles for update
 to authenticated
@@ -119,6 +169,7 @@ using (auth.uid() = id)
 with check (auth.uid() = id);
 
 drop policy if exists "Users can delete own profile" on public.profiles;
+
 create policy "Users can delete own profile"
 on public.profiles for delete
 to authenticated
@@ -126,18 +177,21 @@ using (auth.uid() = id);
 
 -- Tasks policies: every task row must belong to the signed-in user.
 drop policy if exists "Users can select own tasks" on public.tasks;
+
 create policy "Users can select own tasks"
 on public.tasks for select
 to authenticated
 using (auth.uid() = user_id);
 
 drop policy if exists "Users can insert own tasks" on public.tasks;
+
 create policy "Users can insert own tasks"
 on public.tasks for insert
 to authenticated
 with check (auth.uid() = user_id);
 
 drop policy if exists "Users can update own tasks" on public.tasks;
+
 create policy "Users can update own tasks"
 on public.tasks for update
 to authenticated
@@ -145,6 +199,7 @@ using (auth.uid() = user_id)
 with check (auth.uid() = user_id);
 
 drop policy if exists "Users can delete own tasks" on public.tasks;
+
 create policy "Users can delete own tasks"
 on public.tasks for delete
 to authenticated
@@ -152,18 +207,21 @@ using (auth.uid() = user_id);
 
 -- Activity policies: each user can read, write, and clear only their own feed.
 drop policy if exists "Users can select own task activities" on public.task_activities;
+
 create policy "Users can select own task activities"
 on public.task_activities for select
 to authenticated
 using (auth.uid() = user_id);
 
 drop policy if exists "Users can insert own task activities" on public.task_activities;
+
 create policy "Users can insert own task activities"
 on public.task_activities for insert
 to authenticated
 with check (auth.uid() = user_id);
 
 drop policy if exists "Users can update own task activities" on public.task_activities;
+
 create policy "Users can update own task activities"
 on public.task_activities for update
 to authenticated
@@ -171,6 +229,7 @@ using (auth.uid() = user_id)
 with check (auth.uid() = user_id);
 
 drop policy if exists "Users can delete own task activities" on public.task_activities;
+
 create policy "Users can delete own task activities"
 on public.task_activities for delete
 to authenticated

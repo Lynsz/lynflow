@@ -23,7 +23,11 @@ type AuthContextValue = {
     isLoading: boolean
     isAuthenticated: boolean
     dataMode: "local" | "supabase"
-    register: (name: string, email: string, password: string) => Promise<SessionUser>
+    register: (
+        name: string,
+        email: string,
+        password: string
+    ) => Promise<SessionUser | null>
     login: (email: string, password: string) => Promise<SessionUser>
     logout: () => Promise<void>
     updateProfile: (name: string, email: string) => Promise<SessionUser>
@@ -62,6 +66,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
                     setUser(currentUser)
                 }
             })
+            .catch(() => {
+                if (isMounted) {
+                    setUser(null)
+                }
+            })
             .finally(() => {
                 if (isMounted) {
                     setIsLoading(false)
@@ -78,11 +87,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
             data: { subscription },
         } = supabase.auth.onAuthStateChange(
             (_event: AuthChangeEvent, session: Session | null) => {
-                sessionToUser(session).then((currentUser) => {
-                    if (isMounted) {
-                        setUser(currentUser)
-                    }
-                })
+                sessionToUser(session)
+                    .then((currentUser) => {
+                        if (isMounted) {
+                            setUser(currentUser)
+                        }
+                    })
+                    .catch(() => {
+                        if (isMounted) {
+                            setUser(null)
+                        }
+                    })
             }
         )
 
