@@ -4,9 +4,13 @@ import tailwindcss from "@tailwindcss/vite"
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  resolve: {
+    dedupe: ["react", "react-dom"],
+  },
   test: {
     environment: "jsdom",
     globals: false,
     include: ["tests/**/*.test.ts"],
+    setupFiles: ["tests/setup.ts"],
   },
 })
