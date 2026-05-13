@@ -406,7 +406,11 @@ export function Tasks() {
                 </SectionCard>
 
                 <div className="mt-6">
-                    <TaskSummaryCards tasks={tasks} />
+                    <TaskSummaryCards
+                        tasks={tasks}
+                        activeStatus={statusFilter}
+                        onStatusSelect={setStatusFilter}
+                    />
                 </div>
 
                 <SectionCard
