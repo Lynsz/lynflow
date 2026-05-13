@@ -139,13 +139,18 @@ lynflow.vercel.app
 - Definir data de vencimento.
 - Buscar tarefas.
 - Filtrar por status.
+- Filtrar por tarefas atrasadas.
 - Filtrar por prioridade.
 - Filtrar por categoria.
 - Ordenar por data, prioridade, título ou ordem manual.
 - Reordenar com drag and drop.
 - Visualização em lista.
 - Visualização Kanban.
+- Preferência de visualização salva no `localStorage`.
+- Cards de resumo clicáveis para filtrar tarefas.
 - Separação automática entre tarefas atrasadas, pendentes e concluídas.
+- Painel de prazos com próximas tarefas e tarefas atrasadas.
+- Limpeza rápida de tarefas concluídas.
 - Persistência local com `localStorage`.
 - Persistência remota opcional com Supabase.
 
@@ -238,6 +243,10 @@ lynflow.vercel.app
 - Indicador online/offline.
 - Alternância entre lista e Kanban.
 - Kanban responsivo.
+- Preferência de visualização persistida.
+- Cards de resumo filtráveis.
+- Painel de prazos para tarefas.
+- Limpeza rápida de concluídas.
 
 ---
 
@@ -418,6 +427,9 @@ O projeto foi dividido em componentes reutilizáveis, como:
 - `ErrorBoundary`
 - `PwaStatus`
 - `TaskKanbanBoard`
+- `TaskSummaryCards`
+- `TaskDeadlineOverview`
+- `CompletedTasksCleanup`
 
 ### Estado global
 
@@ -838,6 +850,14 @@ Para proteger regras de negócio, validações, fluxos principais e evitar regre
 - [x] Rotas protegidas
 - [x] Dashboard
 - [x] Tasks
+- [x] Datas de vencimento em tarefas
+- [x] Filtro de tarefas atrasadas
+- [x] Kanban view
+- [x] Persistência da visualização de Tasks
+- [x] Colunas de tarefas atrasadas, pendentes e concluídas
+- [x] Cards de resumo filtráveis
+- [x] Painel de prazos
+- [x] Limpeza rápida de tarefas concluídas
 - [x] Goals
 - [x] AI Insights
 - [x] Activity
@@ -862,7 +882,6 @@ Para proteger regras de negócio, validações, fluxos principais e evitar regre
 - [x] Configuração Vercel
 - [x] Supabase opcional
 - [x] Realtime com Supabase
-- [x] Datas de vencimento em tarefas
 - [x] Exportação de backup
 - [x] Importação de backup
 - [x] Testes automatizados
@@ -871,20 +890,19 @@ Para proteger regras de negócio, validações, fluxos principais e evitar regre
 - [x] Service worker
 - [x] Página offline
 - [x] Status de instalação do app
-- [x] Kanban view
-- [x] Colunas de tarefas atrasadas, pendentes e concluídas
+- [x] Utilitários centralizados de data
 
 ### Melhorias futuras
 
 - [ ] Calendário.
 - [ ] Integração com IA real.
-- [ ] Testes de componentes críticos.
 - [ ] Notificações.
 - [ ] Multiusuário.
 - [ ] Dashboard com dados por período.
 - [ ] Sincronização avançada entre dispositivos.
 - [ ] Melhorias de acessibilidade.
 - [ ] Testes end-to-end.
+- [ ] Edição avançada de datas e recorrência.
 
 ---
 
@@ -910,13 +928,20 @@ Cobertura inicial:
 
 - validadores de login, cadastro, perfil e e-mail;
 - filtros e ordenação de tarefas;
+- filtro de tarefas atrasadas;
+- status de tarefas entre pendentes, atrasadas e concluídas;
+- agrupamento visual do Kanban;
+- cards de resumo de tarefas;
+- cards de resumo filtráveis;
+- painel de prazos;
+- limpeza rápida de tarefas concluídas;
 - filtros e ordenação de atividades;
 - analytics de tarefas;
 - mappers entre Supabase e o formato usado no front-end;
 - exportação e importação de backup;
 - fluxo de autenticação local;
 - status visual de PWA em Settings;
-- agrupamento visual do Kanban entre tarefas atrasadas, pendentes e concluídas.
+- utilitários centralizados de data.
 
 Antes de abrir PR, publicar deploy ou seguir para uma nova fase, rode:
 
