@@ -38,13 +38,13 @@ A proposta principal é demonstrar domínio em:
 
 ---
 
+````md
 ## 🚀 Demonstração
 
-> Adicione aqui o link depois do deploy na Vercel.
+O Lynflow está disponível online pela Vercel:
 
 ```txt
-https://lynflow.vercel.app/s
-```
+https://lynflow.vercel.app/
 
 ---
 
