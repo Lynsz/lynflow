@@ -60,7 +60,6 @@ html[data-theme="light"] .ly-page {
   border: 1px solid var(--border);
   background: var(--surface);
   color: var(--text);
-  backdrop-filter: blur(18px);
 }
 
 .ly-card-strong {
