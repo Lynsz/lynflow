@@ -428,7 +428,7 @@ export function Tasks() {
 
                     <CompletedTasksCleanup />
 
-                    <TaskExportActions />
+                    <TaskExportActions visibleTasks={filteredTasks} />
 
                     <TaskDeadlineOverview
                         tasks={tasks}

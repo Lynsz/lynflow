@@ -55,18 +55,25 @@ describe("TaskExportActions", () => {
         mocks.getTasksCsvFileName.mockReturnValue("lynflow-tasks.csv")
     })
 
-    it("disables export button when there are no tasks", () => {
-        render(<TaskExportActions />)
+    it("disables export buttons when there are no tasks", () => {
+        render(<TaskExportActions visibleTasks={[]} />)
 
-        const button = screen.getByRole("button", {
-            name: "Exportar tarefas em CSV",
+        const allButton = screen.getByRole("button", {
+            name: "Exportar todas as tarefas em CSV",
         }) as HTMLButtonElement
 
-        expect(button.disabled).toBe(true)
-        expect(screen.getByText("Exportar CSV (0)")).toBeTruthy()
+        const filteredButton = screen.getByRole("button", {
+            name: "Exportar tarefas filtradas em CSV",
+        }) as HTMLButtonElement
+
+        expect(allButton.disabled).toBe(true)
+        expect(filteredButton.disabled).toBe(true)
+
+        expect(screen.getByText("Todas (0)")).toBeTruthy()
+        expect(screen.getByText("Filtradas (0)")).toBeTruthy()
     })
 
-    it("shows task count in export button", () => {
+    it("shows task counts in export buttons", () => {
         mocks.tasks = [
             createTask({
                 id: "task-1",
@@ -78,12 +85,22 @@ describe("TaskExportActions", () => {
             }),
         ]
 
-        render(<TaskExportActions />)
+        render(
+            <TaskExportActions
+                visibleTasks={[
+                    createTask({
+                        id: "task-1",
+                        title: "Primeira tarefa",
+                    }),
+                ]}
+            />
+        )
 
-        expect(screen.getByText("Exportar CSV (2)")).toBeTruthy()
+        expect(screen.getByText("Todas (2)")).toBeTruthy()
+        expect(screen.getByText("Filtradas (1)")).toBeTruthy()
     })
 
-    it("exports tasks as CSV when clicking the button", () => {
+    it("exports all tasks as CSV", () => {
         mocks.tasks = [
             createTask({
                 id: "task-1",
@@ -96,11 +113,11 @@ describe("TaskExportActions", () => {
             }),
         ]
 
-        render(<TaskExportActions />)
+        render(<TaskExportActions visibleTasks={[mocks.tasks[0]]} />)
 
         fireEvent.click(
             screen.getByRole("button", {
-                name: "Exportar tarefas em CSV",
+                name: "Exportar todas as tarefas em CSV",
             })
         )
 
@@ -118,13 +135,53 @@ describe("TaskExportActions", () => {
         })
     })
 
+    it("exports only visible filtered tasks as CSV", () => {
+        mocks.tasks = [
+            createTask({
+                id: "task-1",
+                title: "Primeira tarefa",
+            }),
+            createTask({
+                id: "task-2",
+                title: "Segunda tarefa",
+            }),
+        ]
+
+        const visibleTasks = [
+            createTask({
+                id: "task-2",
+                title: "Segunda tarefa",
+            }),
+        ]
+
+        render(<TaskExportActions visibleTasks={visibleTasks} />)
+
+        fireEvent.click(
+            screen.getByRole("button", {
+                name: "Exportar tarefas filtradas em CSV",
+            })
+        )
+
+        expect(mocks.createTasksCsv).toHaveBeenCalledWith(visibleTasks)
+        expect(mocks.downloadCsvFile).toHaveBeenCalledWith(
+            "lynflow-tasks.csv",
+            "csv-content"
+        )
+
+        expect(mocks.showToast).toHaveBeenCalledWith({
+            type: "success",
+            title: "CSV filtrado exportado",
+            description: "1 tarefa(s) foram exportadas.",
+        })
+    })
+
     it("renders export description", () => {
-        render(<TaskExportActions />)
+        render(<TaskExportActions visibleTasks={[]} />)
 
         expect(screen.getByText("Exportação rápida")).toBeTruthy()
         expect(
             screen.getByText(
-                "Gere um arquivo CSV com título, categoria, prioridade, status, vencimento e data de criação."
+                "Gere um arquivo CSV com todas as tarefas ou apenas com o resultado atual dos filtros."
             )
         ).toBeTruthy()
     })
