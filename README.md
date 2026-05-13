@@ -777,6 +777,29 @@ Para configurar build, pasta de saída e suporte a rotas internas do React Route
 | `npm run build` | Gera build de produção |
 | `npm run preview` | Visualiza o build localmente |
 | `npm run lint` | Roda lint, caso configurado |
+| `npm run test` | Roda os testes em modo watch |
+| `npm run test:run` | Roda os testes uma vez |
+| `npm run check` | Roda lint, testes e build em sequência |
+
+---
+
+## Qualidade automatizada
+
+O Lynflow possui uma base inicial de testes com Vitest para proteger regras de negócio e integrações internas.
+
+Cobertura inicial:
+
+- validadores de login, cadastro, perfil e e-mail;
+- filtros e ordenação de tarefas;
+- filtros e ordenação de atividades;
+- analytics de tarefas;
+- mappers entre Supabase e o formato usado no front-end.
+
+Antes de abrir PR, publicar deploy ou seguir para uma nova fase, rode:
+
+```bash
+npm run check
+```
 
 ---
 
