@@ -1,6 +1,7 @@
 import type { ReactNode } from "react"
 import { CheckCircle2, ClipboardList, TriangleAlert } from "lucide-react"
 import type { Task } from "../../types/task"
+import { groupTasksByFlowStatus } from "../../utils/taskStatus"
 import { EmptyState } from "../ui/EmptyState"
 import { TaskCard } from "./TaskCard"
 
@@ -24,17 +25,6 @@ type KanbanColumn = {
     tasks: Task[]
 }
 
-function isTaskOverdue(task: Task) {
-    if (!task.dueDate || task.done) return false
-
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-
-    const dueDate = new Date(`${task.dueDate}T00:00:00`)
-
-    return dueDate.getTime() < today.getTime()
-}
-
 export function TaskKanbanBoard({
     tasks,
     editingId,
@@ -46,9 +36,7 @@ export function TaskKanbanBoard({
     onToggle,
     onDelete,
 }: TaskKanbanBoardProps) {
-    const overdueTasks = tasks.filter(isTaskOverdue)
-    const pendingTasks = tasks.filter((task) => !task.done && !isTaskOverdue(task))
-    const completedTasks = tasks.filter((task) => task.done)
+    const groupedTasks = groupTasksByFlowStatus(tasks)
 
     const columns: KanbanColumn[] = [
         {
@@ -56,21 +44,21 @@ export function TaskKanbanBoard({
             title: "Atrasadas",
             description: "Tarefas pendentes com vencimento passado.",
             icon: <TriangleAlert size={18} />,
-            tasks: overdueTasks,
+            tasks: groupedTasks.overdue,
         },
         {
             id: "pending",
             title: "Pendentes",
             description: "Tarefas abertas dentro do prazo.",
             icon: <ClipboardList size={18} />,
-            tasks: pendingTasks,
+            tasks: groupedTasks.pending,
         },
         {
             id: "completed",
             title: "Concluídas",
             description: "Tarefas finalizadas.",
             icon: <CheckCircle2 size={18} />,
-            tasks: completedTasks,
+            tasks: groupedTasks.completed,
         },
     ]
 
