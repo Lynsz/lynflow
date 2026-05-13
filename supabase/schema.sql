@@ -63,6 +63,36 @@ create trigger tasks_set_updated_at
 before update on public.tasks
 for each row execute function public.set_updated_at();
 
+-- Register task tables in Supabase Realtime when the hosted publication exists.
+-- The checks keep this block safe to re-run in existing projects.
+do $$
+begin
+  if exists (
+    select 1 from pg_publication where pubname = 'supabase_realtime'
+  ) then
+    if not exists (
+      select 1
+      from pg_publication_tables
+      where pubname = 'supabase_realtime'
+        and schemaname = 'public'
+        and tablename = 'tasks'
+    ) then
+      alter publication supabase_realtime add table public.tasks;
+    end if;
+
+    if not exists (
+      select 1
+      from pg_publication_tables
+      where pubname = 'supabase_realtime'
+        and schemaname = 'public'
+        and tablename = 'task_activities'
+    ) then
+      alter publication supabase_realtime add table public.task_activities;
+    end if;
+  end if;
+end;
+$$;
+
 -- Enable Row Level Security on every user-owned table.
 alter table public.profiles enable row level security;
 alter table public.tasks enable row level security;

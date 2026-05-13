@@ -248,7 +248,7 @@ lynflow.vercel.app
 
 O Lynflow funciona em **modo local por padrão**. Quando as variáveis do Supabase não existem, autenticação, tarefas, perfil, configurações e histórico continuam usando `localStorage`, sem exigir backend.
 
-Também é possível ativar o **modo Supabase** para autenticação real e persistência remota de tarefas e atividades. O app detecta automaticamente as variáveis abaixo:
+Também é possível ativar o **modo Supabase** para autenticação real, persistência remota de tarefas e atividades e sincronização em tempo real entre abas/dispositivos. O app detecta automaticamente as variáveis abaixo:
 
 ```env
 VITE_SUPABASE_URL=
@@ -278,7 +278,7 @@ VITE_SUPABASE_ANON_KEY=sua_anon_key
 npm run dev
 ```
 
-O app não usa service role key no front-end. A segurança do banco fica protegida por RLS, e o fallback localStorage permanece disponível quando as variáveis não são configuradas.
+O app não usa service role key no front-end. A segurança do banco fica protegida por RLS, o realtime usa filtros por usuário nas tabelas de tarefas/atividades, e o fallback localStorage permanece disponível quando as variáveis não são configuradas.
 
 ---
 
@@ -750,13 +750,13 @@ Para configurar build, pasta de saída e suporte a rotas internas do React Route
 - [x] Preview social
 - [x] Configuração Vercel
 - [x] Supabase opcional
+- [x] Realtime com Supabase
 - [x] Testes automatizados
 - [x] CI com GitHub Actions
 - [x] Datas de vencimento em tarefas
 
 ### Melhorias futuras
 
-- [ ] Realtime com Supabase.
 - [ ] Kanban view.
 - [ ] Calendário.
 - [ ] Exportar dados.

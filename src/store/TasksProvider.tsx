@@ -13,6 +13,11 @@ import { supabase } from "../services/supabase"
 import type { TaskActivity, ActivityType } from "../types/activity"
 import type { Priority, Task } from "../types/task"
 import { mapSupabaseActivity, mapSupabaseTask } from "../types/supabase"
+import {
+    getUserRealtimeChannelName,
+    getUserRealtimeFilter,
+    REALTIME_REFRESH_DELAY_MS,
+} from "../utils/realtime"
 
 const TASKS_KEY = "lynflow-tasks"
 const ACTIVITIES_KEY = "lynflow-activities"
@@ -215,6 +220,42 @@ function reorderArray<T>(items: T[], fromIndex: number, toIndex: number) {
     return result
 }
 
+async function fetchRemoteTaskState(userId: string) {
+    if (!supabase) {
+        return {
+            tasks: [],
+            activities: [],
+        }
+    }
+
+    const [tasksResponse, activitiesResponse] = await Promise.all([
+        supabase
+            .from("tasks")
+            .select("*")
+            .eq("user_id", userId)
+            .order("order_index", { ascending: true }),
+        supabase
+            .from("task_activities")
+            .select("*")
+            .eq("user_id", userId)
+            .order("created_at", { ascending: false })
+            .limit(30),
+    ])
+
+    if (tasksResponse.error) {
+        throw tasksResponse.error
+    }
+
+    if (activitiesResponse.error) {
+        throw activitiesResponse.error
+    }
+
+    return {
+        tasks: (tasksResponse.data ?? []).map(mapSupabaseTask),
+        activities: (activitiesResponse.data ?? []).map(mapSupabaseActivity),
+    }
+}
+
 export function TasksProvider({ children }: TasksProviderProps) {
     const { user, dataMode, isLoading: isAuthLoading } = useAuth()
     const { showToast } = useToast()
@@ -232,41 +273,6 @@ export function TasksProvider({ children }: TasksProviderProps) {
 
         let isMounted = true
 
-        async function loadRemoteData(userId: string) {
-            if (!supabase) {
-                return
-            }
-
-            const [tasksResponse, activitiesResponse] = await Promise.all([
-                supabase
-                    .from("tasks")
-                    .select("*")
-                    .eq("user_id", userId)
-                    .order("order_index", { ascending: true }),
-                supabase
-                    .from("task_activities")
-                    .select("*")
-                    .eq("user_id", userId)
-                    .order("created_at", { ascending: false })
-                    .limit(30),
-            ])
-
-            if (tasksResponse.error) {
-                throw tasksResponse.error
-            }
-
-            if (activitiesResponse.error) {
-                throw activitiesResponse.error
-            }
-
-            if (!isMounted) {
-                return
-            }
-
-            setTasks(tasksResponse.data.map(mapSupabaseTask))
-            setActivities(activitiesResponse.data.map(mapSupabaseActivity))
-        }
-
         async function loadData() {
             setIsReady(false)
 
@@ -279,7 +285,14 @@ export function TasksProvider({ children }: TasksProviderProps) {
                 }
 
                 try {
-                    await loadRemoteData(user.id)
+                    const remoteState = await fetchRemoteTaskState(user.id)
+
+                    if (!isMounted) {
+                        return
+                    }
+
+                    setTasks(remoteState.tasks)
+                    setActivities(remoteState.activities)
                 } catch (err) {
                     if (err instanceof Error) {
                         showToast({
@@ -326,6 +339,92 @@ export function TasksProvider({ children }: TasksProviderProps) {
 
         return () => {
             isMounted = false
+        }
+    }, [isAuthLoading, isRemoteMode, showToast, user?.id])
+
+    useEffect(() => {
+        if (isAuthLoading || !isRemoteMode || !supabase || !user?.id) {
+            return
+        }
+
+        const client = supabase
+        const userId = user.id
+        let isActive = true
+        let refreshTimer: ReturnType<typeof window.setTimeout> | null = null
+
+        async function refreshRemoteState() {
+            try {
+                const remoteState = await fetchRemoteTaskState(userId)
+
+                if (!isActive) {
+                    return
+                }
+
+                setTasks(remoteState.tasks)
+                setActivities(remoteState.activities)
+            } catch (err) {
+                if (err instanceof Error && isActive) {
+                    showToast({
+                        type: "error",
+                        title: "Erro ao sincronizar realtime",
+                        description: err.message,
+                    })
+                }
+            }
+        }
+
+        function scheduleRefresh() {
+            if (refreshTimer) {
+                window.clearTimeout(refreshTimer)
+            }
+
+            refreshTimer = window.setTimeout(() => {
+                refreshTimer = null
+                void refreshRemoteState()
+            }, REALTIME_REFRESH_DELAY_MS)
+        }
+
+        const channel = client
+            .channel(getUserRealtimeChannelName(userId))
+            .on(
+                "postgres_changes",
+                {
+                    event: "*",
+                    schema: "public",
+                    table: "tasks",
+                    filter: getUserRealtimeFilter(userId),
+                },
+                scheduleRefresh
+            )
+            .on(
+                "postgres_changes",
+                {
+                    event: "*",
+                    schema: "public",
+                    table: "task_activities",
+                    filter: getUserRealtimeFilter(userId),
+                },
+                scheduleRefresh
+            )
+            .subscribe((status) => {
+                if (status === "CHANNEL_ERROR") {
+                    showToast({
+                        type: "warning",
+                        title: "Realtime indisponivel",
+                        description:
+                            "O app continua funcionando e tentara sincronizar nas proximas atualizacoes.",
+                    })
+                }
+            })
+
+        return () => {
+            isActive = false
+
+            if (refreshTimer) {
+                window.clearTimeout(refreshTimer)
+            }
+
+            void client.removeChannel(channel)
         }
     }, [isAuthLoading, isRemoteMode, showToast, user?.id])
 
