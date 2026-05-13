@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react"
+import { useLocation } from "react-router-dom"
 import {
     DndContext,
     KeyboardSensor,
@@ -63,6 +64,9 @@ const sortOptions: Array<{ key: SortOption; label: string }> = [
 ]
 
 export function Tasks() {
+    const location = useLocation()
+    const titleInputRef = useRef<HTMLInputElement | null>(null)
+
     const {
         isReady,
         tasks,
@@ -89,6 +93,35 @@ export function Tasks() {
     const [editingId, setEditingId] = useState<string | null>(null)
     const [editingTitle, setEditingTitle] = useState("")
     const [taskToDelete, setTaskToDelete] = useState<Task | null>(null)
+
+    useEffect(() => {
+        function focusNewTaskInput() {
+            titleInputRef.current?.focus()
+        }
+
+        window.addEventListener("lynflow-focus-new-task", focusNewTaskInput)
+
+        return () => {
+            window.removeEventListener("lynflow-focus-new-task", focusNewTaskInput)
+        }
+    }, [])
+
+    useEffect(() => {
+        if (!isReady) return
+
+        const state = location.state as
+            | {
+                focusNewTask?: boolean
+                shortcutAt?: number
+            }
+            | null
+
+        if (state?.focusNewTask) {
+            window.setTimeout(() => {
+                titleInputRef.current?.focus()
+            }, 80)
+        }
+    }, [isReady, location.state])
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -125,7 +158,7 @@ export function Tasks() {
         return <TasksSkeleton />
     }
 
-    function handleAddTask(event: React.FormEvent) {
+    function handleAddTask(event: FormEvent<HTMLFormElement>) {
         event.preventDefault()
 
         if (!title.trim()) {
@@ -153,6 +186,10 @@ export function Tasks() {
         setTitle("")
         setCategory("Geral")
         setPriority("medium")
+
+        window.setTimeout(() => {
+            titleInputRef.current?.focus()
+        }, 50)
     }
 
     function startEdit(task: Task) {
@@ -280,7 +317,9 @@ export function Tasks() {
                         <label htmlFor="task-title" className="sr-only">
                             Nova tarefa
                         </label>
+
                         <Input
+                            ref={titleInputRef}
                             id="task-title"
                             value={title}
                             onChange={(event) => setTitle(event.target.value)}
@@ -292,6 +331,7 @@ export function Tasks() {
                         <label htmlFor="task-category" className="sr-only">
                             Categoria
                         </label>
+
                         <Input
                             id="task-category"
                             value={category}
@@ -304,6 +344,7 @@ export function Tasks() {
                         <label htmlFor="task-priority" className="sr-only">
                             Prioridade
                         </label>
+
                         <select
                             id="task-priority"
                             value={priority}
@@ -350,6 +391,7 @@ export function Tasks() {
                             <label htmlFor="task-search" className="sr-only">
                                 Buscar tarefa
                             </label>
+
                             <Input
                                 id="task-search"
                                 value={search}
@@ -365,6 +407,7 @@ export function Tasks() {
                             <label htmlFor="status-filter" className="sr-only">
                                 Filtrar por status
                             </label>
+
                             <select
                                 id="status-filter"
                                 value={statusFilter}
@@ -387,6 +430,7 @@ export function Tasks() {
                             <label htmlFor="priority-filter" className="sr-only">
                                 Filtrar por prioridade
                             </label>
+
                             <select
                                 id="priority-filter"
                                 value={priorityFilter}
@@ -409,6 +453,7 @@ export function Tasks() {
                             <label htmlFor="category-filter" className="sr-only">
                                 Filtrar por categoria
                             </label>
+
                             <select
                                 id="category-filter"
                                 value={categoryFilter}
@@ -431,6 +476,7 @@ export function Tasks() {
                             <label htmlFor="task-sort" className="sr-only">
                                 Ordenar tarefas
                             </label>
+
                             <select
                                 id="task-sort"
                                 value={sortBy}
@@ -458,11 +504,15 @@ export function Tasks() {
                     action={
                         <div className="flex items-center gap-2 text-sm text-[var(--muted)]">
                             <GripVertical size={16} />
+
                             <span>
                                 {isDragDisabled ? "Drag desativado" : "Drag ativo"}
                             </span>
+
                             <SlidersHorizontal size={16} />
+
                             <span>{hasActiveFilters ? "Filtros ativos" : "Sem filtros"}</span>
+
                             <ArrowUpDown size={16} />
                         </div>
                     }

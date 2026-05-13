@@ -17,6 +17,7 @@ import {
 import { logoutUser } from "../services/auth"
 import { ThemeToggle } from "../components/ThemeToggle"
 import { CommandPalette } from "../components/CommandPalette"
+import { GlobalShortcuts } from "../components/GlobalShortcuts"
 
 type AppLayoutProps = {
     children: ReactNode
@@ -123,6 +124,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     return (
         <div className="flex min-h-screen bg-[var(--bg)] text-[var(--text)]">
             <CommandPalette />
+            <GlobalShortcuts />
 
             <aside className="ly-sidebar hidden w-64 flex-col p-5 backdrop-blur-xl md:flex">
                 <div className="mb-8">
@@ -290,8 +292,8 @@ export function AppLayout({ children }: AppLayoutProps) {
                         type="button"
                         onClick={() => setIsMoreOpen((currentValue) => !currentValue)}
                         className={`flex flex-col items-center gap-1 px-2 py-3 text-[11px] transition ${isMoreOpen || isMoreActive
-                                ? "text-[var(--text)]"
-                                : "text-[var(--muted-soft)]"
+                            ? "text-[var(--text)]"
+                            : "text-[var(--muted-soft)]"
                             }`}
                         aria-label="Abrir mais opções"
                         title="Abrir mais opções"
