@@ -13,6 +13,7 @@ import { Insights } from "./pages/Insights"
 import { Settings } from "./pages/Settings"
 import { Profile } from "./pages/Profile"
 import { ActivityPage } from "./pages/Activity"
+import { NotFound } from "./pages/NotFound"
 import { ProtectedRoute } from "./routes/ProtectedRoute"
 import { AppLayout } from "./layouts/AppLayout"
 
@@ -101,6 +102,8 @@ export default function App() {
                   </ProtectedScreen>
                 }
               />
+
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
         </TasksProvider>
