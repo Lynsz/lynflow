@@ -19,6 +19,7 @@ import { ThemeToggle } from "../components/ThemeToggle"
 import { CommandPalette } from "../components/CommandPalette"
 import { GlobalShortcuts } from "../components/GlobalShortcuts"
 import { AppTopbar } from "../components/AppTopbar"
+import { OnboardingModal } from "../components/OnboardingModal"
 
 type AppLayoutProps = {
     children: ReactNode
@@ -130,6 +131,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         <div className="flex min-h-screen bg-[var(--bg)] text-[var(--text)] md:min-h-dvh">
             <CommandPalette />
             <GlobalShortcuts />
+            <OnboardingModal />
 
             <aside className="ly-sidebar ly-scrollbar fixed bottom-0 left-0 top-0 hidden w-64 flex-col overflow-y-auto p-5 backdrop-blur-xl md:flex">
                 <div className="mb-8">
