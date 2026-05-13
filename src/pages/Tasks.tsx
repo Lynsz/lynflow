@@ -40,6 +40,7 @@ import { PageHeader } from "../components/ui/PageHeader"
 import { SectionCard } from "../components/ui/SectionCard"
 import { SortableTaskItem } from "../components/tasks/SortableTaskItem"
 import { TaskKanbanBoard } from "../components/tasks/TaskKanbanBoard"
+import { TaskSummaryCards } from "../components/tasks/TaskSummaryCards"
 import { useToast } from "../components/ui/ToastProvider"
 import { TasksSkeleton } from "../components/skeletons/TasksSkeleton"
 
@@ -372,7 +373,9 @@ export function Tasks() {
                         <select
                             id="task-priority"
                             value={priority}
-                            onChange={(event) => setPriority(event.target.value as Priority)}
+                            onChange={(event) =>
+                                setPriority(event.target.value as Priority)
+                            }
                             title="Prioridade da tarefa"
                             aria-label="Prioridade da tarefa"
                             className="ly-input rounded-2xl px-4 py-3"
@@ -400,6 +403,10 @@ export function Tasks() {
                         </Button>
                     </form>
                 </SectionCard>
+
+                <div className="mt-6">
+                    <TaskSummaryCards tasks={tasks} />
+                </div>
 
                 <SectionCard
                     className="mt-6"
@@ -536,8 +543,10 @@ export function Tasks() {
                     <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-[var(--border)] bg-[var(--surface-strong)] p-3 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <p className="text-sm font-medium">Visualização</p>
+
                             <p className="ly-muted-soft text-sm">
-                                Use lista para reordenar manualmente ou Kanban para analisar o fluxo.
+                                Use lista para reordenar manualmente ou Kanban para
+                                analisar o fluxo.
                             </p>
                         </div>
 
