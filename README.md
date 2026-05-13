@@ -10,6 +10,7 @@
 
 <p align="center">
   <a href="#-sobre-o-projeto">Sobre</a> •
+  <a href="#-demonstração">Demonstração</a> •
   <a href="#-funcionalidades">Funcionalidades</a> •
   <a href="#-tecnologias">Tecnologias</a> •
   <a href="#-como-rodar">Como rodar</a> •
@@ -34,21 +35,30 @@ A proposta principal é demonstrar domínio em:
 - rotas protegidas;
 - UI responsiva;
 - experiência de produto;
-- arquitetura front-end escalável.
+- arquitetura front-end escalável;
+- deploy com Vercel.
 
 ---
 
-````md
 ## 🚀 Demonstração
 
 O Lynflow está disponível online pela Vercel:
 
 ```txt
-https://lynflow.vercel.app/
+lynflow.vercel.app
+```
+
+> Depois do deploy, substitua o link acima pelo link real gerado pela Vercel.
 
 ---
 
 ## 🖼️ Preview
+
+### Preview principal
+
+<p align="center">
+  <img src="./src/assets/preview.gif" alt="Lynflow Animated Preview" width="100%" />
+</p>
 
 ### Landing Page
 
@@ -179,6 +189,10 @@ https://lynflow.vercel.app/
 - Error Boundary.
 - Layout responsivo.
 - Menu mobile com More Menu.
+- SEO básico.
+- Favicon.
+- Manifest.
+- Preview social com `og-image`.
 
 ---
 
@@ -211,6 +225,7 @@ https://lynflow.vercel.app/
 - Lucide React
 - DnD Kit
 - LocalStorage
+- Vercel
 
 ---
 
@@ -255,6 +270,24 @@ src/
 └── main.tsx
 ```
 
+Arquivos importantes na raiz/pasta pública:
+
+```txt
+public/
+├── favicon.svg
+├── og-image.png
+├── og-preview.html
+├── preview.gif
+├── robots.txt
+└── site.webmanifest
+
+vercel.json
+README.md
+index.html
+package.json
+vite.config.ts
+```
+
 ---
 
 ## 🧩 Padrões usados
@@ -275,6 +308,7 @@ O projeto foi dividido em componentes reutilizáveis, como:
 - `OnboardingModal`
 - `DeployChecklist`
 - `DeployGuide`
+- `ErrorBoundary`
 
 ### Estado global
 
@@ -378,12 +412,41 @@ Sair da conta
 
 ---
 
+## 🔎 SEO e preview social
+
+O projeto possui configuração básica de SEO no `index.html`:
+
+- título;
+- descrição;
+- keywords;
+- autor;
+- Open Graph;
+- Twitter Card;
+- favicon;
+- manifest;
+- robots.
+
+Arquivos relacionados:
+
+```txt
+index.html
+public/favicon.svg
+public/site.webmanifest
+public/robots.txt
+public/og-image.png
+public/og-preview.html
+```
+
+A página `public/og-preview.html` foi criada para gerar uma arte de preview social em formato `1200x630`.
+
+---
+
 ## 🧪 Como rodar
 
 Clone o repositório:
 
 ```bash
-git clone https://github.com/seu-usuario/lynflow.git
+git clone https://github.com/SEU-USUARIO/lynflow.git
 ```
 
 Entre na pasta:
@@ -426,15 +489,21 @@ Para testar localmente o build:
 npm run preview
 ```
 
+Acesse:
+
+```txt
+http://localhost:4173
+```
+
 ---
 
 ## 🚀 Deploy
 
 O Lynflow está preparado para deploy na Vercel.
 
-### Configuração usada
+### Configuração da Vercel
 
-O projeto possui um arquivo `vercel.json` na raiz para configurar build, pasta de saída e suporte a rotas internas com React Router.
+O projeto possui o arquivo `vercel.json` na raiz:
 
 ```json
 {
@@ -451,29 +520,46 @@ O projeto possui um arquivo `vercel.json` na raiz para configurar build, pasta d
 }
 ```
 
+Esse `rewrite` permite que rotas internas do React Router, como `/dashboard`, `/tasks` e `/settings`, funcionem corretamente no deploy.
+
 ### Configuração esperada na Vercel
 
 | Campo | Valor |
 |---|---|
 | Framework | Vite |
+| Install Command | `npm install` |
 | Build Command | `npm run build` |
 | Output Directory | `dist` |
-| Install Command | `npm install` |
 
-### Como publicar
+### Fluxo recomendado
 
-1. Faça push do projeto para o GitHub.
-2. Acesse a Vercel.
-3. Clique em **Add New Project**.
-4. Importe o repositório do Lynflow.
-5. Confirme se o framework detectado é **Vite**.
-6. Confirme:
+Teste o build:
+
+```bash
+npm run build
+```
+
+Faça o commit:
+
+```bash
+git add .
+git commit -m "chore: prepare Lynflow for deploy"
+git push
+```
+
+Depois:
+
+1. Entrar na Vercel.
+2. Clicar em **Add New Project**.
+3. Importar o repositório do Lynflow.
+4. Confirmar framework **Vite**.
+5. Confirmar:
    - Build Command: `npm run build`
    - Output Directory: `dist`
-7. Clique em **Deploy**.
-8. Teste a URL gerada.
+6. Clicar em **Deploy**.
+7. Testar a URL final.
 
-### Rotas para testar depois do deploy
+### Rotas para testar após o deploy
 
 ```txt
 /
@@ -489,19 +575,51 @@ O projeto possui um arquivo `vercel.json` na raiz para configurar build, pasta d
  /qualquer-rota
 ```
 
-As rotas internas funcionam no deploy por causa do `rewrites` configurado no `vercel.json`.
+A rota `/qualquer-rota` deve abrir a página 404 personalizada do Lynflow.
 
-### Comandos finais
+---
 
-```bash
-npm run build
+## 🖼️ Como gerar o preview social
+
+O projeto possui uma página estática para gerar o preview:
+
+```txt
+public/og-preview.html
 ```
 
+Para abrir:
+
 ```bash
-git add .
-git commit -m "chore: configure vercel deploy"
-git push
+npm run dev
 ```
+
+Depois acesse:
+
+```txt
+http://localhost:5173/og-preview.html
+```
+
+Para gerar o print social:
+
+1. Abra o DevTools.
+2. Ative o modo responsivo.
+3. Configure o tamanho:
+   - largura: `1200`
+   - altura: `630`
+4. Recarregue a página.
+5. Tire o screenshot.
+6. Salve como:
+
+```txt
+public/og-image.png
+```
+
+Para o README, use o GIF principal em:
+
+```txt
+src/assets/preview.gif
+```
+
 ---
 
 ## ✅ Checklist pré-deploy
@@ -517,6 +635,8 @@ git push
 - [ ] Settings testado.
 - [ ] Página 404 testada.
 - [ ] Responsividade revisada.
+- [ ] Preview social gerado.
+- [ ] GIF principal adicionado.
 - [ ] Prints adicionados.
 - [ ] README atualizado.
 - [ ] Deploy publicado.
@@ -546,6 +666,14 @@ Porque permite criar gráficos simples e funcionais com boa integração em Reac
 ### Por que Command Palette?
 
 Porque melhora a experiência de produto e aproxima o projeto de aplicações SaaS modernas.
+
+### Por que Error Boundary?
+
+Para evitar tela branca em produção caso algum erro inesperado aconteça na renderização.
+
+### Por que `vercel.json`?
+
+Para configurar build, pasta de saída e suporte a rotas internas do React Router no deploy da Vercel.
 
 ---
 
@@ -577,6 +705,10 @@ Porque melhora a experiência de produto e aproxima o projeto de aplicações Sa
 - [x] Error Boundary
 - [x] Checklist pré-deploy
 - [x] Guia de deploy
+- [x] SEO básico
+- [x] Manifest
+- [x] Preview social
+- [x] Configuração Vercel
 
 ### Melhorias futuras
 
@@ -623,40 +755,8 @@ Este projeto está sob licença MIT.
 ## ⭐ Status
 
 ```txt
-Status: Finalizando pré-deploy
-Versão: MVP portfolio-ready
-```
-
----
-
-## 📸 Imagens necessárias
-
-Coloque estes arquivos dentro de:
-
-```txt
-src/assets/
-```
-
-Com estes nomes:
-
-```txt
-preview.png
-landing-preview.png
-dashboard-preview.png
-tasks-preview.png
-activity-preview.png
-```
-
-Caso queira usar um GIF como preview principal, substitua:
-
-```md
-<img src="./src/assets/preview.png" alt="Lynflow Preview" width="100%" />
-```
-
-por:
-
-```md
-<img src="./src/assets/preview.gif" alt="Lynflow Preview" width="100%" />
+Status: MVP portfolio-ready
+Versão: 1.0.0
 ```
 
 ---
@@ -665,6 +765,6 @@ por:
 
 ```bash
 git add .
-git commit -m "docs: add final Lynflow README"
+git commit -m "docs: update Lynflow README with deploy and preview instructions"
 git push
 ```
