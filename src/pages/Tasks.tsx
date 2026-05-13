@@ -42,6 +42,7 @@ import { SectionCard } from "../components/ui/SectionCard"
 import { CompletedTasksCleanup } from "../components/tasks/CompletedTasksCleanup"
 import { SortableTaskItem } from "../components/tasks/SortableTaskItem"
 import { TaskDeadlineOverview } from "../components/tasks/TaskDeadlineOverview"
+import { TaskExportActions } from "../components/tasks/TaskExportActions"
 import { TaskKanbanBoard } from "../components/tasks/TaskKanbanBoard"
 import { TaskSummaryCards } from "../components/tasks/TaskSummaryCards"
 import { useToast } from "../components/ui/ToastProvider"
@@ -426,6 +427,8 @@ export function Tasks() {
                     />
 
                     <CompletedTasksCleanup />
+
+                    <TaskExportActions />
 
                     <TaskDeadlineOverview
                         tasks={tasks}
