@@ -151,6 +151,11 @@ lynflow.vercel.app
 - Separação automática entre tarefas atrasadas, pendentes e concluídas.
 - Painel de prazos com próximas tarefas e tarefas atrasadas.
 - Limpeza rápida de tarefas concluídas.
+- Exportação de todas as tarefas em CSV.
+- Exportação apenas das tarefas filtradas em CSV.
+- Ações em massa nas tarefas filtradas.
+- Marcar tarefas visíveis como concluídas.
+- Deletar tarefas visíveis com confirmação.
 - Persistência local com `localStorage`.
 - Persistência remota opcional com Supabase.
 
@@ -247,6 +252,10 @@ lynflow.vercel.app
 - Cards de resumo filtráveis.
 - Painel de prazos para tarefas.
 - Limpeza rápida de concluídas.
+- Exportação CSV.
+- Exportação baseada nos filtros ativos.
+- Ações em massa para tarefas visíveis.
+- Confirmação antes de deletar tarefas em massa.
 
 ---
 
@@ -430,6 +439,8 @@ O projeto foi dividido em componentes reutilizáveis, como:
 - `TaskSummaryCards`
 - `TaskDeadlineOverview`
 - `CompletedTasksCleanup`
+- `TaskExportActions`
+- `TaskBulkActions`
 
 ### Estado global
 
@@ -891,6 +902,11 @@ Para proteger regras de negócio, validações, fluxos principais e evitar regre
 - [x] Página offline
 - [x] Status de instalação do app
 - [x] Utilitários centralizados de data
+- [x] Exportação CSV de tarefas
+- [x] Exportação CSV de tarefas filtradas
+- [x] Ações em massa para tarefas filtradas
+- [x] Marcar tarefas visíveis como concluídas
+- [x] Deletar tarefas visíveis com confirmação
 
 ### Melhorias futuras
 
@@ -935,6 +951,9 @@ Cobertura inicial:
 - cards de resumo filtráveis;
 - painel de prazos;
 - limpeza rápida de tarefas concluídas;
+- exportação CSV de tarefas;
+- exportação CSV de tarefas filtradas;
+- ações em massa para tarefas visíveis;
 - filtros e ordenação de atividades;
 - analytics de tarefas;
 - mappers entre Supabase e o formato usado no front-end;
