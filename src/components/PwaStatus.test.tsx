@@ -37,8 +37,8 @@ describe("PwaStatus", () => {
 
         const button = screen.getByRole("button", {
             name: "Instalação indisponível",
-        })
+        }) as HTMLButtonElement
 
-        expect(button).toBeDisabled()
+        expect(button.disabled).toBe(true)
     })
 })
