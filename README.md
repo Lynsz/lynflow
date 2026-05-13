@@ -143,6 +143,9 @@ lynflow.vercel.app
 - Filtrar por categoria.
 - Ordenar por data, prioridade, título ou ordem manual.
 - Reordenar com drag and drop.
+- Visualização em lista.
+- Visualização Kanban.
+- Separação automática entre tarefas atrasadas, pendentes e concluídas.
 - Persistência local com `localStorage`.
 - Persistência remota opcional com Supabase.
 
@@ -233,6 +236,8 @@ lynflow.vercel.app
 - Página offline.
 - Status de instalação do app.
 - Indicador online/offline.
+- Alternância entre lista e Kanban.
+- Kanban responsivo.
 
 ---
 
@@ -412,6 +417,7 @@ O projeto foi dividido em componentes reutilizáveis, como:
 - `DeployGuide`
 - `ErrorBoundary`
 - `PwaStatus`
+- `TaskKanbanBoard`
 
 ### Estado global
 
@@ -865,10 +871,11 @@ Para proteger regras de negócio, validações, fluxos principais e evitar regre
 - [x] Service worker
 - [x] Página offline
 - [x] Status de instalação do app
+- [x] Kanban view
+- [x] Colunas de tarefas atrasadas, pendentes e concluídas
 
 ### Melhorias futuras
 
-- [ ] Kanban view.
 - [ ] Calendário.
 - [ ] Integração com IA real.
 - [ ] Testes de componentes críticos.
@@ -908,7 +915,8 @@ Cobertura inicial:
 - mappers entre Supabase e o formato usado no front-end;
 - exportação e importação de backup;
 - fluxo de autenticação local;
-- status visual de PWA em Settings.
+- status visual de PWA em Settings;
+- agrupamento visual do Kanban entre tarefas atrasadas, pendentes e concluídas.
 
 Antes de abrir PR, publicar deploy ou seguir para uma nova fase, rode:
 
