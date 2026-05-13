@@ -39,8 +39,11 @@ import { Input } from "../components/ui/Input"
 import { PageHeader } from "../components/ui/PageHeader"
 import { SectionCard } from "../components/ui/SectionCard"
 import { SortableTaskItem } from "../components/tasks/SortableTaskItem"
+import { TaskKanbanBoard } from "../components/tasks/TaskKanbanBoard"
 import { useToast } from "../components/ui/ToastProvider"
 import { TasksSkeleton } from "../components/skeletons/TasksSkeleton"
+
+type ViewMode = "list" | "kanban"
 
 const statusFilters: Array<{ key: StatusFilter; label: string }> = [
     { key: "all", label: "Todas" },
@@ -91,6 +94,7 @@ export function Tasks() {
     const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>("all")
     const [categoryFilter, setCategoryFilter] = useState("all")
     const [sortBy, setSortBy] = useState<SortOption>("manual")
+    const [viewMode, setViewMode] = useState<ViewMode>("list")
 
     const [editingId, setEditingId] = useState<string | null>(null)
     const [editingTitle, setEditingTitle] = useState("")
@@ -154,7 +158,7 @@ export function Tasks() {
         categoryFilter !== "all" ||
         sortBy !== "manual"
 
-    const isDragDisabled = sortBy !== "manual"
+    const isDragDisabled = sortBy !== "manual" || viewMode !== "list"
 
     if (!isReady) {
         return <TasksSkeleton />
@@ -301,18 +305,34 @@ export function Tasks() {
         })
     }
 
+    function handleChangeViewMode(nextViewMode: ViewMode) {
+        setViewMode(nextViewMode)
+
+        showToast({
+            type: "info",
+            title:
+                nextViewMode === "kanban"
+                    ? "Visualização Kanban ativada"
+                    : "Visualização em lista ativada",
+            description:
+                nextViewMode === "kanban"
+                    ? "As tarefas agora aparecem organizadas por status."
+                    : "As tarefas voltaram para a lista com drag and drop.",
+        })
+    }
+
     return (
         <>
             <div className="ly-page px-4 py-6 md:px-8">
                 <PageHeader
                     eyebrow="Task system"
                     title="Tasks"
-                    description="Crie, organize, edite e conclua tarefas com prioridade, categoria, busca, filtros e drag and drop."
+                    description="Crie, organize, edite e conclua tarefas com prioridade, categoria, busca, filtros, Kanban e drag and drop."
                 />
 
                 <SectionCard
                     title="Nova tarefa"
-                    description="Adicione uma tarefa com categoria e prioridade."
+                    description="Adicione uma tarefa com categoria, prioridade e vencimento."
                 >
                     <form
                         onSubmit={handleAddTask}
@@ -384,7 +404,7 @@ export function Tasks() {
                 <SectionCard
                     className="mt-6"
                     title="Filtros"
-                    description="Encontre tarefas por texto, status, prioridade, categoria e ordenação."
+                    description="Encontre tarefas por texto, status, prioridade, categoria, ordenação e visualização."
                     action={
                         hasActiveFilters ? (
                             <Button
@@ -512,14 +532,47 @@ export function Tasks() {
                             </select>
                         </div>
                     </div>
+
+                    <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-[var(--border)] bg-[var(--surface-strong)] p-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <p className="text-sm font-medium">Visualização</p>
+                            <p className="ly-muted-soft text-sm">
+                                Use lista para reordenar manualmente ou Kanban para analisar o fluxo.
+                            </p>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2">
+                            <Button
+                                variant={viewMode === "list" ? "primary" : "secondary"}
+                                size="sm"
+                                icon={<ClipboardList size={16} />}
+                                onClick={() => handleChangeViewMode("list")}
+                            >
+                                Lista
+                            </Button>
+
+                            <Button
+                                variant={viewMode === "kanban" ? "primary" : "secondary"}
+                                size="sm"
+                                icon={<SlidersHorizontal size={16} />}
+                                onClick={() => handleChangeViewMode("kanban")}
+                            >
+                                Kanban
+                            </Button>
+                        </div>
+                    </div>
                 </SectionCard>
 
                 <SectionCard
                     className="mt-6"
-                    title="Lista de tarefas"
-                    description={`${filteredTasks.length} de ${tasks.length} tarefa(s) exibida(s). Use Manual para arrastar e reordenar.`}
+                    title={viewMode === "kanban" ? "Kanban de tarefas" : "Lista de tarefas"}
+                    description={
+                        viewMode === "kanban"
+                            ? `${filteredTasks.length} de ${tasks.length} tarefa(s) exibida(s), separadas entre atrasadas, pendentes e concluídas.`
+                            : `${filteredTasks.length} de ${tasks.length} tarefa(s) exibida(s). Use Manual para arrastar e reordenar.`
+                    }
                     action={
-                        <div className="flex items-center gap-2 text-sm text-[var(--muted)]">
+                        <div className="flex flex-wrap items-center gap-2 text-sm text-[var(--muted)]">
                             <GripVertical size={16} />
 
                             <span>
@@ -534,44 +587,58 @@ export function Tasks() {
                         </div>
                     }
                 >
-                    <DndContext
-                        sensors={sensors}
-                        collisionDetection={closestCenter}
-                        onDragEnd={handleDragEnd}
-                    >
-                        <SortableContext
-                            items={filteredTasks.map((task) => task.id)}
-                            strategy={verticalListSortingStrategy}
+                    {viewMode === "kanban" ? (
+                        <TaskKanbanBoard
+                            tasks={filteredTasks}
+                            editingId={editingId}
+                            editingTitle={editingTitle}
+                            onEditingTitleChange={setEditingTitle}
+                            onStartEdit={startEdit}
+                            onSaveEdit={saveEdit}
+                            onCancelEdit={cancelEdit}
+                            onToggle={handleToggleTask}
+                            onDelete={requestDeleteTask}
+                        />
+                    ) : (
+                        <DndContext
+                            sensors={sensors}
+                            collisionDetection={closestCenter}
+                            onDragEnd={handleDragEnd}
                         >
-                            <div className="space-y-3">
-                                <AnimatePresence>
-                                    {filteredTasks.map((task) => (
-                                        <SortableTaskItem
-                                            key={task.id}
-                                            task={task}
-                                            isEditing={editingId === task.id}
-                                            editingTitle={editingTitle}
-                                            onEditingTitleChange={setEditingTitle}
-                                            onStartEdit={startEdit}
-                                            onSaveEdit={saveEdit}
-                                            onCancelEdit={cancelEdit}
-                                            onToggle={handleToggleTask}
-                                            onDelete={requestDeleteTask}
-                                            disabled={isDragDisabled}
-                                        />
-                                    ))}
-                                </AnimatePresence>
+                            <SortableContext
+                                items={filteredTasks.map((task) => task.id)}
+                                strategy={verticalListSortingStrategy}
+                            >
+                                <div className="space-y-3">
+                                    <AnimatePresence>
+                                        {filteredTasks.map((task) => (
+                                            <SortableTaskItem
+                                                key={task.id}
+                                                task={task}
+                                                isEditing={editingId === task.id}
+                                                editingTitle={editingTitle}
+                                                onEditingTitleChange={setEditingTitle}
+                                                onStartEdit={startEdit}
+                                                onSaveEdit={saveEdit}
+                                                onCancelEdit={cancelEdit}
+                                                onToggle={handleToggleTask}
+                                                onDelete={requestDeleteTask}
+                                                disabled={isDragDisabled}
+                                            />
+                                        ))}
+                                    </AnimatePresence>
 
-                                {filteredTasks.length === 0 && (
-                                    <EmptyState
-                                        icon={<ClipboardList size={20} />}
-                                        title="Nenhuma tarefa encontrada"
-                                        description="Ajuste a busca ou limpe os filtros para visualizar outros itens."
-                                    />
-                                )}
-                            </div>
-                        </SortableContext>
-                    </DndContext>
+                                    {filteredTasks.length === 0 && (
+                                        <EmptyState
+                                            icon={<ClipboardList size={20} />}
+                                            title="Nenhuma tarefa encontrada"
+                                            description="Ajuste a busca ou limpe os filtros para visualizar outros itens."
+                                        />
+                                    )}
+                                </div>
+                            </SortableContext>
+                        </DndContext>
+                    )}
                 </SectionCard>
             </div>
 
@@ -580,7 +647,7 @@ export function Tasks() {
                 title="Deletar tarefa?"
                 description={
                     taskToDelete
-                        ? `A tarefa "${taskToDelete.title}" será removida permanentemente da lista local.`
+                        ? `A tarefa "${taskToDelete.title}" será removida permanentemente da lista.`
                         : "Essa tarefa será removida permanentemente."
                 }
                 confirmLabel="Deletar"
