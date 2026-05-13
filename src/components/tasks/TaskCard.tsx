@@ -1,6 +1,8 @@
 import { motion } from "framer-motion"
 import { CalendarDays, GripVertical, Trash2 } from "lucide-react"
 import type { Priority, Task } from "../../types/task"
+import { formatDatePtBr } from "../../utils/date"
+import { isTaskOverdue } from "../../utils/taskStatus"
 import { Input } from "../ui/Input"
 
 type TaskCardProps = {
@@ -19,6 +21,7 @@ type TaskCardProps = {
 function getPriorityLabel(priority: Priority) {
     if (priority === "high") return "Alta"
     if (priority === "medium") return "Média"
+
     return "Baixa"
 }
 
@@ -32,25 +35,6 @@ function getPriorityClass(priority: Priority) {
     }
 
     return "border-emerald-500/20 bg-emerald-500/10 text-emerald-500"
-}
-
-function formatDueDate(dueDate: string) {
-    return new Intl.DateTimeFormat("pt-BR", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-    }).format(new Date(`${dueDate}T00:00:00`))
-}
-
-function isTaskOverdue(task: Task) {
-    if (!task.dueDate || task.done) return false
-
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-
-    const dueDate = new Date(`${task.dueDate}T00:00:00`)
-
-    return dueDate.getTime() < today.getTime()
 }
 
 export function TaskCard({
@@ -107,7 +91,9 @@ export function TaskCard({
                     {isEditing ? (
                         <Input
                             value={editingTitle}
-                            onChange={(event) => onEditingTitleChange(event.target.value)}
+                            onChange={(event) =>
+                                onEditingTitleChange(event.target.value)
+                            }
                             onBlur={() => onSaveEdit(task.id)}
                             onKeyDown={(event) => {
                                 if (event.key === "Enter") {
@@ -152,15 +138,14 @@ export function TaskCard({
 
                         {task.dueDate ? (
                             <span
-                                className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs ${
-                                    isOverdue
+                                className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs ${isOverdue
                                         ? "border-red-500/20 bg-red-500/10 text-red-500"
                                         : "border-[var(--border)] text-[var(--muted)]"
-                                }`}
+                                    }`}
                             >
                                 <CalendarDays size={13} />
                                 {isOverdue ? "Atrasada: " : "Vence: "}
-                                {formatDueDate(task.dueDate)}
+                                {formatDatePtBr(task.dueDate)}
                             </span>
                         ) : null}
                     </div>

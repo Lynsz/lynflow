@@ -1,6 +1,7 @@
 import { CalendarClock, CheckCircle2, ChevronRight, TriangleAlert } from "lucide-react"
 import type { Task } from "../../types/task"
 import type { StatusFilter } from "../../utils/taskFilters"
+import { formatDatePtBr } from "../../utils/date"
 import { isTaskOverdue } from "../../utils/taskStatus"
 import { Button } from "../ui/Button"
 
@@ -8,14 +9,6 @@ type TaskDeadlineOverviewProps = {
     tasks: Task[]
     referenceDate?: Date
     onStatusSelect?: (status: StatusFilter) => void
-}
-
-function formatDueDate(dueDate: string) {
-    return new Intl.DateTimeFormat("pt-BR", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-    }).format(new Date(`${dueDate}T00:00:00`))
 }
 
 function getUpcomingTasks(tasks: Task[], referenceDate: Date) {
@@ -133,9 +126,7 @@ export function TaskDeadlineOverview({
                         Próximos vencimentos
                     </p>
 
-                    <span className="ly-muted-soft text-xs">
-                        Até 3 tarefas
-                    </span>
+                    <span className="ly-muted-soft text-xs">Até 3 tarefas</span>
                 </div>
 
                 {hasUpcomingTasks ? (
@@ -156,7 +147,10 @@ export function TaskDeadlineOverview({
                                 </div>
 
                                 <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-[var(--border)] px-3 py-1 text-xs text-[var(--muted)]">
-                                    {task.dueDate ? formatDueDate(task.dueDate) : "Sem data"}
+                                    {task.dueDate
+                                        ? formatDatePtBr(task.dueDate)
+                                        : "Sem data"}
+
                                     <ChevronRight size={13} />
                                 </span>
                             </div>

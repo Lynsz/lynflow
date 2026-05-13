@@ -1,4 +1,4 @@
-﻿import type { Task } from "../types/task"
+import type { Task } from "../types/task"
 import { isBeforeLocalDay } from "./date"
 
 export type TaskFlowStatus = "overdue" | "pending" | "completed"
