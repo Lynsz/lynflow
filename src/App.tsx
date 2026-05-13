@@ -2,6 +2,7 @@ import type { ReactNode } from "react"
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { ThemeProvider } from "./components/ThemeProvider"
 import { ToastProvider } from "./components/ui/ToastProvider"
+import { TasksProvider } from "./store/TasksProvider"
 import { Landing } from "./pages/Landing"
 import { Login } from "./pages/auth/Login"
 import { Register } from "./pages/auth/Register"
@@ -29,58 +30,60 @@ export default function App() {
   return (
     <ThemeProvider>
       <ToastProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+        <TasksProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
 
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedScreen>
-                  <Dashboard />
-                </ProtectedScreen>
-              }
-            />
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedScreen>
+                    <Dashboard />
+                  </ProtectedScreen>
+                }
+              />
 
-            <Route
-              path="/tasks"
-              element={
-                <ProtectedScreen>
-                  <Tasks />
-                </ProtectedScreen>
-              }
-            />
+              <Route
+                path="/tasks"
+                element={
+                  <ProtectedScreen>
+                    <Tasks />
+                  </ProtectedScreen>
+                }
+              />
 
-            <Route
-              path="/goals"
-              element={
-                <ProtectedScreen>
-                  <Goals />
-                </ProtectedScreen>
-              }
-            />
+              <Route
+                path="/goals"
+                element={
+                  <ProtectedScreen>
+                    <Goals />
+                  </ProtectedScreen>
+                }
+              />
 
-            <Route
-              path="/insights"
-              element={
-                <ProtectedScreen>
-                  <Insights />
-                </ProtectedScreen>
-              }
-            />
+              <Route
+                path="/insights"
+                element={
+                  <ProtectedScreen>
+                    <Insights />
+                  </ProtectedScreen>
+                }
+              />
 
-            <Route
-              path="/settings"
-              element={
-                <ProtectedScreen>
-                  <Settings />
-                </ProtectedScreen>
-              }
-            />
-          </Routes>
-        </BrowserRouter>
+              <Route
+                path="/settings"
+                element={
+                  <ProtectedScreen>
+                    <Settings />
+                  </ProtectedScreen>
+                }
+              />
+            </Routes>
+          </BrowserRouter>
+        </TasksProvider>
       </ToastProvider>
     </ThemeProvider>
   )

@@ -18,6 +18,7 @@ import { Button } from "../components/ui/Button"
 import { MetricCard } from "../components/ui/MetricCard"
 import { PageHeader } from "../components/ui/PageHeader"
 import { SectionCard } from "../components/ui/SectionCard"
+import { DashboardSkeleton } from "../components/skeletons/DashboardSkeleton"
 
 const weeklyData = [
     { day: "Seg", productivity: 35 },
@@ -31,12 +32,17 @@ const weeklyData = [
 
 export function Dashboard() {
     const {
+        isReady,
         tasks,
         completedTasks,
         pendingTasks,
         highPriorityTasks,
         productivity,
     } = useTasks()
+
+    if (!isReady) {
+        return <DashboardSkeleton />
+    }
 
     return (
         <div className="ly-page px-4 py-6 md:px-8">

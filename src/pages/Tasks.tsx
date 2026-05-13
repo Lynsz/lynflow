@@ -39,6 +39,7 @@ import { PageHeader } from "../components/ui/PageHeader"
 import { SectionCard } from "../components/ui/SectionCard"
 import { SortableTaskItem } from "../components/tasks/SortableTaskItem"
 import { useToast } from "../components/ui/ToastProvider"
+import { TasksSkeleton } from "../components/skeletons/TasksSkeleton"
 
 const statusFilters: Array<{ key: StatusFilter; label: string }> = [
     { key: "all", label: "Todas" },
@@ -63,6 +64,7 @@ const sortOptions: Array<{ key: SortOption; label: string }> = [
 
 export function Tasks() {
     const {
+        isReady,
         tasks,
         categories,
         addTask,
@@ -118,6 +120,10 @@ export function Tasks() {
         sortBy !== "manual"
 
     const isDragDisabled = sortBy !== "manual"
+
+    if (!isReady) {
+        return <TasksSkeleton />
+    }
 
     function handleAddTask(event: React.FormEvent) {
         event.preventDefault()
