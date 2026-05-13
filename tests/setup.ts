@@ -1,10 +1,11 @@
+import "@testing-library/jest-dom/vitest"
 import { cleanup } from "@testing-library/react"
-import { afterEach } from "vitest"
+import { afterEach, vi } from "vitest"
 
 class ResizeObserverMock {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
+    observe() { }
+    unobserve() { }
+    disconnect() { }
 }
 
 class IntersectionObserverMock {
@@ -12,12 +13,12 @@ class IntersectionObserverMock {
     readonly rootMargin = ""
     readonly thresholds = []
 
-    disconnect() {}
-    observe() {}
+    disconnect() { }
+    observe() { }
     takeRecords() {
         return []
     }
-    unobserve() {}
+    unobserve() { }
 }
 
 Object.defineProperty(window, "ResizeObserver", {
@@ -40,9 +41,24 @@ Object.defineProperty(globalThis, "IntersectionObserver", {
     value: IntersectionObserverMock,
 })
 
+Object.defineProperty(window, "matchMedia", {
+    writable: true,
+    value: vi.fn().mockImplementation((query: string) => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+    })),
+})
+
 afterEach(() => {
     cleanup()
     localStorage.clear()
     sessionStorage.clear()
     window.history.pushState({}, "", "/")
+    vi.clearAllMocks()
 })
