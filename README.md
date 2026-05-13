@@ -150,6 +150,11 @@ lynflow.vercel.app
 - Cards de resumo clicáveis para filtrar tarefas.
 - Separação automática entre tarefas atrasadas, pendentes e concluídas.
 - Painel de prazos com próximas tarefas e tarefas atrasadas.
+- Painel de insights das tarefas visíveis.
+- Taxa de conclusão baseada nos filtros ativos.
+- Contagem de tarefas atrasadas no filtro atual.
+- Contagem de tarefas de alta prioridade no filtro atual.
+- Identificação da categoria dominante.
 - Limpeza rápida de tarefas concluídas.
 - Exportação de todas as tarefas em CSV.
 - Exportação apenas das tarefas filtradas em CSV.
@@ -256,6 +261,9 @@ lynflow.vercel.app
 - Exportação baseada nos filtros ativos.
 - Ações em massa para tarefas visíveis.
 - Confirmação antes de deletar tarefas em massa.
+- Painel analítico para tarefas filtradas.
+- Barra de progresso das tarefas visíveis.
+- Insights dinâmicos conforme busca, filtros e ordenação.
 
 ---
 
@@ -441,6 +449,7 @@ O projeto foi dividido em componentes reutilizáveis, como:
 - `CompletedTasksCleanup`
 - `TaskExportActions`
 - `TaskBulkActions`
+- `TaskInsightsPanel`
 
 ### Estado global
 
@@ -907,6 +916,10 @@ Para proteger regras de negócio, validações, fluxos principais e evitar regre
 - [x] Ações em massa para tarefas filtradas
 - [x] Marcar tarefas visíveis como concluídas
 - [x] Deletar tarefas visíveis com confirmação
+- [x] Painel de insights das tarefas filtradas
+- [x] Taxa de conclusão das tarefas visíveis
+- [x] Categoria dominante no filtro atual
+- [x] Métricas de prioridade e atraso por filtro
 
 ### Melhorias futuras
 
@@ -950,6 +963,9 @@ Cobertura inicial:
 - cards de resumo de tarefas;
 - cards de resumo filtráveis;
 - painel de prazos;
+- painel de insights das tarefas filtradas;
+- cálculo de taxa de conclusão;
+- cálculo de categoria dominante;
 - limpeza rápida de tarefas concluídas;
 - exportação CSV de tarefas;
 - exportação CSV de tarefas filtradas;
