@@ -24,6 +24,7 @@ import { SectionCard } from "../components/ui/SectionCard"
 import { useToast } from "../components/ui/ToastProvider"
 import { DeployChecklist } from "../components/settings/DeployChecklist"
 import { DeployGuide } from "../components/settings/DeployGuide"
+import { PwaStatus } from "../components/settings/PwaStatus"
 import {
     createLynflowExportPayload,
     downloadJsonFile,
@@ -74,7 +75,10 @@ export function Settings() {
         showToast({
             type: "success",
             title: "Tarefas limpas",
-            description: "Todas as tarefas locais foram removidas.",
+            description:
+                dataMode === "supabase"
+                    ? "Todas as tarefas sincronizadas foram removidas."
+                    : "Todas as tarefas locais foram removidas.",
         })
 
         setIsClearDialogOpen(false)
@@ -294,6 +298,14 @@ export function Settings() {
                     </SectionCard>
 
                     <SectionCard
+                        title="App instalável"
+                        description="Status de PWA, service worker e instalação do Lynflow."
+                        className="xl:col-span-2"
+                    >
+                        <PwaStatus />
+                    </SectionCard>
+
+                    <SectionCard
                         title="Checklist pré-deploy"
                         description="Controle visual para finalizar o projeto antes de publicar."
                         className="xl:col-span-2"
@@ -334,6 +346,8 @@ export function Settings() {
                                 type="file"
                                 accept="application/json,.json"
                                 className="hidden"
+                                title="Importar arquivo de backup do Lynflow"
+                                aria-label="Importar arquivo de backup do Lynflow"
                                 onChange={handleImportFile}
                             />
 
@@ -390,7 +404,7 @@ export function Settings() {
             <ConfirmDialog
                 isOpen={isClearDialogOpen}
                 title="Limpar todas as tarefas?"
-                description="Essa ação vai remover todas as tarefas salvas localmente. Essa operação não pode ser desfeita."
+                description="Essa ação vai remover todas as tarefas salvas. Essa operação não pode ser desfeita."
                 confirmLabel="Limpar tarefas"
                 cancelLabel="Cancelar"
                 variant="danger"
@@ -412,7 +426,7 @@ export function Settings() {
             <ConfirmDialog
                 isOpen={isClearActivitiesDialogOpen}
                 title="Limpar histórico de atividades?"
-                description="Essa ação vai remover o histórico local de atividades recentes exibido no Dashboard. As tarefas não serão apagadas."
+                description="Essa ação vai remover o histórico de atividades recentes exibido no Dashboard. As tarefas não serão apagadas."
                 confirmLabel="Limpar histórico"
                 cancelLabel="Cancelar"
                 variant="danger"
