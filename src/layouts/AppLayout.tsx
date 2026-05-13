@@ -127,11 +127,11 @@ export function AppLayout({ children }: AppLayoutProps) {
     }
 
     return (
-        <div className="flex min-h-screen bg-[var(--bg)] text-[var(--text)]">
+        <div className="flex min-h-screen bg-[var(--bg)] text-[var(--text)] md:min-h-dvh">
             <CommandPalette />
             <GlobalShortcuts />
 
-            <aside className="ly-sidebar hidden w-64 flex-col p-5 backdrop-blur-xl md:flex">
+            <aside className="ly-sidebar ly-scrollbar fixed bottom-0 left-0 top-0 hidden w-64 flex-col overflow-y-auto p-5 backdrop-blur-xl md:flex">
                 <div className="mb-8">
                     <h1 className="text-2xl font-bold tracking-tight">Lynflow</h1>
                     <p className="ly-muted-soft mt-1 text-sm">AI productivity OS</p>
@@ -140,16 +140,16 @@ export function AppLayout({ children }: AppLayoutProps) {
                 <button
                     type="button"
                     onClick={openCommandPalette}
-                    className="mb-5 flex w-full items-center justify-between rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--muted)] transition hover:border-[var(--muted-soft)] hover:text-[var(--text)]"
+                    className="mb-5 flex w-full items-center justify-between gap-3 rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--muted)] transition hover:border-[var(--muted-soft)] hover:text-[var(--text)]"
                     aria-label="Abrir Command Palette"
                     title="Abrir Command Palette"
                 >
-                    <div className="flex items-center gap-2">
+                    <div className="flex min-w-0 items-center gap-2">
                         <Command size={15} />
-                        <span>Command</span>
+                        <span className="truncate">Command</span>
                     </div>
 
-                    <div className="flex items-center gap-1">
+                    <div className="flex shrink-0 items-center gap-1">
                         <span className="rounded-lg border border-[var(--border)] px-2 py-1 text-[10px]">
                             Ctrl K
                         </span>
@@ -176,13 +176,13 @@ export function AppLayout({ children }: AppLayoutProps) {
                                 }
                             >
                                 <Icon size={18} />
-                                {item.label}
+                                <span className="truncate">{item.label}</span>
                             </NavLink>
                         )
                     })}
                 </nav>
 
-                <div className="mt-auto space-y-3">
+                <div className="mt-auto space-y-3 pt-8">
                     <ThemeToggle />
 
                     <div className="ly-card rounded-2xl p-4">
@@ -203,7 +203,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                 </div>
             </aside>
 
-            <main className="min-w-0 flex-1 pb-24 md:pb-0">
+            <main className="min-w-0 flex-1 pb-[calc(6rem+env(safe-area-inset-bottom))] md:ml-64 md:pb-0">
                 <AppTopbar />
                 {children}
             </main>
@@ -226,9 +226,9 @@ export function AppLayout({ children }: AppLayoutProps) {
                             initial={{ opacity: 0, y: 24, scale: 0.98 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: 24, scale: 0.98 }}
-                            className="fixed bottom-20 left-4 right-4 z-50 rounded-3xl border border-[var(--border)] bg-[var(--surface-strong)] p-4 shadow-2xl shadow-black/30 md:hidden"
+                            className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] left-3 right-3 z-50 rounded-3xl border border-[var(--border)] bg-[var(--surface-strong)] p-4 shadow-2xl shadow-black/30 md:hidden"
                         >
-                            <div className="mb-4 flex items-center justify-between">
+                            <div className="mb-4 flex items-start justify-between gap-4">
                                 <div>
                                     <h2 className="font-semibold">Mais opções</h2>
                                     <p className="ly-muted-soft text-sm">
@@ -294,14 +294,14 @@ export function AppLayout({ children }: AppLayoutProps) {
                                 to={item.path}
                                 onClick={closeMoreMenu}
                                 className={({ isActive }) =>
-                                    `flex flex-col items-center gap-1 px-2 py-3 text-[11px] transition ${isActive
+                                    `flex min-w-0 flex-col items-center gap-1 px-1 py-3 text-[11px] transition ${isActive
                                         ? "text-[var(--text)]"
                                         : "text-[var(--muted-soft)]"
                                     }`
                                 }
                             >
                                 <Icon size={18} />
-                                {item.label}
+                                <span className="max-w-full truncate">{item.label}</span>
                             </NavLink>
                         )
                     })}
@@ -309,7 +309,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                     <button
                         type="button"
                         onClick={() => setIsMoreOpen((currentValue) => !currentValue)}
-                        className={`flex flex-col items-center gap-1 px-2 py-3 text-[11px] transition ${isMoreOpen || isMoreActive
+                        className={`flex min-w-0 flex-col items-center gap-1 px-1 py-3 text-[11px] transition ${isMoreOpen || isMoreActive
                                 ? "text-[var(--text)]"
                                 : "text-[var(--muted-soft)]"
                             }`}
@@ -317,7 +317,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                         title="Abrir mais opções"
                     >
                         <Menu size={18} />
-                        More
+                        <span className="max-w-full truncate">More</span>
                     </button>
                 </div>
             </nav>

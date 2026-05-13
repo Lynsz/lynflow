@@ -36,14 +36,48 @@ html[data-theme="light"] {
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
+  min-width: 320px;
   margin: 0;
   background: var(--bg);
+  color: var(--text);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+select option {
+  background: var(--surface-strong);
+  color: var(--text);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 35%, transparent);
   color: var(--text);
 }
 
 .ly-page {
   min-height: 100vh;
+  min-height: 100dvh;
   color: var(--text);
   background:
     radial-gradient(circle at top left, rgba(31, 41, 55, 0.42), transparent 34%),
@@ -60,6 +94,14 @@ html[data-theme="light"] .ly-page {
   border: 1px solid var(--border);
   background: var(--surface);
   color: var(--text);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+
+@supports not ((backdrop-filter: blur(18px)) or (-webkit-backdrop-filter: blur(18px))) {
+  .ly-card {
+    background: var(--surface-strong);
+  }
 }
 
 .ly-card-strong {
@@ -86,6 +128,10 @@ html[data-theme="light"] .ly-page {
   background: var(--surface-strong);
   color: var(--text);
   outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
 }
 
 .ly-input::placeholder {
@@ -94,12 +140,15 @@ html[data-theme="light"] .ly-page {
 
 .ly-input:focus {
   border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
 }
 
 .ly-button-primary {
   background: var(--primary);
   color: var(--primary-text);
-  transition: 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 
 .ly-button-primary:hover {
@@ -110,7 +159,10 @@ html[data-theme="light"] .ly-page {
   border: 1px solid var(--border);
   background: var(--surface);
   color: var(--text);
-  transition: 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
 }
 
 .ly-button-secondary:hover {
@@ -132,11 +184,24 @@ html[data-theme="light"] .ly-page {
 .ly-sidebar {
   border-right: 1px solid var(--border);
   background: color-mix(in srgb, var(--bg-soft) 88%, transparent);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
 }
 
 .ly-bottom-nav {
   border-top: 1px solid var(--border);
   background: color-mix(in srgb, var(--bg-soft) 94%, transparent);
+  padding-bottom: env(safe-area-inset-bottom);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+
+@supports not ((backdrop-filter: blur(18px)) or (-webkit-backdrop-filter: blur(18px))) {
+
+  .ly-sidebar,
+  .ly-bottom-nav {
+    background: var(--bg-soft);
+  }
 }
 
 .ly-progress-track {
@@ -145,4 +210,41 @@ html[data-theme="light"] .ly-page {
 
 .ly-progress-fill {
   background: var(--accent);
+}
+
+.ly-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.ly-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.ly-scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: var(--border);
+}
+
+.ly-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ly-safe-bottom {
+  padding-bottom: calc(6rem + env(safe-area-inset-bottom));
+}
+
+@media (max-width: 640px) {
+  .ly-page {
+    background:
+      radial-gradient(circle at top, rgba(31, 41, 55, 0.32), transparent 28%),
+      linear-gradient(180deg, var(--bg), var(--bg-soft));
+  }
+
+  html[data-theme="light"] .ly-page {
+    background:
+      radial-gradient(circle at top, rgba(16, 185, 129, 0.1), transparent 28%),
+      linear-gradient(180deg, #f8fafc, #f4f4f5);
+  }
 }

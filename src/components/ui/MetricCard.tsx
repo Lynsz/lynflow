@@ -21,18 +21,23 @@ export function MetricCard({
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay }}
-            className="ly-card rounded-3xl p-5 shadow-2xl shadow-black/10"
+            className="ly-card flex min-h-32 flex-col justify-between rounded-3xl p-4 shadow-2xl shadow-black/10 sm:p-5"
         >
-            <div className="flex items-center justify-between">
-                <p className="ly-muted text-sm">{title}</p>
-                {icon}
+            <div className="flex items-start justify-between gap-3">
+                <p className="ly-muted min-w-0 text-sm">{title}</p>
+
+                <div className="shrink-0">{icon}</div>
             </div>
 
-            <h2 className="mt-4 text-3xl font-bold">{value}</h2>
+            <div>
+                <h2 className="mt-4 break-words text-2xl font-bold sm:text-3xl">
+                    {value}
+                </h2>
 
-            <p className="ly-muted-soft mt-2 text-xs">
-                {description}
-            </p>
+                <p className="ly-muted-soft mt-2 text-xs leading-5">
+                    {description}
+                </p>
+            </div>
         </motion.div>
     )
 }

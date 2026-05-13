@@ -86,22 +86,22 @@ export function AppTopbar() {
     const Icon = currentRoute.icon
 
     return (
-        <header className="sticky top-0 z-30 border-b border-[var(--border)] bg-[var(--bg-soft)]/88 px-4 py-3 backdrop-blur-xl md:px-8">
+        <header className="sticky top-0 z-30 border-b border-[var(--border)] bg-[var(--bg-soft)]/88 px-4 py-3 backdrop-blur-xl md:px-6 xl:px-8">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div className="min-w-0">
                     <nav
                         aria-label="Breadcrumb"
-                        className="mb-2 flex items-center gap-2 text-sm text-[var(--muted-soft)]"
+                        className="mb-2 flex min-w-0 items-center gap-2 text-xs text-[var(--muted-soft)] sm:text-sm"
                     >
                         <Link
                             to="/dashboard"
-                            className="inline-flex items-center gap-1 transition hover:text-[var(--text)]"
+                            className="inline-flex shrink-0 items-center gap-1 transition hover:text-[var(--text)]"
                         >
                             <Home size={14} />
-                            Lynflow
+                            <span className="hidden sm:inline">Lynflow</span>
                         </Link>
 
-                        <ChevronRight size={14} />
+                        <ChevronRight size={14} className="shrink-0" />
 
                         <span className="truncate text-[var(--text)]">
                             {currentRoute.label}
@@ -125,28 +125,30 @@ export function AppTopbar() {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                     <button
                         type="button"
                         onClick={openCommandPalette}
-                        className="hidden items-center gap-2 rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--muted)] transition hover:border-[var(--muted-soft)] hover:text-[var(--text)] sm:flex"
+                        className="inline-flex items-center gap-2 rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--muted)] transition hover:border-[var(--muted-soft)] hover:text-[var(--text)]"
                         aria-label="Abrir Command Palette"
                         title="Abrir Command Palette"
                     >
                         <Command size={16} />
 
-                        <span>Command</span>
+                        <span className="hidden sm:inline">Command</span>
 
-                        <span className="rounded-lg border border-[var(--border)] px-2 py-1 text-[10px] text-[var(--muted-soft)]">
+                        <span className="hidden rounded-lg border border-[var(--border)] px-2 py-1 text-[10px] text-[var(--muted-soft)] sm:inline">
                             Ctrl K
                         </span>
                     </button>
 
-                    <div className="flex items-center gap-1 rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-xs text-[var(--muted-soft)]">
+                    <div className="hidden items-center gap-1 rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-xs text-[var(--muted-soft)] sm:flex">
                         <span className="rounded-md border border-[var(--border)] px-1.5 py-0.5">
                             G
                         </span>
+
                         <span>+</span>
+
                         <span className="rounded-md border border-[var(--border)] px-1.5 py-0.5">
                             ?
                         </span>
