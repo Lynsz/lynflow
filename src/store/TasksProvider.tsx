@@ -23,6 +23,12 @@ import {
     getUserRealtimeFilter,
     REALTIME_REFRESH_DELAY_MS,
 } from "../utils/realtime"
+import {
+    buildRemoteActivityPayload,
+    buildRemoteTaskPayload,
+    buildRemoteTaskUpdatePayload,
+    type RemoteTaskUpdatePayload,
+} from "../utils/remoteTaskPayload"
 
 const TASKS_KEY = "lynflow-tasks"
 const ACTIVITIES_KEY = "lynflow-activities"
@@ -484,18 +490,6 @@ export function TasksProvider({ children }: TasksProviderProps) {
         return message.includes("recurrence")
     }
 
-    function createRemoteTaskPayload(task: Task) {
-        return {
-            title: task.title,
-            category: task.category,
-            priority: task.priority,
-            done: task.done,
-            due_date: task.dueDate ?? null,
-            recurrence: normalizeTaskRecurrence(task.recurrence),
-            order_index: task.order,
-        }
-    }
-
     function omitRecurrence<T extends { recurrence?: TaskRecurrence | null }>(
         payload: T
     ): Omit<T, "recurrence"> {
@@ -511,10 +505,9 @@ export function TasksProvider({ children }: TasksProviderProps) {
         userId: string,
         tasksToInsert: Task[]
     ) {
-        const payload = tasksToInsert.map((task) => ({
-            user_id: userId,
-            ...createRemoteTaskPayload(task),
-        }))
+        const payload = tasksToInsert.map((task) =>
+            buildRemoteTaskPayload(userId, task)
+        )
 
         const { error } = await client.from("tasks").insert(payload)
 
@@ -539,17 +532,14 @@ export function TasksProvider({ children }: TasksProviderProps) {
     async function updateRemoteTask(
         client: NonNullable<typeof supabase>,
         id: string,
-        payload: {
-            title?: string
-            category?: string
-            priority?: Priority
-            done?: boolean
-            order_index?: number
-            due_date?: string | null
-            recurrence?: TaskRecurrence
-        }
+        payload: RemoteTaskUpdatePayload,
+        userId: string
     ) {
-        const { error } = await client.from("tasks").update(payload).eq("id", id)
+        const { error } = await client
+            .from("tasks")
+            .update(payload)
+            .eq("id", id)
+            .eq("user_id", userId)
 
         if (!error) {
             return
@@ -564,6 +554,7 @@ export function TasksProvider({ children }: TasksProviderProps) {
             .from("tasks")
             .update(fallbackPayload)
             .eq("id", id)
+            .eq("user_id", userId)
 
         if (fallbackError) {
             throw new Error(fallbackError.message)
@@ -593,12 +584,7 @@ export function TasksProvider({ children }: TasksProviderProps) {
 
         const { data, error } = await supabase
             .from("task_activities")
-            .insert({
-                user_id: user.id,
-                type,
-                title,
-                description,
-            })
+            .insert(buildRemoteActivityPayload(user.id, type, title, description))
             .select("*")
             .single()
 
@@ -644,10 +630,7 @@ export function TasksProvider({ children }: TasksProviderProps) {
             const userId = user.id
 
             ; (async () => {
-                const payload = {
-                    user_id: userId,
-                    ...createRemoteTaskPayload(newTask),
-                }
+                const payload = buildRemoteTaskPayload(userId, newTask)
 
                 let response = await client
                     .from("tasks")
@@ -700,32 +683,14 @@ export function TasksProvider({ children }: TasksProviderProps) {
             return
         }
 
-        const payload: {
-            title?: string
-            category?: string
-            priority?: Priority
-            done?: boolean
-            order_index?: number
-            due_date?: string | null
-            recurrence?: TaskRecurrence
-        } = {}
-
-        if (typeof data.title === "string") payload.title = data.title
-        if (typeof data.category === "string") payload.category = data.category
-        if (data.priority) payload.priority = data.priority
-        if (typeof data.done === "boolean") payload.done = data.done
-        if (typeof data.order === "number") payload.order_index = data.order
-        if (typeof data.dueDate === "string" || data.dueDate === null) {
-            payload.due_date = data.dueDate
-        }
-        if (data.recurrence) {
-            payload.recurrence = normalizeTaskRecurrence(data.recurrence)
-        }
+        const payload = buildRemoteTaskUpdatePayload(data)
 
         const client = supabase
+        const userId = user?.id
 
         ; (async () => {
-            await updateRemoteTask(client, id, payload)
+            if (!userId) return
+            await updateRemoteTask(client, id, payload, userId)
         })().catch(showRemoteError)
     }
 
@@ -747,8 +712,10 @@ export function TasksProvider({ children }: TasksProviderProps) {
 
         if (isRemoteMode && supabase) {
             const client = supabase
+            const userId = user?.id
 
             ; (async () => {
+                if (!userId) return
                 await updateRemoteTask(
                     client,
                     id,
@@ -758,7 +725,8 @@ export function TasksProvider({ children }: TasksProviderProps) {
                             due_date: recurringUpdate.dueDate,
                             recurrence: normalizeTaskRecurrence(task.recurrence),
                         }
-                        : { done: !task.done }
+                        : { done: !task.done },
+                    userId
                 )
             })().catch(showRemoteError)
         }
@@ -790,9 +758,16 @@ export function TasksProvider({ children }: TasksProviderProps) {
 
         if (isRemoteMode && supabase) {
             const client = supabase
+            const userId = user?.id
 
             ; (async () => {
-                const { error } = await client.from("tasks").delete().eq("id", id)
+                if (!userId) return
+
+                const { error } = await client
+                    .from("tasks")
+                    .delete()
+                    .eq("id", id)
+                    .eq("user_id", userId)
 
                 if (error) {
                     throw error
@@ -836,14 +811,18 @@ export function TasksProvider({ children }: TasksProviderProps) {
 
         if (isRemoteMode && supabase) {
             const client = supabase
+            const userId = user?.id
 
             ; (async () => {
+                if (!userId) return
+
                 const responses = await Promise.all(
                     reorderedTasks.map((task) =>
                         client
                             .from("tasks")
                             .update({ order_index: task.order })
                             .eq("id", task.id)
+                            .eq("user_id", userId)
                     )
                 )
 
@@ -867,12 +846,15 @@ export function TasksProvider({ children }: TasksProviderProps) {
 
         if (isRemoteMode && supabase) {
             const client = supabase
+            const userId = user?.id
 
             ; (async () => {
+                if (!userId) return
+
                 const { error } = await client
                     .from("tasks")
                     .delete()
-                    .neq("id", "00000000-0000-0000-0000-000000000000")
+                    .eq("user_id", userId)
 
                 if (error) {
                     throw error
@@ -902,7 +884,7 @@ export function TasksProvider({ children }: TasksProviderProps) {
                 const { error: deleteError } = await client
                     .from("tasks")
                     .delete()
-                    .neq("id", "00000000-0000-0000-0000-000000000000")
+                    .eq("user_id", userId)
 
                 if (deleteError) {
                     throw deleteError
@@ -927,12 +909,15 @@ export function TasksProvider({ children }: TasksProviderProps) {
         }
 
         const client = supabase
+        const userId = user?.id
 
         ; (async () => {
+            if (!userId) return
+
             const { error } = await client
                 .from("task_activities")
                 .delete()
-                .neq("id", "00000000-0000-0000-0000-000000000000")
+                .eq("user_id", userId)
 
             if (error) {
                 throw error
@@ -961,11 +946,11 @@ export function TasksProvider({ children }: TasksProviderProps) {
             client
                 .from("tasks")
                 .delete()
-                .neq("id", "00000000-0000-0000-0000-000000000000"),
+                .eq("user_id", userId),
             client
                 .from("task_activities")
                 .delete()
-                .neq("id", "00000000-0000-0000-0000-000000000000"),
+                .eq("user_id", userId),
         ])
 
         if (deleteTasksResponse.error) {
@@ -983,10 +968,12 @@ export function TasksProvider({ children }: TasksProviderProps) {
         if (importedActivities.length > 0) {
             const { error } = await client.from("task_activities").insert(
                 importedActivities.map((activity) => ({
-                    user_id: userId,
-                    type: activity.type,
-                    title: activity.title,
-                    description: activity.description,
+                    ...buildRemoteActivityPayload(
+                        userId,
+                        activity.type,
+                        activity.title,
+                        activity.description
+                    ),
                 }))
             )
 

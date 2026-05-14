@@ -13,6 +13,7 @@ import {
 } from "lucide-react"
 import { useAuth } from "../hooks/useAuth"
 import { validateProfileForm } from "../utils/validators"
+import { getSyncStatus } from "../utils/syncStatus"
 import { useTasks } from "../hooks/useTasks"
 import { Button } from "../components/ui/Button"
 import { InfoRow } from "../components/ui/InfoRow"
@@ -69,6 +70,11 @@ export function Profile() {
     const userEmail = user?.email ?? "Nao informado"
     const initials = getInitials(userName)
     const productivityLabel = getProductivityLabel(productivity)
+    const syncStatus = getSyncStatus({
+        dataMode,
+        isReady,
+        userId: user?.id,
+    })
 
     const hasProfileChanges =
         name.trim() !== userName || email.trim().toLowerCase() !== userEmail
@@ -138,7 +144,7 @@ export function Profile() {
             <PageHeader
                 eyebrow="User profile"
                 title="Profile"
-                description="Resumo da conta local, produtividade e atividade no Lynflow."
+                description="Resumo da conta, modo de dados, produtividade e atividade no Lynflow."
                 action={
                     <Button
                         variant="secondary"
@@ -188,9 +194,19 @@ export function Profile() {
                             <p className="ly-muted mt-1 break-all text-sm">{userEmail}</p>
 
                             <div className="mt-4 inline-flex rounded-full border border-emerald-500/20 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-500">
-                                {dataMode === "supabase" ? "Conta Supabase ativa" : "Conta local ativa"}
+                                {syncStatus.syncLabel}
                             </div>
                         </div>
+                    </div>
+
+                    <div className="mt-6 rounded-2xl border border-[var(--border)] bg-[var(--surface-strong)] p-4">
+                        <p className="font-medium">
+                            Modo atual: {syncStatus.modeLabel}
+                        </p>
+
+                        <p className="ly-muted mt-2 text-sm leading-6">
+                            {syncStatus.description}
+                        </p>
                     </div>
 
                     {isEditing ? (
@@ -259,6 +275,10 @@ export function Profile() {
                             <InfoRow
                                 label="Persistência"
                                 value={dataMode === "supabase" ? "Supabase" : "localStorage"}
+                            />
+                            <InfoRow
+                                label="Sincronização"
+                                value={syncStatus.syncLabel}
                                 bordered={false}
                             />
                         </div>

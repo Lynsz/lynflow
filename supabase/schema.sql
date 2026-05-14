@@ -118,6 +118,11 @@ create table if not exists public.task_activities (
   created_at timestamptz default now()
 );
 
+-- User filters used by queries, policies and realtime refreshes.
+create index if not exists profiles_id_idx on public.profiles (id);
+create index if not exists tasks_user_id_idx on public.tasks (user_id);
+create index if not exists task_activities_user_id_idx on public.task_activities (user_id);
+
 -- Keep updated_at fresh on mutable tables.
 drop trigger if exists profiles_set_updated_at on public.profiles;
 
@@ -166,35 +171,44 @@ alter table public.profiles enable row level security;
 alter table public.tasks enable row level security;
 alter table public.task_activities enable row level security;
 
+alter table public.profiles force row level security;
+alter table public.tasks force row level security;
+alter table public.task_activities force row level security;
+
+-- The anon role should not access user-owned tables without an authenticated JWT.
+revoke all on public.profiles from anon;
+revoke all on public.tasks from anon;
+revoke all on public.task_activities from anon;
+
 -- Profiles policies: each authenticated user manages only their own profile.
 drop policy if exists "Users can select own profile" on public.profiles;
 
 create policy "Users can select own profile"
 on public.profiles for select
 to authenticated
-using (auth.uid() = id);
+using (auth.uid() is not null and auth.uid() = id);
 
 drop policy if exists "Users can insert own profile" on public.profiles;
 
 create policy "Users can insert own profile"
 on public.profiles for insert
 to authenticated
-with check (auth.uid() = id);
+with check (auth.uid() is not null and auth.uid() = id);
 
 drop policy if exists "Users can update own profile" on public.profiles;
 
 create policy "Users can update own profile"
 on public.profiles for update
 to authenticated
-using (auth.uid() = id)
-with check (auth.uid() = id);
+using (auth.uid() is not null and auth.uid() = id)
+with check (auth.uid() is not null and auth.uid() = id);
 
 drop policy if exists "Users can delete own profile" on public.profiles;
 
 create policy "Users can delete own profile"
 on public.profiles for delete
 to authenticated
-using (auth.uid() = id);
+using (auth.uid() is not null and auth.uid() = id);
 
 -- Tasks policies: every task row must belong to the signed-in user.
 drop policy if exists "Users can select own tasks" on public.tasks;
@@ -202,29 +216,29 @@ drop policy if exists "Users can select own tasks" on public.tasks;
 create policy "Users can select own tasks"
 on public.tasks for select
 to authenticated
-using (auth.uid() = user_id);
+using (auth.uid() is not null and auth.uid() = user_id);
 
 drop policy if exists "Users can insert own tasks" on public.tasks;
 
 create policy "Users can insert own tasks"
 on public.tasks for insert
 to authenticated
-with check (auth.uid() = user_id);
+with check (auth.uid() is not null and auth.uid() = user_id);
 
 drop policy if exists "Users can update own tasks" on public.tasks;
 
 create policy "Users can update own tasks"
 on public.tasks for update
 to authenticated
-using (auth.uid() = user_id)
-with check (auth.uid() = user_id);
+using (auth.uid() is not null and auth.uid() = user_id)
+with check (auth.uid() is not null and auth.uid() = user_id);
 
 drop policy if exists "Users can delete own tasks" on public.tasks;
 
 create policy "Users can delete own tasks"
 on public.tasks for delete
 to authenticated
-using (auth.uid() = user_id);
+using (auth.uid() is not null and auth.uid() = user_id);
 
 -- Activity policies: each user can read, write, and clear only their own feed.
 drop policy if exists "Users can select own task activities" on public.task_activities;
@@ -232,26 +246,26 @@ drop policy if exists "Users can select own task activities" on public.task_acti
 create policy "Users can select own task activities"
 on public.task_activities for select
 to authenticated
-using (auth.uid() = user_id);
+using (auth.uid() is not null and auth.uid() = user_id);
 
 drop policy if exists "Users can insert own task activities" on public.task_activities;
 
 create policy "Users can insert own task activities"
 on public.task_activities for insert
 to authenticated
-with check (auth.uid() = user_id);
+with check (auth.uid() is not null and auth.uid() = user_id);
 
 drop policy if exists "Users can update own task activities" on public.task_activities;
 
 create policy "Users can update own task activities"
 on public.task_activities for update
 to authenticated
-using (auth.uid() = user_id)
-with check (auth.uid() = user_id);
+using (auth.uid() is not null and auth.uid() = user_id)
+with check (auth.uid() is not null and auth.uid() = user_id);
 
 drop policy if exists "Users can delete own task activities" on public.task_activities;
 
 create policy "Users can delete own task activities"
 on public.task_activities for delete
 to authenticated
-using (auth.uid() = user_id);
+using (auth.uid() is not null and auth.uid() = user_id);

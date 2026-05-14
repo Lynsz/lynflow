@@ -25,6 +25,7 @@ import { useToast } from "../components/ui/ToastProvider"
 import { DeployChecklist } from "../components/settings/DeployChecklist"
 import { DeployGuide } from "../components/settings/DeployGuide"
 import { PwaStatus } from "../components/settings/PwaStatus"
+import { getSyncStatus } from "../utils/syncStatus"
 import {
     createLynflowExportPayload,
     downloadJsonFile,
@@ -37,6 +38,7 @@ export function Settings() {
     const { user, logout, dataMode } = useAuth()
 
     const {
+        isReady,
         tasks,
         activities,
         clearTasks,
@@ -53,6 +55,12 @@ export function Settings() {
     const [isResetDialogOpen, setIsResetDialogOpen] = useState(false)
     const [isClearActivitiesDialogOpen, setIsClearActivitiesDialogOpen] =
         useState(false)
+
+    const syncStatus = getSyncStatus({
+        dataMode,
+        isReady,
+        userId: user?.id,
+    })
 
     async function handleLogout() {
         await logout()
@@ -188,7 +196,7 @@ export function Settings() {
                 <PageHeader
                     eyebrow="Preferences"
                     title="Settings"
-                    description="Configurações locais do projeto Lynflow."
+                    description="Configurações de conta, dados, sincronização e preferências do Lynflow."
                 />
 
                 <section className="grid grid-cols-1 gap-6 xl:grid-cols-[0.8fr_1fr]">
@@ -218,6 +226,10 @@ export function Settings() {
                             <InfoRow
                                 label="E-mail"
                                 value={user?.email ?? "Não informado"}
+                            />
+                            <InfoRow
+                                label="Modo"
+                                value={syncStatus.modeLabel}
                                 bordered={false}
                             />
                         </div>
@@ -235,15 +247,33 @@ export function Settings() {
                             <div>
                                 <p className="font-medium">
                                     Modo de dados:{" "}
-                                    {dataMode === "supabase" ? "Supabase" : "Local"}
+                                    {syncStatus.modeLabel}
                                 </p>
 
                                 <p className="ly-muted-soft mt-1 text-sm leading-6">
-                                    {dataMode === "supabase"
-                                        ? "Dados sincronizados com backend Supabase."
-                                        : "Dados salvos no navegador via localStorage."}
+                                    {syncStatus.description}
                                 </p>
                             </div>
+                        </div>
+
+                        <div className="mt-5 space-y-4">
+                            <InfoRow
+                                label="Conexão"
+                                value={syncStatus.connectionLabel}
+                            />
+                            <InfoRow
+                                label="Sincronização"
+                                value={syncStatus.syncLabel}
+                            />
+                            <InfoRow
+                                label="Isolamento"
+                                value={
+                                    syncStatus.isRemote
+                                        ? "Dados filtrados por user_id + RLS"
+                                        : "Dados isolados neste navegador"
+                                }
+                                bordered={false}
+                            />
                         </div>
                     </SectionCard>
 
@@ -323,7 +353,11 @@ export function Settings() {
 
                     <SectionCard
                         title="Dados locais"
-                        description="Controle rápido para testar o projeto durante desenvolvimento."
+                        description={
+                            dataMode === "supabase"
+                                ? "Controle dos dados sincronizados da conta atual. O modo local continua disponível sem Supabase."
+                                : "Dados salvos no navegador via localStorage."
+                        }
                         className="xl:col-span-2"
                     >
                         <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">

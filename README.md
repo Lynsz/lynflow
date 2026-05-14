@@ -220,6 +220,8 @@ lynflow.vercel.app
 - Edição de nome e e-mail.
 - Métricas pessoais.
 - Categorias usadas.
+- Status do modo local ou Supabase.
+- Status de sincronização da conta.
 - Atalhos rápidos para Dashboard, Tasks e Goals.
 
 ### Settings
@@ -227,6 +229,8 @@ lynflow.vercel.app
 - Alternância entre tema claro e escuro.
 - Controle de dados locais.
 - Modo de persistência local ou Supabase.
+- Status de conexão e sincronização.
+- Explicação do modo local versus multiusuário com Supabase.
 - Exportação de backup em JSON.
 - Importação de backup em JSON.
 - Restaurar tarefas demo.
@@ -321,6 +325,7 @@ lynflow.vercel.app
 - DnD Kit
 - LocalStorage
 - Supabase opcional
+- Supabase RLS e isolamento por `user_id`
 - Vitest
 - Testing Library
 - Playwright
@@ -367,6 +372,24 @@ Arquivos relacionados:
 
 - `.env.example`: modelo das variáveis de ambiente.
 - `supabase/schema.sql`: schema com tabelas, triggers, RLS e policies.
+
+### Multiusuário com Supabase
+
+O modo multiusuário é ativado somente quando `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` estão configuradas. Nesse modo, `profiles`, `tasks` e `task_activities` usam `user_id` para isolar dados por conta autenticada.
+
+No front-end, o `TasksProvider` consulta, cria, atualiza, remove e escuta realtime sempre filtrando pelo usuário atual. Inserções remotas montam payloads com `user_id` no cliente autenticado; updates não alteram `user_id`, e deletes também filtram pela conta atual.
+
+Sem Supabase configurado, o app permanece no modo local com `localStorage`, autenticação local e os mesmos fluxos de Dashboard, Tasks, Calendar, Goals, Insights, Profile e Settings.
+
+### Segurança e RLS
+
+O schema em `supabase/schema.sql` habilita RLS e `force row level security` nas tabelas expostas do schema `public`:
+
+- `profiles`;
+- `tasks`;
+- `task_activities`.
+
+As policies são limitadas ao role `authenticated` e verificam `auth.uid() is not null` antes de comparar `auth.uid()` com `id` ou `user_id`. Isso evita acesso anônimo e garante que cada usuário leia e altere somente os próprios dados. A anon key pode ficar no front-end, mas service role key nunca deve ser usada em variáveis `VITE_*`.
 
 O campo `tasks.recurrence` e opcional para projetos Supabase antigos: o app continua funcionando em modo local e tambem evita quebrar a sincronizacao remota caso o schema ainda nao tenha sido atualizado. Para preservar recorrencia no Supabase, rode novamente o trecho de `supabase/schema.sql` que adiciona a coluna `recurrence`.
 
@@ -734,6 +757,8 @@ tests/
   pages/
   types/
   utils/
+    remoteTaskPayload.test.ts
+    syncStatus.test.ts
 ```
 
 ---
@@ -1004,13 +1029,14 @@ Para proteger regras de negócio, validações, fluxos principais e evitar regre
 - [x] Edicao avancada de datas e recorrencia 2.0
 - [x] Testes end-to-end
 - [x] Integração com IA real opcional
+- [x] Multiusuário com Supabase opcional
 
 ### Melhorias futuras
 
 - [x] Calendário.
 - [x] Integração com IA real.
 - [ ] Notificações.
-- [ ] Multiusuário.
+- [x] Multiusuário.
 - [ ] Dashboard com dados por período.
 - [ ] Sincronização avançada entre dispositivos.
 - [ ] Melhorias de acessibilidade.
@@ -1061,6 +1087,8 @@ Cobertura inicial:
 - analytics de tarefas;
 - recorrencia de tarefas e normalizacao de tarefas antigas;
 - mappers entre Supabase e o formato usado no front-end;
+- payloads remotos com `user_id` preservado;
+- status de modo local/Supabase e sincronização;
 - exportação e importação de backup;
 - fluxo de autenticação local;
 - status visual de PWA em Settings;
