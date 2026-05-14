@@ -166,10 +166,19 @@ lynflow.vercel.app
 
 ### Goals
 
-- Visualização de metas do MVP.
-- Progresso geral.
-- Resumo técnico.
-- Plano semanal.
+- Página dedicada para acompanhamento de metas.
+- Métricas gerais do MVP.
+- Progresso baseado nas tarefas concluídas.
+- Progresso dos milestones do projeto.
+- Diagnóstico automático da saúde da meta.
+- Status visual da meta: excelente, bom progresso, atenção ou sem dados suficientes.
+- Recomendações automáticas de próximos passos.
+- Resumo técnico com total de tarefas, pendências, concluídas e alta prioridade.
+- Milestones do Lynflow.
+- Plano da semana.
+- Sugestões de próxima evolução.
+- Interface responsiva.
+- Dados derivados do estado real das tarefas.
 
 ### AI Insights
 
@@ -264,6 +273,10 @@ lynflow.vercel.app
 - Painel analítico para tarefas filtradas.
 - Barra de progresso das tarefas visíveis.
 - Insights dinâmicos conforme busca, filtros e ordenação.
+- Diagnóstico visual da saúde do projeto.
+- Milestones de evolução do produto.
+- Plano semanal estruturado.
+- Recomendações automáticas de próximos passos.
 
 ---
 
@@ -387,11 +400,27 @@ src/
 ├── index.css
 └── main.tsx
 
-tests/
-├── components/
-├── utils/
-├── app-auth-flow.test.ts
-└── setup.ts
+tests
+├── components
+│   ├── CompletedTasksCleanup.test.tsx
+│   ├── PwaStatus.test.tsx
+│   ├── TaskBulkActions.test.tsx
+│   ├── TaskDeadlineOverview.test.tsx
+│   ├── TaskExportActions.test.tsx
+│   ├── TaskInsightsPanel.test.tsx
+│   ├── TaskKanbanBoard.test.tsx
+│   └── TaskSummaryCards.test.tsx
+├── hooks
+│   └── usePersistentState.test.tsx
+├── pages
+│   └── Goals.test.tsx
+└── utils
+    ├── date.test.ts
+    ├── goalHealth.test.ts
+    ├── taskCsv.test.ts
+    ├── taskFilters.test.ts
+    ├── taskInsights.test.ts
+    └── taskStatus.test.ts
 ```
 
 Arquivos importantes na raiz/pasta pública:
@@ -920,6 +949,12 @@ Para proteger regras de negócio, validações, fluxos principais e evitar regre
 - [x] Taxa de conclusão das tarefas visíveis
 - [x] Categoria dominante no filtro atual
 - [x] Métricas de prioridade e atraso por filtro
+- [x] Goals 2.0
+- [x] Diagnóstico de saúde da meta
+- [x] Milestones do projeto
+- [x] Plano semanal estruturado
+- [x] Sugestões de próxima evolução
+- [x] Testes da página Goals
 
 ### Melhorias futuras
 
@@ -977,6 +1012,10 @@ Cobertura inicial:
 - fluxo de autenticação local;
 - status visual de PWA em Settings;
 - utilitários centralizados de data.
+- diagnóstico de saúde da meta;
+- testes da página Goals;
+- validação dos estados de progresso do projeto;
+- renderização de milestones e plano semanal;
 
 Antes de abrir PR, publicar deploy ou seguir para uma nova fase, rode:
 
