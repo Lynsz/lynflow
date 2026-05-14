@@ -5,22 +5,17 @@
 </p>
 
 <p align="center">
-  <strong>Dashboard de produtividade com tarefas, analytics, histórico, atalhos, onboarding, PWA e experiência SaaS.</strong>
+  <strong>Dashboard de produtividade moderno com tarefas, calendário, analytics, IA opcional, PWA, Supabase opcional e testes automatizados.</strong>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/github/actions/workflow/status/Lynsz/lynflow/ci.yml?branch=main&label=CI&style=for-the-badge" alt="CI Status" />
-  <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=111827" alt="React" />
-  <img src="https://img.shields.io/badge/TypeScript-6-3178C6?style=for-the-badge&logo=typescript&logoColor=ffffff" alt="TypeScript" />
-  <img src="https://img.shields.io/badge/Vite-8-646CFF?style=for-the-badge&logo=vite&logoColor=ffffff" alt="Vite" />
+  <img src="https://img.shields.io/badge/Status-Portfolio%20Ready-14B8A6?style=for-the-badge" alt="Project Status" />
+  <img src="https://img.shields.io/badge/React-Frontend-61DAFB?style=for-the-badge&logo=react&logoColor=111827" alt="React" />
+  <img src="https://img.shields.io/badge/TypeScript-Strict-3178C6?style=for-the-badge&logo=typescript&logoColor=ffffff" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Vite-Build-646CFF?style=for-the-badge&logo=vite&logoColor=ffffff" alt="Vite" />
+  <img src="https://img.shields.io/badge/TailwindCSS-UI-38BDF8?style=for-the-badge&logo=tailwindcss&logoColor=ffffff" alt="Tailwind CSS" />
   <img src="https://img.shields.io/badge/Supabase-Optional-3FCF8E?style=for-the-badge&logo=supabase&logoColor=ffffff" alt="Supabase" />
-  <img src="https://img.shields.io/badge/Vercel-Deploy-000000?style=for-the-badge&logo=vercel&logoColor=ffffff" alt="Vercel" />
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Status-MVP%20Portfolio--Ready-14B8A6?style=for-the-badge" alt="Project Status" />
-  <img src="https://img.shields.io/badge/Tests-Vitest%20%2B%20Playwright-FCC72B?style=for-the-badge&logo=vitest&logoColor=111827" alt="Vitest and Playwright" />
-  <img src="https://img.shields.io/badge/PWA-Ready-5A0FC8?style=for-the-badge&logo=pwa&logoColor=ffffff" alt="PWA Ready" />
+  <img src="https://img.shields.io/badge/PWA-Ready-5A0FC8?style=for-the-badge&logo=pwa&logoColor=ffffff" alt="PWA" />
 </p>
 
 <p align="center">
@@ -28,7 +23,9 @@
   <a href="#-demonstração">Demonstração</a> •
   <a href="#-funcionalidades">Funcionalidades</a> •
   <a href="#-tecnologias">Tecnologias</a> •
+  <a href="#-arquitetura">Arquitetura</a> •
   <a href="#-como-rodar">Como rodar</a> •
+  <a href="#-testes">Testes</a> •
   <a href="#-deploy">Deploy</a> •
   <a href="#-roadmap">Roadmap</a>
 </p>
@@ -37,33 +34,34 @@
 
 ## 📌 Sobre o projeto
 
-O **Lynflow** é um dashboard de produtividade desenvolvido com foco em experiência de usuário, organização pessoal e apresentação profissional para portfólio front-end.
+O **Lynflow** é um dashboard de produtividade desenvolvido como projeto de portfólio front-end, com foco em experiência de produto, organização pessoal, arquitetura escalável e qualidade técnica.
 
-O projeto simula um produto SaaS moderno, com autenticação local, autenticação opcional com Supabase, rotas protegidas, gerenciamento de tarefas, métricas, gráficos, histórico de atividades, tema claro/escuro, onboarding, command palette, atalhos de teclado, testes automatizados, CI e suporte básico a PWA.
+A proposta é simular um produto SaaS moderno, com autenticação, tarefas, calendário, analytics, notificações, tema claro/escuro, PWA, testes automatizados, integração opcional com Supabase e estrutura preparada para IA real via rota segura no servidor.
 
-A proposta principal é demonstrar domínio em:
+O projeto demonstra domínio em:
 
 - React com TypeScript;
-- componentização;
-- estado global;
-- persistência local;
+- componentização reutilizável;
+- estado global com Context API;
+- persistência local com `localStorage`;
 - backend opcional com Supabase;
 - rotas protegidas;
-- UI responsiva;
-- experiência de produto;
+- dashboards analíticos;
+- responsividade;
+- acessibilidade;
 - testes automatizados;
-- integração contínua;
-- arquitetura front-end escalável;
-- deploy com Vercel.
+- PWA;
+- deploy com Vercel;
+- organização de projeto real para portfólio.
 
 ---
 
 ## 🚀 Demonstração
 
-O Lynflow está disponível online pela Vercel:
+Acesse o projeto online:
 
 ```txt
-lynflow.vercel.app
+https://lynflow.vercel.app
 ```
 
 ---
@@ -110,21 +108,30 @@ lynflow.vercel.app
 - Login.
 - Logout.
 - Rotas protegidas.
-- Edição de perfil.
-- Sessão salva no navegador.
+- Sessão persistida no navegador.
 - Autenticação local por padrão.
 - Autenticação real com Supabase quando configurado.
+- Fallback local quando Supabase não está configurado.
 
 ### Dashboard
 
-- Métricas de produtividade.
-- Tarefas concluídas.
-- Tarefas pendentes.
-- Tarefas de alta prioridade.
+- Métricas gerais de produtividade.
+- Total de tarefas concluídas.
+- Total de tarefas pendentes.
+- Total de tarefas de alta prioridade.
 - Gráfico de produtividade semanal.
 - Gráfico por prioridade.
 - Gráfico por categoria.
-- Análise rápida automática.
+- Painel de foco com recomendação automática.
+- Dashboard por período:
+  - últimos 7 dias;
+  - últimos 30 dias;
+  - últimos 90 dias;
+  - todo o histórico.
+- Comparação com período anterior.
+- Ranking de categorias por período.
+- Tarefas recentes do período.
+- Leitura automática de evolução.
 - Feed de atividade recente.
 
 ### Tasks
@@ -137,74 +144,82 @@ lynflow.vercel.app
 - Categorizar tarefas.
 - Definir prioridade.
 - Definir data de vencimento.
-- Definir recorrencia simples: nenhuma, diaria, semanal ou mensal.
-- Reagendar automaticamente tarefas recorrentes para a proxima ocorrencia ao concluir.
+- Definir recorrência:
+  - nenhuma;
+  - diária;
+  - semanal;
+  - mensal.
+- Reagendar tarefas recorrentes automaticamente.
 - Buscar tarefas.
 - Filtrar por status.
 - Filtrar por tarefas atrasadas.
 - Filtrar por prioridade.
 - Filtrar por categoria.
 - Ordenar por data, prioridade, título ou ordem manual.
-- Reordenar com drag and drop.
 - Visualização em lista.
 - Visualização Kanban.
+- Drag and drop com DnD Kit.
 - Preferência de visualização salva no `localStorage`.
-- Cards de resumo clicáveis para filtrar tarefas.
-- Separação automática entre tarefas atrasadas, pendentes e concluídas.
-- Painel de prazos com próximas tarefas e tarefas atrasadas.
-- Painel de insights das tarefas visíveis.
-- Taxa de conclusão baseada nos filtros ativos.
-- Contagem de tarefas atrasadas no filtro atual.
-- Contagem de tarefas de alta prioridade no filtro atual.
-- Identificação da categoria dominante.
+- Cards de resumo filtráveis.
+- Separação entre tarefas atrasadas, pendentes e concluídas.
+- Painel de prazos.
+- Painel de insights das tarefas filtradas.
 - Limpeza rápida de tarefas concluídas.
-- Exportação de todas as tarefas em CSV.
-- Exportação apenas das tarefas filtradas em CSV.
-- CSV com coluna de recorrencia.
-- Ações em massa nas tarefas filtradas.
-- Marcar tarefas visíveis como concluídas.
-- Deletar tarefas visíveis com confirmação.
-- Persistência local com `localStorage`.
-- Persistência remota opcional com Supabase.
+- Ações em massa.
+- Exportação CSV de todas as tarefas.
+- Exportação CSV das tarefas filtradas.
+- CSV com coluna de recorrência.
 
 ### Calendar
 
-- Visualizacao mensal das tarefas com vencimento.
+- Visualização mensal das tarefas com vencimento.
 - Detalhe das tarefas por dia selecionado.
-- Indicadores de prioridade, atraso, conclusao e recorrencia.
-- Edicao rapida de prazo e recorrencia no painel lateral.
-- Conclusao de tarefas recorrentes com avanco automatico para a proxima data.
+- Indicadores de prioridade.
+- Indicadores de atraso.
+- Indicadores de conclusão.
+- Indicadores de recorrência.
+- Edição rápida de prazo.
+- Edição rápida de recorrência.
+- Conclusão de tarefas recorrentes com avanço automático para a próxima data.
+
+### Notificações
+
+- Centro de notificações no topo do app.
+- Alertas automáticos com base nas tarefas.
+- Tarefas atrasadas.
+- Tarefas vencendo hoje.
+- Tarefas com vencimento próximo.
+- Tarefas de alta prioridade sem prazo.
+- Painel acessível com `aria-expanded`, `aria-controls` e `aria-live`.
+- Fechamento com botão, clique externo e tecla `Esc`.
 
 ### Goals
 
-- Página dedicada para acompanhamento de metas.
-- Métricas gerais do MVP.
+- Página dedicada para metas.
+- Métricas do MVP.
 - Progresso baseado nas tarefas concluídas.
-- Progresso dos milestones do projeto.
+- Milestones do projeto.
 - Diagnóstico automático da saúde da meta.
-- Status visual da meta: excelente, bom progresso, atenção ou sem dados suficientes.
-- Recomendações automáticas de próximos passos.
-- Resumo técnico com total de tarefas, pendências, concluídas e alta prioridade.
-- Milestones do Lynflow.
-- Plano da semana.
-- Sugestões de próxima evolução.
-- Interface responsiva.
-- Dados derivados do estado real das tarefas.
+- Recomendações de próximos passos.
+- Plano semanal estruturado.
+- Sugestões de evolução do produto.
 
 ### AI Insights
 
-- Sugestões simuladas com base nas tarefas.
-- Análise de produtividade.
-- Priorização de ações.
-- Recomendações para evolução do projeto.
+- Recomendações baseadas nas tarefas reais.
+- Fallback local determinístico.
+- Estrutura preparada para IA real opcional.
+- Rota serverless segura para chamada de IA.
+- Não expõe chave de API no front-end.
+- Continua funcionando sem configuração de IA.
 
 ### Activity
 
 - Histórico completo de ações.
-- Registro de tarefa criada.
-- Registro de tarefa concluída.
-- Registro de tarefa reaberta.
-- Registro de tarefa deletada.
+- Registro de tarefas criadas.
+- Registro de tarefas concluídas.
+- Registro de tarefas reabertas.
+- Registro de tarefas deletadas.
 - Registro de reordenação.
 - Registro de limpeza de tarefas.
 - Registro de restauração da demo.
@@ -221,21 +236,22 @@ lynflow.vercel.app
 - Métricas pessoais.
 - Categorias usadas.
 - Status do modo local ou Supabase.
-- Status de sincronização da conta.
+- Status de sincronização.
 - Último horário de sincronização.
-- Atalhos rápidos para Dashboard, Tasks e Goals.
+- Atalhos rápidos para áreas principais.
 
 ### Settings
 
 - Alternância entre tema claro e escuro.
+- Preview visual de aparência.
 - Controle de dados locais.
 - Modo de persistência local ou Supabase.
-- Status de conexão e sincronização.
-- Estado detalhado de sync e último sync.
-- Botão para tentar sincronizar novamente no modo Supabase.
-- Explicação do modo local versus multiusuário com Supabase.
-- Exportação de backup em JSON.
-- Importação de backup em JSON.
+- Status de conexão.
+- Status de sincronização.
+- Último sync.
+- Botão para tentar sincronizar novamente.
+- Exportação de backup JSON.
+- Importação de backup JSON.
 - Restaurar tarefas demo.
 - Limpar tarefas.
 - Limpar histórico.
@@ -252,49 +268,29 @@ lynflow.vercel.app
 - Manifest configurado.
 - Service worker registrado em produção.
 - Página offline personalizada.
+- Cache básico de assets e navegação.
 - Status online/offline em Settings.
 - Status de instalação do app.
 - Botão de instalação quando o navegador permite.
-- Cache básico de assets e navegação.
 
 ### Experiência de produto
 
 - Tema dark/light.
-- Skeleton loading.
+- Layout responsivo.
+- Menu lateral desktop.
+- Menu inferior mobile.
+- More menu no mobile.
 - Toast notifications.
 - Modal de confirmação.
+- Skeleton loading.
 - Onboarding inicial.
 - Command Palette com `Ctrl + K`.
 - Atalhos globais de navegação.
 - Página 404 personalizada.
 - Error Boundary.
-- Layout responsivo.
-- Menu mobile com More Menu.
 - SEO básico.
-- Favicon.
-- Manifest.
-- Preview social com `og-image`.
-- PWA básico.
-- Página offline.
-- Status de instalação do app.
-- Indicador online/offline.
-- Alternância entre lista e Kanban.
-- Kanban responsivo.
-- Preferência de visualização persistida.
-- Cards de resumo filtráveis.
-- Painel de prazos para tarefas.
-- Limpeza rápida de concluídas.
-- Exportação CSV.
-- Exportação baseada nos filtros ativos.
-- Ações em massa para tarefas visíveis.
-- Confirmação antes de deletar tarefas em massa.
-- Painel analítico para tarefas filtradas.
-- Barra de progresso das tarefas visíveis.
-- Insights dinâmicos conforme busca, filtros e ordenação.
-- Diagnóstico visual da saúde do projeto.
-- Milestones de evolução do produto.
-- Plano semanal estruturado.
-- Recomendações automáticas de próximos passos.
+- Preview social.
+- Acessibilidade com skip link, landmarks, labels e foco visível.
 
 ---
 
@@ -311,7 +307,7 @@ lynflow.vercel.app
 | `G` + `P` | Ir para Profile |
 | `G` + `S` | Ir para Settings |
 | `N` | Ir para Tasks e focar no campo de nova tarefa |
-| `Esc` | Fechar overlays/modais |
+| `Esc` | Fechar overlays e modais |
 
 ---
 
@@ -326,13 +322,12 @@ lynflow.vercel.app
 - Recharts
 - Lucide React
 - DnD Kit
-- LocalStorage
 - Supabase opcional
-- Supabase RLS e isolamento por `user_id`
+- OpenAI API opcional via rota serverless
+- LocalStorage
 - Vitest
 - Testing Library
 - Playwright
-- OpenAI API opcional via rota serverless
 - GitHub Actions
 - PWA
 - Vercel
@@ -350,79 +345,13 @@ lynflow.vercel.app
 | `@dnd-kit/core` | Drag and drop |
 | `@dnd-kit/sortable` | Ordenação manual das tarefas |
 | `@dnd-kit/utilities` | Transformações do drag and drop |
-| `@supabase/supabase-js` | Backend, autenticação e persistência remota opcional |
-| `vitest` | Testes automatizados |
-| `@testing-library/react` | Testes de componentes React |
-| `@testing-library/jest-dom` | Matchers de DOM para testes |
-| `@playwright/test` | Testes end-to-end dos fluxos principais |
-| OpenAI Responses API | IA real opcional chamada apenas no servidor |
+| `@supabase/supabase-js` | Autenticação e persistência remota opcional |
+| `vitest` | Testes unitários |
+| `@testing-library/react` | Testes de componentes |
+| `@testing-library/jest-dom` | Matchers de DOM |
+| `@playwright/test` | Testes end-to-end |
 | `tailwindcss` | Estilização |
-
----
-
-## Backend e persistência
-
-O Lynflow funciona em **modo local por padrão**. Quando as variáveis do Supabase não existem, autenticação, tarefas, perfil, configurações e histórico continuam usando `localStorage`, sem exigir backend.
-
-Também é possível ativar o **modo Supabase** para autenticação real, persistência remota de tarefas e atividades e sincronização em tempo real entre abas/dispositivos. O app detecta automaticamente as variáveis abaixo:
-
-```env
-VITE_SUPABASE_URL=
-VITE_SUPABASE_ANON_KEY=
-```
-
-Arquivos relacionados:
-
-- `.env.example`: modelo das variáveis de ambiente.
-- `supabase/schema.sql`: schema com tabelas, triggers, RLS e policies.
-
-### Multiusuário com Supabase
-
-O modo multiusuário é ativado somente quando `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` estão configuradas. Nesse modo, `profiles`, `tasks` e `task_activities` usam `user_id` para isolar dados por conta autenticada.
-
-No front-end, o `TasksProvider` consulta, cria, atualiza, remove e escuta realtime sempre filtrando pelo usuário atual. Inserções remotas montam payloads com `user_id` no cliente autenticado; updates não alteram `user_id`, e deletes também filtram pela conta atual.
-
-Sem Supabase configurado, o app permanece no modo local com `localStorage`, autenticação local e os mesmos fluxos de Dashboard, Tasks, Calendar, Goals, Insights, Profile e Settings.
-
-### Segurança e RLS
-
-O schema em `supabase/schema.sql` habilita RLS e `force row level security` nas tabelas expostas do schema `public`:
-
-- `profiles`;
-- `tasks`;
-- `task_activities`.
-
-As policies são limitadas ao role `authenticated` e verificam `auth.uid() is not null` antes de comparar `auth.uid()` com `id` ou `user_id`. Isso evita acesso anônimo e garante que cada usuário leia e altere somente os próprios dados. A anon key pode ficar no front-end, mas service role key nunca deve ser usada em variáveis `VITE_*`.
-
-### Sincronização entre dispositivos
-
-Quando o modo Supabase está ativo, o `TasksProvider` usa Postgres Changes do Supabase Realtime para ouvir alterações em `tasks` e `task_activities` com filtro por `user_id`. Os refreshes remotos continuam com debounce, evitam múltiplas consultas simultâneas e atualizam o horário do último sync.
-
-O status de sincronização diferencia `offline`, `local-only`, `connecting`, `connected`, `syncing`, `synced` e `error`. Settings mostra modo atual, estado, último sync, erro recente e um botão para tentar sincronizar novamente.
-
-Presence também foi integrado ao mesmo channel em modo Supabase para contar sessões/dispositivos ativos da conta atual. Sem Supabase configurado, o status fica claro como `local-only` e o app continua usando `localStorage`.
-
-O campo `tasks.recurrence` e opcional para projetos Supabase antigos: o app continua funcionando em modo local e tambem evita quebrar a sincronizacao remota caso o schema ainda nao tenha sido atualizado. Para preservar recorrencia no Supabase, rode novamente o trecho de `supabase/schema.sql` que adiciona a coluna `recurrence`.
-
-Para ativar:
-
-1. Crie um projeto no Supabase.
-2. Rode o SQL de `supabase/schema.sql` no SQL Editor.
-3. Copie a Project URL e a anon key do projeto.
-4. Crie um arquivo `.env.local` na raiz:
-
-```env
-VITE_SUPABASE_URL=sua_project_url
-VITE_SUPABASE_ANON_KEY=sua_anon_key
-```
-
-5. Rode o projeto novamente:
-
-```bash
-npm run dev
-```
-
-O app não usa service role key no front-end. A segurança do banco fica protegida por RLS, o realtime usa filtros por usuário nas tabelas de tarefas/atividades, e o fallback localStorage permanece disponível quando as variáveis não são configuradas.
+| OpenAI Responses API | IA real opcional no servidor |
 
 ---
 
@@ -432,7 +361,10 @@ O app não usa service role key no front-end. A segurança do banco fica protegi
 src/
 ├── assets/
 ├── components/
+│   ├── accessibility/
 │   ├── auth/
+│   ├── dashboard/
+│   ├── notification/
 │   ├── public/
 │   ├── settings/
 │   ├── skeletons/
@@ -450,57 +382,21 @@ src/
 ├── App.tsx
 ├── index.css
 └── main.tsx
-
-tests
-├── components
-│   ├── CompletedTasksCleanup.test.tsx
-│   ├── PwaStatus.test.tsx
-│   ├── TaskBulkActions.test.tsx
-│   ├── TaskDeadlineOverview.test.tsx
-│   ├── TaskExportActions.test.tsx
-│   ├── TaskInsightsPanel.test.tsx
-│   ├── TaskKanbanBoard.test.tsx
-│   └── TaskSummaryCards.test.tsx
-├── hooks
-│   └── usePersistentState.test.tsx
-├── pages
-│   └── Goals.test.tsx
-└── utils
-    ├── date.test.ts
-    ├── goalHealth.test.ts
-    ├── taskCsv.test.ts
-    ├── taskFilters.test.ts
-    ├── taskInsights.test.ts
-    ├── taskRecurrence.test.ts
-    └── taskStatus.test.ts
 ```
 
-Arquivos importantes na raiz/pasta pública:
+### Pastas principais
 
-```txt
-public/
-├── favicon.svg
-├── offline.html
-├── og-image.png
-├── og-preview.html
-├── preview.gif
-├── robots.txt
-├── site.webmanifest
-└── sw.js
-
-.github/
-└── workflows/
-    └── ci.yml
-
-supabase/
-└── schema.sql
-
-vercel.json
-README.md
-index.html
-package.json
-vite.config.ts
-```
+| Pasta | Responsabilidade |
+|---|---|
+| `components` | Componentes reutilizáveis de interface |
+| `pages` | Telas principais do app |
+| `store` | Estado global de tarefas e atividades |
+| `hooks` | Hooks customizados |
+| `utils` | Regras de negócio e funções testáveis |
+| `types` | Tipagens centrais do projeto |
+| `services` | Integrações externas |
+| `layouts` | Estrutura visual das páginas protegidas |
+| `routes` | Proteção e controle de rotas |
 
 ---
 
@@ -508,7 +404,7 @@ vite.config.ts
 
 ### Componentização
 
-O projeto foi dividido em componentes reutilizáveis, como:
+Componentes reutilizáveis relevantes:
 
 - `Button`
 - `Input`
@@ -520,6 +416,8 @@ O projeto foi dividido em componentes reutilizáveis, como:
 - `ToastProvider`
 - `CommandPalette`
 - `OnboardingModal`
+- `TaskNotificationCenter`
+- `ThemeToggle`
 - `DeployChecklist`
 - `DeployGuide`
 - `ErrorBoundary`
@@ -531,6 +429,8 @@ O projeto foi dividido em componentes reutilizáveis, como:
 - `TaskExportActions`
 - `TaskBulkActions`
 - `TaskInsightsPanel`
+- `DashboardFocusPanel`
+- `DashboardPeriodPanel`
 
 ### Estado global
 
@@ -541,22 +441,21 @@ TasksProvider
 ↓
 useTasks()
 ↓
-Dashboard, Tasks, Goals, Insights, Activity, Profile, Settings
+Dashboard, Tasks, Calendar, Goals, Insights, Activity, Profile, Settings
 ```
 
 ### Persistência local
 
 O projeto usa `localStorage` para salvar:
 
-- usuários;
+- usuários locais;
 - sessão;
 - tarefas;
 - atividades;
 - tema;
 - onboarding;
-- checklist pré-deploy.
-
-Quando `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` são configuradas, o app usa Supabase para autenticação, tarefas e atividades, preservando a mesma UI e as mesmas rotas.
+- checklist pré-deploy;
+- preferências de visualização.
 
 ### Rotas protegidas
 
@@ -576,35 +475,158 @@ Página protegida
 
 O Lynflow possui autenticação local usando `localStorage` e suporte opcional a autenticação real com Supabase.
 
-No modo local, o objetivo é manter o projeto simples, fácil de testar e focado no front-end.
+No modo local, o objetivo é manter o projeto simples, testável e focado no front-end.
 
-No modo Supabase, o projeto usa:
+No modo Supabase, o projeto pode usar:
 
 - `supabase.auth.signUp`;
 - `supabase.auth.signInWithPassword`;
 - sessão autenticada;
 - tabela `profiles`;
-- RLS nas tabelas;
-- persistência remota de tarefas e atividades;
+- RLS;
+- persistência remota;
 - realtime com filtro por usuário.
 
-> Observação: por ser um projeto de portfólio front-end, o modo local é apenas demonstrativo. Em produção real, o correto é usar backend seguro, Supabase, Firebase Auth, Auth.js ou outro serviço de autenticação.
+> Observação: o modo local é demonstrativo para portfólio. Em um produto real, a autenticação deve usar backend seguro.
+
+---
+
+## 🗄️ Backend e persistência
+
+O Lynflow funciona em **modo local por padrão**.
+
+Quando as variáveis do Supabase não existem, o app continua funcionando com `localStorage`.
+
+Para ativar Supabase, configure:
+
+```env
+VITE_SUPABASE_URL=
+VITE_SUPABASE_ANON_KEY=
+```
+
+Arquivos relacionados:
+
+```txt
+.env.example
+supabase/schema.sql
+src/services/supabase.ts
+src/types/supabase.ts
+```
+
+### Multiusuário com Supabase
+
+Quando Supabase está ativo:
+
+- `profiles`, `tasks` e `task_activities` usam `user_id`;
+- cada usuário acessa apenas os próprios dados;
+- operações remotas filtram pelo usuário atual;
+- realtime escuta alterações com filtro por usuário;
+- o app mantém fallback local quando Supabase não está configurado.
+
+### Segurança e RLS
+
+O schema do Supabase deve habilitar RLS em:
+
+- `profiles`;
+- `tasks`;
+- `task_activities`.
+
+As policies devem garantir que usuários autenticados só leiam e alterem os próprios dados.
+
+A `anon key` pode ser usada no front-end. A `service role key` nunca deve ser exposta em variáveis `VITE_*`.
+
+---
+
+## 🔄 Sincronização entre dispositivos
+
+Quando Supabase está ativo, o app usa Realtime para sincronizar dados entre abas e dispositivos.
+
+O status de sincronização diferencia:
+
+- `offline`;
+- `local-only`;
+- `connecting`;
+- `connected`;
+- `syncing`;
+- `synced`;
+- `error`.
+
+Settings exibe:
+
+- modo atual;
+- conexão;
+- estado de sincronização;
+- último sync;
+- erro recente;
+- sessões/dispositivos conectados;
+- botão para tentar sincronizar novamente.
+
+Sem Supabase, o app exibe modo local e mantém o funcionamento completo com `localStorage`.
+
+---
+
+## 🤖 IA opcional
+
+O Lynflow possui estrutura para **AI Insights**.
+
+A integração real é opcional e deve acontecer apenas no servidor, sem expor chave de API no front-end.
+
+Variáveis esperadas:
+
+```env
+OPENAI_API_KEY=
+AI_PROVIDER=openai
+```
+
+Sem configuração de IA, o app usa fallback local baseado nas tarefas reais.
+
+O fallback considera:
+
+- total de tarefas;
+- tarefas concluídas;
+- tarefas pendentes;
+- tarefas atrasadas;
+- prioridades;
+- categorias;
+- vencimentos;
+- recorrências.
+
+---
+
+## ♿ Acessibilidade
+
+Melhorias implementadas:
+
+- Skip link para conteúdo principal.
+- Landmarks com `main`, `nav`, `header` e labels.
+- Foco visível em botões e ações principais.
+- Modais com `role="dialog"`.
+- `aria-modal`, `aria-labelledby` e `aria-describedby`.
+- Fechamento com `Esc`.
+- Botões com `aria-label` quando necessário.
+- Command Palette com busca acessível.
+- Centro de notificações com `aria-expanded`, `aria-controls` e `aria-live`.
+- Estados de botões com `aria-pressed`.
+- Testes usando `getByRole` sempre que possível.
 
 ---
 
 ## 📊 Analytics
 
-O Dashboard calcula dados reais a partir das tarefas salvas:
+O Dashboard calcula métricas a partir das tarefas salvas:
 
 - produtividade geral;
 - tarefas concluídas;
 - tarefas pendentes;
 - tarefas de alta prioridade;
-- produtividade por dia;
-- tarefas por categoria;
+- produtividade semanal;
 - distribuição por prioridade;
+- distribuição por categoria;
 - categoria dominante;
-- status produtivo.
+- análise por período;
+- comparação com período anterior;
+- tarefas recentes do período;
+- diagnóstico visual de evolução.
 
 ---
 
@@ -612,28 +634,14 @@ O Dashboard calcula dados reais a partir das tarefas salvas:
 
 O layout foi ajustado para:
 
-- 320px;
-- 375px;
-- 430px;
+- celulares pequenos;
+- celulares grandes;
 - tablets;
 - notebooks;
 - desktops;
 - telas grandes.
 
-No mobile, a navegação usa menu inferior com:
-
-```txt
-Home | Tasks | Activity | Profile | More
-```
-
-As páginas secundárias ficam dentro do botão **More**:
-
-```txt
-Goals
-AI Insights
-Settings
-Sair da conta
-```
+No mobile, a navegação usa menu inferior com áreas principais e menu adicional para páginas secundárias.
 
 ---
 
@@ -662,7 +670,7 @@ public/og-image.png
 public/og-preview.html
 ```
 
-A página `public/og-preview.html` foi criada para gerar uma arte de preview social em formato `1200x630`.
+A página `public/og-preview.html` pode ser usada para gerar a imagem de preview social em `1200x630`.
 
 ---
 
@@ -724,19 +732,25 @@ http://localhost:4173
 
 ## 🧪 Testes
 
-Para rodar os testes uma vez:
-
-```bash
-npm run test:run
-```
-
 Para rodar os testes em modo watch:
 
 ```bash
 npm run test
 ```
 
-Para rodar os testes end-to-end com Playwright:
+Para rodar os testes uma vez:
+
+```bash
+npm run test:run
+```
+
+Para rodar lint, testes e build:
+
+```bash
+npm run check
+```
+
+Para rodar testes end-to-end:
 
 ```bash
 npm run test:e2e
@@ -748,30 +762,34 @@ Para abrir o runner visual do Playwright:
 npm run test:e2e:ui
 ```
 
-Para rodar lint, testes e build em sequência:
-
-```bash
-npm run check
-```
-
-O `check` mantem lint, Vitest e build como validacao principal. Os testes E2E ficam em `check:e2e` para poderem rodar de forma separada quando o ambiente tiver navegadores Playwright instalados.
-
-### Arvore de testes
+### Status atual
 
 ```txt
-tests/
-  app-auth-flow.test.ts
-  app-smoke.test.ts
-  components/
-  e2e/
-    lynflow.spec.ts
-  pages/
-  types/
-  utils/
-    realtime.test.ts
-    remoteTaskPayload.test.ts
-    syncStatus.test.ts
+31 arquivos de teste
+148 testes passando
 ```
+
+### Cobertura funcional
+
+Os testes protegem:
+
+- autenticação local;
+- rotas protegidas;
+- tarefas;
+- filtros;
+- recorrência;
+- calendário;
+- notificações;
+- exportação CSV;
+- exportação/importação de backup;
+- analytics;
+- dashboard por período;
+- goals;
+- sincronização;
+- Supabase types;
+- componentes de UI;
+- acessibilidade básica;
+- fluxos principais do app.
 
 ---
 
@@ -779,9 +797,16 @@ tests/
 
 O Lynflow está preparado para deploy na Vercel.
 
-### Configuração da Vercel
+### Configuração esperada
 
-O projeto possui o arquivo `vercel.json` na raiz:
+| Campo | Valor |
+|---|---|
+| Framework Preset | Vite |
+| Install Command | `npm install` |
+| Build Command | `npm run build` |
+| Output Directory | `dist` |
+
+### Arquivo `vercel.json`
 
 ```json
 {
@@ -798,133 +823,87 @@ O projeto possui o arquivo `vercel.json` na raiz:
 }
 ```
 
-Esse `rewrite` permite que rotas internas do React Router, como `/dashboard`, `/tasks` e `/settings`, funcionem corretamente no deploy.
+Esse rewrite garante que rotas internas do React Router funcionem corretamente no deploy.
 
-### Configuração esperada na Vercel
-
-| Campo | Valor |
-|---|---|
-| Framework | Vite |
-| Install Command | `npm install` |
-| Build Command | `npm run build` |
-| Output Directory | `dist` |
-
-### Fluxo recomendado
-
-Teste o build:
-
-```bash
-npm run build
-```
-
-Faça o commit:
-
-```bash
-git add .
-git commit -m "chore: prepare Lynflow for deploy"
-git push
-```
-
-Depois:
-
-1. Entrar na Vercel.
-2. Clicar em **Add New Project**.
-3. Importar o repositório do Lynflow.
-4. Confirmar framework **Vite**.
-5. Confirmar:
-   - Build Command: `npm run build`
-   - Output Directory: `dist`
-6. Clicar em **Deploy**.
-7. Testar a URL final.
-
-### Rotas para testar após o deploy
+### Rotas para testar após deploy
 
 ```txt
 /
-/login
-/register
-/dashboard
-/tasks
-/goals
-/insights
-/activity
-/profile
-/settings
-/qualquer-rota
+ /login
+ /register
+ /dashboard
+ /tasks
+ /calendar
+ /goals
+ /insights
+ /activity
+ /profile
+ /settings
+ /qualquer-rota
 ```
 
-A rota `/qualquer-rota` deve abrir a página 404 personalizada do Lynflow.
+A rota inválida deve abrir a página 404 personalizada do app.
 
 ---
 
-## 🖼️ Como gerar o preview social
+## 🖼️ Como atualizar os previews
 
-O projeto possui uma página estática para gerar o preview:
+Arquivos usados no README:
 
 ```txt
-public/og-preview.html
+src/assets/preview.gif
+src/assets/landing-preview.png
+src/assets/dashboard-preview.png
+src/assets/tasks-preview.png
+src/assets/activity-preview.png
+public/og-image.png
 ```
 
-Para abrir:
+Para gerar o preview social:
 
 ```bash
 npm run dev
 ```
 
-Depois acesse:
+Acesse:
 
 ```txt
 http://localhost:5173/og-preview.html
 ```
 
-Para gerar o print social:
+Use o DevTools em modo responsivo:
 
-1. Abra o DevTools.
-2. Ative o modo responsivo.
-3. Configure o tamanho:
-   - largura: `1200`
-   - altura: `630`
-4. Recarregue a página.
-5. Tire o screenshot.
-6. Salve como:
+```txt
+1200 x 630
+```
+
+Salve o screenshot como:
 
 ```txt
 public/og-image.png
 ```
 
-Para o README, use o GIF principal em:
-
-```txt
-src/assets/preview.gif
-```
-
 ---
 
-## ✅ Checklist pré-deploy
+## ✅ Checklist de produção
 
-- [ ] Build sem erros.
-- [ ] Testes passando.
-- [ ] CI passando no GitHub Actions.
-- [ ] Login testado.
-- [ ] Cadastro testado.
-- [ ] Dashboard testado.
-- [ ] Tasks testado.
-- [ ] Drag and drop testado.
-- [ ] Activity testado.
-- [ ] Profile testado.
-- [ ] Settings testado.
-- [ ] Exportação de backup testada.
-- [ ] Importação de backup testada.
-- [ ] Página offline testada.
-- [ ] Página 404 testada.
-- [ ] Responsividade revisada.
-- [ ] Preview social gerado.
-- [ ] GIF principal adicionado.
-- [ ] Prints adicionados.
-- [ ] README atualizado.
-- [ ] Deploy publicado.
-- [ ] Link adicionado ao GitHub.
-- [ ] Link adicionado ao LinkedIn.
+- [x] Build sem erros.
+- [x] Testes passando.
+- [x] Login testado.
+- [x] Cadastro testado.
+- [x] Dashboard testado.
+- [x] Tasks testado.
+- [x] Calendar testado.
+- [x] Activity testado.
+- [x] Profile testado.
+- [x] Settings testado.
+- [x] Tema claro/escuro testado.
+- [x] Notificações testadas.
+- [x] Exportação de backup testada.
+- [x] Importação de backup testada.
+- [x] Página 404 configurada.
+- [x] Responsividade revisada.
+- [x] Deploy preparado.
 
 ---
 
@@ -932,43 +911,35 @@ src/assets/preview.gif
 
 ### Por que `localStorage`?
 
-Para manter o projeto simples, rápido e focado no front-end. O objetivo é demonstrar interface, experiência, arquitetura, estado global e persistência local.
+Para manter o projeto fácil de rodar, testar e apresentar. O modo local garante que qualquer pessoa consiga abrir o app sem configurar backend.
 
 ### Por que Supabase opcional?
 
-Para evoluir o projeto sem quebrar o modo de demonstração. O app funciona localmente sem backend, mas pode usar autenticação real, banco remoto, RLS e realtime quando as variáveis de ambiente são configuradas.
+Para evoluir o projeto para autenticação real, persistência remota, multiusuário e realtime sem quebrar a experiência local.
 
 ### Por que Context API?
 
-Porque o app possui múltiplas páginas consumindo os mesmos dados. Centralizar tarefas e atividades evita inconsistência entre telas.
+Porque o app possui várias páginas consumindo tarefas e atividades. Centralizar o estado evita inconsistências entre telas.
 
 ### Por que DnD Kit?
 
-Porque é uma solução moderna, flexível e adequada para drag and drop em React.
+Porque é uma solução moderna, acessível e flexível para drag and drop em React.
 
 ### Por que Recharts?
 
-Porque permite criar gráficos simples e funcionais com boa integração em React.
+Porque permite criar gráficos funcionais e responsivos com boa integração ao React.
 
 ### Por que Command Palette?
 
-Porque melhora a experiência de produto e aproxima o projeto de aplicações SaaS modernas.
-
-### Por que Error Boundary?
-
-Para evitar tela branca em produção caso algum erro inesperado aconteça na renderização.
-
-### Por que Service Worker?
-
-Para adicionar uma camada básica de PWA, página offline e cache inicial de assets/navegação.
-
-### Por que `vercel.json`?
-
-Para configurar build, pasta de saída e suporte a rotas internas do React Router no deploy da Vercel.
+Porque melhora a experiência do produto e aproxima o Lynflow de aplicações SaaS modernas.
 
 ### Por que testes automatizados?
 
-Para proteger regras de negócio, validações, fluxos principais e evitar regressões conforme o projeto cresce.
+Porque o projeto cresceu em escopo e precisa de segurança para evoluir sem regressões.
+
+### Por que PWA?
+
+Para adicionar experiência de app instalável, página offline e cache básico de navegação.
 
 ---
 
@@ -976,229 +947,102 @@ Para proteger regras de negócio, validações, fluxos principais e evitar regre
 
 ### Concluído
 
-- [x] Landing page
-- [x] Login
-- [x] Cadastro
-- [x] Rotas protegidas
-- [x] Dashboard
-- [x] Tasks
-- [x] Datas de vencimento em tarefas
-- [x] Filtro de tarefas atrasadas
-- [x] Kanban view
-- [x] Persistência da visualização de Tasks
-- [x] Colunas de tarefas atrasadas, pendentes e concluídas
-- [x] Cards de resumo filtráveis
-- [x] Painel de prazos
-- [x] Limpeza rápida de tarefas concluídas
-- [x] Goals
-- [x] AI Insights
-- [x] Activity
-- [x] Profile
-- [x] Settings
-- [x] Tema claro/escuro
-- [x] Toast notifications
-- [x] Modal de confirmação
-- [x] Skeleton loading
-- [x] Drag and drop
-- [x] Histórico de atividades
-- [x] Command Palette
-- [x] Atalhos globais
-- [x] Onboarding
-- [x] Página 404
-- [x] Error Boundary
-- [x] Checklist pré-deploy
-- [x] Guia de deploy
-- [x] SEO básico
-- [x] Manifest
-- [x] Preview social
-- [x] Configuração Vercel
-- [x] Supabase opcional
-- [x] Realtime com Supabase
-- [x] Exportação de backup
-- [x] Importação de backup
-- [x] Testes automatizados
-- [x] CI com GitHub Actions
-- [x] PWA básico
-- [x] Service worker
-- [x] Página offline
-- [x] Status de instalação do app
-- [x] Utilitários centralizados de data
-- [x] Exportação CSV de tarefas
-- [x] Exportação CSV de tarefas filtradas
-- [x] Ações em massa para tarefas filtradas
-- [x] Marcar tarefas visíveis como concluídas
-- [x] Deletar tarefas visíveis com confirmação
-- [x] Painel de insights das tarefas filtradas
-- [x] Taxa de conclusão das tarefas visíveis
-- [x] Categoria dominante no filtro atual
-- [x] Métricas de prioridade e atraso por filtro
-- [x] Goals 2.0
-- [x] Diagnóstico de saúde da meta
-- [x] Milestones do projeto
-- [x] Plano semanal estruturado
-- [x] Sugestões de próxima evolução
-- [x] Testes da página Goals
-- [x] Edicao avancada de datas e recorrencia 2.0
-- [x] Testes end-to-end
-- [x] Integração com IA real opcional
-- [x] Multiusuário com Supabase opcional
-- [x] Sincronização avançada entre dispositivos
-
-### Melhorias futuras
-
-- [x] Calendário.
-- [x] Integração com IA real.
-- [ ] Notificações.
-- [x] Multiusuário.
-- [ ] Dashboard com dados por período.
+- [x] Landing page.
+- [x] Login.
+- [x] Cadastro.
+- [x] Rotas protegidas.
+- [x] Dashboard.
+- [x] Dashboard com dados por período.
+- [x] Tasks.
+- [x] Datas de vencimento.
+- [x] Recorrência de tarefas.
+- [x] Filtro de tarefas atrasadas.
+- [x] Kanban view.
+- [x] Drag and drop.
+- [x] Persistência da visualização de Tasks.
+- [x] Cards de resumo filtráveis.
+- [x] Painel de prazos.
+- [x] Exportação CSV.
+- [x] Ações em massa.
+- [x] Calendar.
+- [x] Notificações.
+- [x] Goals.
+- [x] Goals 2.0.
+- [x] AI Insights.
+- [x] IA real opcional.
+- [x] Activity.
+- [x] Profile.
+- [x] Settings.
+- [x] Tema claro/escuro.
+- [x] Toast notifications.
+- [x] Modal de confirmação.
+- [x] Skeleton loading.
+- [x] Histórico de atividades.
+- [x] Command Palette.
+- [x] Atalhos globais.
+- [x] Onboarding.
+- [x] Página 404.
+- [x] Error Boundary.
+- [x] Checklist pré-deploy.
+- [x] Guia de deploy.
+- [x] SEO básico.
+- [x] Manifest.
+- [x] Preview social.
+- [x] Configuração Vercel.
+- [x] Supabase opcional.
+- [x] Multiusuário com Supabase opcional.
+- [x] Realtime com Supabase.
 - [x] Sincronização avançada entre dispositivos.
-- [ ] Melhorias de acessibilidade.
+- [x] Exportação de backup.
+- [x] Importação de backup.
+- [x] Testes automatizados.
 - [x] Testes end-to-end.
-- [x] Edição avançada de datas e recorrência.
+- [x] CI com GitHub Actions.
+- [x] PWA básico.
+- [x] Service worker.
+- [x] Página offline.
+- [x] Status de instalação do app.
+- [x] Melhorias de acessibilidade.
+
+### Próximas melhorias possíveis
+
+O projeto está em versão estável. Próximas evoluções devem ser tratadas como versão futura:
+
+- [ ] Integração com calendário externo.
+- [ ] Notificações push reais.
+- [ ] Relatórios mensais exportáveis.
+- [ ] Dashboard financeiro de produtividade.
+- [ ] Colaboração entre usuários.
+- [ ] Templates de rotina.
+- [ ] Versão mobile dedicada.
 
 ---
 
-## 🧾 Scripts
-
-| Comando | Descrição |
-|---|---|
-| `npm run dev` | Roda o projeto em desenvolvimento |
-| `npm run build` | Gera build de produção |
-| `npm run preview` | Visualiza o build localmente |
-| `npm run lint` | Roda lint |
-| `npm run test` | Roda os testes em modo watch |
-| `npm run test:run` | Roda os testes uma vez |
-| `npm run test:e2e` | Roda os testes end-to-end com Playwright |
-| `npm run test:e2e:ui` | Abre o runner visual do Playwright |
-| `npm run check:e2e` | Roda a validacao E2E separada do check principal |
-| `npm run check` | Roda lint, testes e build em sequência |
-
----
-
-## Qualidade automatizada
-
-O Lynflow possui uma base inicial de testes com Vitest para proteger regras de negócio, fluxos principais e integrações internas.
-
-Cobertura inicial:
-
-- validadores de login, cadastro, perfil e e-mail;
-- filtros e ordenação de tarefas;
-- filtro de tarefas atrasadas;
-- status de tarefas entre pendentes, atrasadas e concluídas;
-- agrupamento visual do Kanban;
-- cards de resumo de tarefas;
-- cards de resumo filtráveis;
-- painel de prazos;
-- painel de insights das tarefas filtradas;
-- cálculo de taxa de conclusão;
-- cálculo de categoria dominante;
-- limpeza rápida de tarefas concluídas;
-- exportação CSV de tarefas;
-- exportação CSV de tarefas filtradas;
-- ações em massa para tarefas visíveis;
-- filtros e ordenação de atividades;
-- analytics de tarefas;
-- recorrencia de tarefas e normalizacao de tarefas antigas;
-- mappers entre Supabase e o formato usado no front-end;
-- payloads remotos com `user_id` preservado;
-- status de modo local/Supabase e sincronização;
-- estados de sync offline/local-only/connected/error;
-- contagem de Presence para sessões ativas;
-- exportação e importação de backup;
-- fluxo de autenticação local;
-- status visual de PWA em Settings;
-- utilitários centralizados de data.
-- diagnóstico de saúde da meta;
-- testes da página Goals;
-- validação dos estados de progresso do projeto;
-- renderização de milestones e plano semanal;
-
-Os testes end-to-end em `tests/e2e` cobrem landing, autenticacao local, redirecionamento de rota protegida, navegacao autenticada e criacao/conclusao de tarefas.
-
-Antes de abrir PR, publicar deploy ou seguir para uma nova fase, rode:
-
-```bash
-npm run check
-```
-
-### Integração contínua
-
-O repositório possui um workflow em:
+## 📌 Status do projeto
 
 ```txt
-.github/workflows/ci.yml
+Versão: 1.0.0
+Status: Portfolio Ready
+Tipo: Front-end SaaS dashboard
+Deploy: Vercel
+Persistência padrão: localStorage
+Backend opcional: Supabase
+IA opcional: serverless API
+Testes: Vitest + Testing Library + Playwright
 ```
-
-Ele roda automaticamente em push para `main`, pull requests para `main` e também pode ser executado manualmente pelo GitHub Actions.
-
-Fluxo executado:
-
-```bash
-npm ci
-npm run check
-```
-
-Os testes Playwright ficam fora do CI principal para evitar instabilidade por dependencias de navegador. Eles podem ser executados manualmente com `npm run check:e2e` em ambientes preparados.
 
 ---
 
-## 👩‍💻 Desenvolvedora
+## 👩‍💻 Autora
 
 Desenvolvido por **Kethelyn Carvalho**.
 
-Projeto criado com foco em portfólio front-end, aprendizado prático e evolução profissional na área de desenvolvimento.
+- GitHub: [@Lynsz](https://github.com/Lynsz)
+- LinkedIn: [@kethelyncarvalho](https://www.linkedin.com/in/kethelyncarvalho/)
+- Projeto: [Lynflow](https://github.com/Lynsz/lynflow)
 
 ---
 
 ## 📄 Licença
 
----
-
-## AI Insights real opcional
-
-O Lynflow funciona sem chave de IA. A pagina **AI Insights** monta um payload seguro a partir das tarefas reais e tenta chamar `/api/ai-insights`; se a rota nao existir, a API falhar, a chave nao estiver configurada ou o usuario estiver offline, o app usa fallback local deterministico.
-
-Dados considerados pela analise:
-
-- total de tarefas;
-- concluidas, pendentes e atrasadas;
-- tarefas de alta prioridade;
-- categorias mais usadas;
-- tarefas com prazo proximo;
-- tarefas recorrentes.
-
-A chave da OpenAI nunca deve usar prefixo `VITE_` e nunca fica disponivel no bundle do front-end. Configure apenas no ambiente server-side:
-
-```env
-AI_PROVIDER=openai
-OPENAI_API_KEY=
-OPENAI_MODEL=gpt-5.4-mini
-```
-
-No deploy da Vercel, adicione essas variaveis em **Project Settings > Environment Variables**. Sem `OPENAI_API_KEY`, a rota retorna indisponivel e o front-end continua com fallback local.
-
-Arquivos relacionados:
-
-- `src/services/aiInsights.ts`: payload, fallback local, chamada para `/api/ai-insights` e tipos da integracao.
-- `api/ai-insights.ts`: Vercel Serverless Function que chama a OpenAI Responses API somente no servidor.
-
-Este projeto está sob licença MIT.
-
----
-
-## ⭐ Status
-
-```txt
-Status: MVP portfolio-ready
-Versão: 1.0.0
-```
-
----
-
-## 🧱 Commit recomendado
-
-```bash
-git add .
-git commit -m "feat: add optional real AI insights"
-git push
-```
+Este projeto foi desenvolvido para fins de estudo, portfólio e demonstração técnica.
