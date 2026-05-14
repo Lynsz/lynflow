@@ -22,6 +22,7 @@ import {
     Pie,
     Cell,
 } from "recharts"
+import { useNavigate } from "react-router-dom"
 import { useTasks } from "../hooks/useTasks"
 import {
     getCategoryDistribution,
@@ -42,6 +43,7 @@ import { SectionCard } from "../components/ui/SectionCard"
 import { DashboardSkeleton } from "../components/skeletons/DashboardSkeleton"
 
 export function Dashboard() {
+    const navigate = useNavigate()
     const {
         isReady,
         tasks,
@@ -70,7 +72,11 @@ export function Dashboard() {
                 title="Dashboard"
                 description="Visão geral da sua rotina, tarefas, progresso e analytics."
                 action={
-                    <Button size="lg" icon={<Sparkles size={18} />}>
+                    <Button
+                        size="lg"
+                        icon={<Sparkles size={18} />}
+                        onClick={() => navigate("/insights")}
+                    >
                         Gerar rotina IA
                     </Button>
                 }

@@ -324,6 +324,7 @@ lynflow.vercel.app
 - Vitest
 - Testing Library
 - Playwright
+- OpenAI API opcional via rota serverless
 - GitHub Actions
 - PWA
 - Vercel
@@ -346,6 +347,7 @@ lynflow.vercel.app
 | `@testing-library/react` | Testes de componentes React |
 | `@testing-library/jest-dom` | Matchers de DOM para testes |
 | `@playwright/test` | Testes end-to-end dos fluxos principais |
+| OpenAI Responses API | IA real opcional chamada apenas no servidor |
 | `tailwindcss` | Estilização |
 
 ---
@@ -1001,11 +1003,12 @@ Para proteger regras de negócio, validações, fluxos principais e evitar regre
 - [x] Testes da página Goals
 - [x] Edicao avancada de datas e recorrencia 2.0
 - [x] Testes end-to-end
+- [x] Integração com IA real opcional
 
 ### Melhorias futuras
 
 - [x] Calendário.
-- [ ] Integração com IA real.
+- [x] Integração com IA real.
 - [ ] Notificações.
 - [ ] Multiusuário.
 - [ ] Dashboard com dados por período.
@@ -1106,6 +1109,36 @@ Projeto criado com foco em portfólio front-end, aprendizado prático e evoluç�
 
 ## 📄 Licença
 
+---
+
+## AI Insights real opcional
+
+O Lynflow funciona sem chave de IA. A pagina **AI Insights** monta um payload seguro a partir das tarefas reais e tenta chamar `/api/ai-insights`; se a rota nao existir, a API falhar, a chave nao estiver configurada ou o usuario estiver offline, o app usa fallback local deterministico.
+
+Dados considerados pela analise:
+
+- total de tarefas;
+- concluidas, pendentes e atrasadas;
+- tarefas de alta prioridade;
+- categorias mais usadas;
+- tarefas com prazo proximo;
+- tarefas recorrentes.
+
+A chave da OpenAI nunca deve usar prefixo `VITE_` e nunca fica disponivel no bundle do front-end. Configure apenas no ambiente server-side:
+
+```env
+AI_PROVIDER=openai
+OPENAI_API_KEY=
+OPENAI_MODEL=gpt-5.4-mini
+```
+
+No deploy da Vercel, adicione essas variaveis em **Project Settings > Environment Variables**. Sem `OPENAI_API_KEY`, a rota retorna indisponivel e o front-end continua com fallback local.
+
+Arquivos relacionados:
+
+- `src/services/aiInsights.ts`: payload, fallback local, chamada para `/api/ai-insights` e tipos da integracao.
+- `api/ai-insights.ts`: Vercel Serverless Function que chama a OpenAI Responses API somente no servidor.
+
 Este projeto está sob licença MIT.
 
 ---
@@ -1123,6 +1156,6 @@ Versão: 1.0.0
 
 ```bash
 git add .
-git commit -m "docs: update Lynflow README with badges and PWA status"
+git commit -m "feat: add optional real AI insights"
 git push
 ```
