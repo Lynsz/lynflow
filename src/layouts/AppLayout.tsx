@@ -21,6 +21,7 @@ import { CommandPalette } from "../components/CommandPalette"
 import { GlobalShortcuts } from "../components/GlobalShortcuts"
 import { AppTopbar } from "../components/AppTopbar"
 import { OnboardingModal } from "../components/OnboardingModal"
+import { SkipToContent } from "../components/accessibility/SkipToContent"
 
 type AppLayoutProps = {
     children: ReactNode
@@ -141,6 +142,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
     return (
         <div className="flex min-h-screen bg-[var(--bg)] text-[var(--text)] md:min-h-dvh">
+            <SkipToContent />
             <CommandPalette />
             <GlobalShortcuts />
             <OnboardingModal />
@@ -174,7 +176,10 @@ export function AppLayout({ children }: AppLayoutProps) {
                     </div>
                 </button>
 
-                <nav className="flex flex-col gap-2">
+                <nav
+                    className="flex flex-col gap-2"
+                    aria-label="Navegação principal"
+                >
                     {navItems.map((item) => {
                         const Icon = item.icon
 
@@ -183,13 +188,14 @@ export function AppLayout({ children }: AppLayoutProps) {
                                 key={item.path}
                                 to={item.path}
                                 className={({ isActive }) =>
-                                    `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition ${isActive
-                                        ? "ly-button-primary"
-                                        : "ly-muted hover:bg-[var(--surface)] hover:text-[var(--text)]"
+                                    `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition ${
+                                        isActive
+                                            ? "ly-button-primary"
+                                            : "ly-muted hover:bg-[var(--surface)] hover:text-[var(--text)]"
                                     }`
                                 }
                             >
-                                <Icon size={18} />
+                                <Icon size={18} aria-hidden="true" />
                                 <span className="truncate">{item.label}</span>
                             </NavLink>
                         )
@@ -211,13 +217,18 @@ export function AppLayout({ children }: AppLayoutProps) {
                         onClick={handleLogout}
                         className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-[var(--muted)] transition hover:bg-red-500/10 hover:text-red-500"
                     >
-                        <LogOut size={18} />
+                        <LogOut size={18} aria-hidden="true" />
                         Sair
                     </button>
                 </div>
             </aside>
 
-            <main className="min-w-0 flex-1 pb-[calc(6rem+env(safe-area-inset-bottom))] md:ml-64 md:pb-0">
+            <main
+                id="main-content"
+                tabIndex={-1}
+                aria-label="Conteúdo principal"
+                className="min-w-0 flex-1 pb-[calc(6rem+env(safe-area-inset-bottom))] outline-none md:ml-64 md:pb-0"
+            >
                 <AppTopbar />
                 {children}
             </main>
@@ -257,11 +268,14 @@ export function AppLayout({ children }: AppLayoutProps) {
                                     title="Fechar menu"
                                     className="rounded-xl p-2 text-[var(--muted)] transition hover:bg-[var(--surface)] hover:text-[var(--text)]"
                                 >
-                                    <X size={18} />
+                                    <X size={18} aria-hidden="true" />
                                 </button>
                             </div>
 
-                            <nav className="grid grid-cols-1 gap-2">
+                            <nav
+                                className="grid grid-cols-1 gap-2"
+                                aria-label="Mais opções de navegação"
+                            >
                                 {mobileMoreItems.map((item) => {
                                     const Icon = item.icon
 
@@ -271,13 +285,14 @@ export function AppLayout({ children }: AppLayoutProps) {
                                             to={item.path}
                                             onClick={closeMoreMenu}
                                             className={({ isActive }) =>
-                                                `flex items-center gap-3 rounded-2xl px-4 py-3 text-sm transition ${isActive
-                                                    ? "ly-button-primary"
-                                                    : "ly-muted hover:bg-[var(--surface)] hover:text-[var(--text)]"
+                                                `flex items-center gap-3 rounded-2xl px-4 py-3 text-sm transition ${
+                                                    isActive
+                                                        ? "ly-button-primary"
+                                                        : "ly-muted hover:bg-[var(--surface)] hover:text-[var(--text)]"
                                                 }`
                                             }
                                         >
-                                            <Icon size={18} />
+                                            <Icon size={18} aria-hidden="true" />
                                             {item.label}
                                         </NavLink>
                                     )
@@ -288,7 +303,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                                     onClick={handleLogout}
                                     className="mt-2 flex items-center gap-3 rounded-2xl px-4 py-3 text-sm text-red-500 transition hover:bg-red-500/10"
                                 >
-                                    <LogOut size={18} />
+                                    <LogOut size={18} aria-hidden="true" />
                                     Sair da conta
                                 </button>
                             </nav>
@@ -297,7 +312,10 @@ export function AppLayout({ children }: AppLayoutProps) {
                 )}
             </AnimatePresence>
 
-            <nav className="ly-bottom-nav fixed bottom-0 left-0 right-0 z-50 backdrop-blur-xl md:hidden">
+            <nav
+                className="ly-bottom-nav fixed bottom-0 left-0 right-0 z-50 backdrop-blur-xl md:hidden"
+                aria-label="Navegação mobile"
+            >
                 <div className="grid grid-cols-5">
                     {mobilePrimaryItems.map((item) => {
                         const Icon = item.icon
@@ -308,13 +326,14 @@ export function AppLayout({ children }: AppLayoutProps) {
                                 to={item.path}
                                 onClick={closeMoreMenu}
                                 className={({ isActive }) =>
-                                    `flex min-w-0 flex-col items-center gap-1 px-1 py-3 text-[11px] transition ${isActive
-                                        ? "text-[var(--text)]"
-                                        : "text-[var(--muted-soft)]"
+                                    `flex min-w-0 flex-col items-center gap-1 px-1 py-3 text-[11px] transition ${
+                                        isActive
+                                            ? "text-[var(--text)]"
+                                            : "text-[var(--muted-soft)]"
                                     }`
                                 }
                             >
-                                <Icon size={18} />
+                                <Icon size={18} aria-hidden="true" />
                                 <span className="max-w-full truncate">
                                     {item.label}
                                 </span>
@@ -325,15 +344,17 @@ export function AppLayout({ children }: AppLayoutProps) {
                     <button
                         type="button"
                         onClick={() => setIsMoreOpen((currentValue) => !currentValue)}
-                        className={`flex min-w-0 flex-col items-center gap-1 px-1 py-3 text-[11px] transition ${isMoreOpen || isMoreActive
+                        className={`flex min-w-0 flex-col items-center gap-1 px-1 py-3 text-[11px] transition ${
+                            isMoreOpen || isMoreActive
                                 ? "text-[var(--text)]"
                                 : "text-[var(--muted-soft)]"
-                            }`}
+                        }`}
                         aria-label="Abrir mais opções"
                         title="Abrir mais opções"
+                        aria-expanded={isMoreOpen ? "true" : "false"}
                     >
-                        <Menu size={18} />
-                        <span className="max-w-full truncate">More</span>
+                        <Menu size={18} aria-hidden="true" />
+                        <span className="max-w-full truncate">Mais</span>
                     </button>
                 </div>
             </nav>
