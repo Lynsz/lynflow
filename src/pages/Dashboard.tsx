@@ -30,6 +30,7 @@ import {
     getProductivityStatus,
     getWeeklyProductivity,
 } from "../utils/taskAnalytics"
+import { DashboardFocusPanel } from "../components/dashboard/DashboardFocusPanel"
 import { ActivityFeed } from "../components/tasks/ActivityFeed"
 import { Button } from "../components/ui/Button"
 import { EmptyState } from "../components/ui/EmptyState"
@@ -106,6 +107,13 @@ export function Dashboard() {
                     delay={0.15}
                 />
             </section>
+
+            <DashboardFocusPanel
+                productivity={productivity}
+                pendingTasks={pendingTasks}
+                highPriorityTasks={highPriorityTasks}
+                totalTasks={tasks.length}
+            />
 
             <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1.4fr_0.8fr]">
                 <SectionCard
