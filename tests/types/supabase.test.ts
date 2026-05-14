@@ -16,6 +16,7 @@ describe("Supabase mappers", () => {
             priority: "high",
             done: false,
             due_date: "2026-05-20",
+            recurrence: "weekly",
             order_index: 4,
             created_at: "2026-05-13T10:00:00.000Z",
             updated_at: "2026-05-13T10:00:00.000Z",
@@ -28,6 +29,7 @@ describe("Supabase mappers", () => {
             priority: "high",
             done: false,
             dueDate: "2026-05-20",
+            recurrence: "weekly",
             order: 4,
             createdAt: "2026-05-13T10:00:00.000Z",
         })

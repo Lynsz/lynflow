@@ -11,8 +11,13 @@ import { useAuth } from "../hooks/useAuth"
 import { useToast } from "../components/ui/ToastProvider"
 import { supabase } from "../services/supabase"
 import type { TaskActivity, ActivityType } from "../types/activity"
-import type { Priority, Task } from "../types/task"
+import type { Priority, Task, TaskRecurrence } from "../types/task"
 import { mapSupabaseActivity, mapSupabaseTask } from "../types/supabase"
+import {
+    generateNextRecurringTaskUpdate,
+    getTaskRecurrenceLabel,
+    normalizeTaskRecurrence,
+} from "../utils/taskRecurrence"
 import {
     getUserRealtimeChannelName,
     getUserRealtimeFilter,
@@ -27,6 +32,7 @@ type AddTaskData = {
     category: string
     priority: Priority
     dueDate?: string | null
+    recurrence?: TaskRecurrence
 }
 
 type TasksContextValue = {
@@ -141,7 +147,7 @@ function createDemoTasks(): Task[] {
     ]
 }
 
-function normalizeTasks(tasks: Partial<Task>[]): Task[] {
+export function normalizeTasks(tasks: Partial<Task>[]): Task[] {
     return tasks
         .map((task, index) => ({
             id: typeof task.id === "string" ? task.id : createId(),
@@ -159,6 +165,7 @@ function normalizeTasks(tasks: Partial<Task>[]): Task[] {
                 typeof task.dueDate === "string" && task.dueDate.trim()
                     ? task.dueDate
                     : null,
+            recurrence: normalizeTaskRecurrence(task.recurrence),
             createdAt:
                 typeof task.createdAt === "string"
                     ? task.createdAt
@@ -464,6 +471,105 @@ export function TasksProvider({ children }: TasksProviderProps) {
         }
     }
 
+    function isMissingRecurrenceColumnError(error: unknown) {
+        if (!error || typeof error !== "object") {
+            return false
+        }
+
+        const message =
+            "message" in error && typeof error.message === "string"
+                ? error.message.toLowerCase()
+                : ""
+
+        return message.includes("recurrence")
+    }
+
+    function createRemoteTaskPayload(task: Task) {
+        return {
+            title: task.title,
+            category: task.category,
+            priority: task.priority,
+            done: task.done,
+            due_date: task.dueDate ?? null,
+            recurrence: normalizeTaskRecurrence(task.recurrence),
+            order_index: task.order,
+        }
+    }
+
+    function omitRecurrence<T extends { recurrence?: TaskRecurrence | null }>(
+        payload: T
+    ): Omit<T, "recurrence"> {
+        const fallbackPayload = { ...payload }
+
+        delete fallbackPayload.recurrence
+
+        return fallbackPayload
+    }
+
+    async function insertRemoteTasks(
+        client: NonNullable<typeof supabase>,
+        userId: string,
+        tasksToInsert: Task[]
+    ) {
+        const payload = tasksToInsert.map((task) => ({
+            user_id: userId,
+            ...createRemoteTaskPayload(task),
+        }))
+
+        const { error } = await client.from("tasks").insert(payload)
+
+        if (!error) {
+            return
+        }
+
+        if (!isMissingRecurrenceColumnError(error)) {
+            throw new Error(error.message)
+        }
+
+        const fallbackPayload = payload.map(omitRecurrence)
+        const { error: fallbackError } = await client
+            .from("tasks")
+            .insert(fallbackPayload)
+
+        if (fallbackError) {
+            throw new Error(fallbackError.message)
+        }
+    }
+
+    async function updateRemoteTask(
+        client: NonNullable<typeof supabase>,
+        id: string,
+        payload: {
+            title?: string
+            category?: string
+            priority?: Priority
+            done?: boolean
+            order_index?: number
+            due_date?: string | null
+            recurrence?: TaskRecurrence
+        }
+    ) {
+        const { error } = await client.from("tasks").update(payload).eq("id", id)
+
+        if (!error) {
+            return
+        }
+
+        if (!isMissingRecurrenceColumnError(error) || !("recurrence" in payload)) {
+            throw new Error(error.message)
+        }
+
+        const fallbackPayload = omitRecurrence(payload)
+        const { error: fallbackError } = await client
+            .from("tasks")
+            .update(fallbackPayload)
+            .eq("id", id)
+
+        if (fallbackError) {
+            throw new Error(fallbackError.message)
+        }
+    }
+
     async function persistActivity(
         type: ActivityType,
         title: string,
@@ -526,6 +632,7 @@ export function TasksProvider({ children }: TasksProviderProps) {
             priority: data.priority,
             done: false,
             dueDate: data.dueDate || null,
+            recurrence: normalizeTaskRecurrence(data.recurrence),
             createdAt: new Date().toISOString(),
             order: smallestOrder - 1,
         }
@@ -537,27 +644,39 @@ export function TasksProvider({ children }: TasksProviderProps) {
             const userId = user.id
 
             ; (async () => {
-                const { data: insertedTask, error } = await client
+                const payload = {
+                    user_id: userId,
+                    ...createRemoteTaskPayload(newTask),
+                }
+
+                let response = await client
                     .from("tasks")
-                    .insert({
-                        user_id: userId,
-                        title: newTask.title,
-                        category: newTask.category,
-                        priority: newTask.priority,
-                        done: newTask.done,
-                        due_date: newTask.dueDate ?? null,
-                        order_index: newTask.order,
-                    })
+                    .insert(payload)
                     .select("*")
                     .single()
 
-                if (error) {
-                    throw error
+                if (
+                    response.error &&
+                    isMissingRecurrenceColumnError(response.error)
+                ) {
+                    const fallbackPayload = omitRecurrence(payload)
+
+                    response = await client
+                        .from("tasks")
+                        .insert(fallbackPayload)
+                        .select("*")
+                        .single()
+                }
+
+                if (response.error) {
+                    throw new Error(response.error.message)
                 }
 
                 setTasks((currentTasks) =>
                     currentTasks.map((task) =>
-                        task.id === newTask.id ? mapSupabaseTask(insertedTask) : task
+                        task.id === newTask.id
+                            ? mapSupabaseTask(response.data)
+                            : task
                     )
                 )
             })().catch(showRemoteError)
@@ -588,6 +707,7 @@ export function TasksProvider({ children }: TasksProviderProps) {
             done?: boolean
             order_index?: number
             due_date?: string | null
+            recurrence?: TaskRecurrence
         } = {}
 
         if (typeof data.title === "string") payload.title = data.title
@@ -598,24 +718,28 @@ export function TasksProvider({ children }: TasksProviderProps) {
         if (typeof data.dueDate === "string" || data.dueDate === null) {
             payload.due_date = data.dueDate
         }
+        if (data.recurrence) {
+            payload.recurrence = normalizeTaskRecurrence(data.recurrence)
+        }
 
         const client = supabase
 
         ; (async () => {
-            const { error } = await client.from("tasks").update(payload).eq("id", id)
-
-            if (error) {
-                throw error
-            }
+            await updateRemoteTask(client, id, payload)
         })().catch(showRemoteError)
     }
 
     function toggleTask(id: string) {
         const task = tasks.find((item) => item.id === id)
+        const recurringUpdate =
+            task && !task.done ? generateNextRecurringTaskUpdate(task) : null
+        const nextTaskData: Partial<Task> = recurringUpdate ?? {
+            done: task ? !task.done : true,
+        }
 
         setTasks((currentTasks) =>
             currentTasks.map((taskItem) =>
-                taskItem.id === id ? { ...taskItem, done: !taskItem.done } : taskItem
+                taskItem.id === id ? { ...taskItem, ...nextTaskData } : taskItem
             )
         )
 
@@ -625,15 +749,29 @@ export function TasksProvider({ children }: TasksProviderProps) {
             const client = supabase
 
             ; (async () => {
-                const { error } = await client
-                    .from("tasks")
-                    .update({ done: !task.done })
-                    .eq("id", id)
-
-                if (error) {
-                    throw error
-                }
+                await updateRemoteTask(
+                    client,
+                    id,
+                    recurringUpdate
+                        ? {
+                            done: false,
+                            due_date: recurringUpdate.dueDate,
+                            recurrence: normalizeTaskRecurrence(task.recurrence),
+                        }
+                        : { done: !task.done }
+                )
             })().catch(showRemoteError)
+        }
+
+        if (recurringUpdate) {
+            addActivity(
+                "completed",
+                "Recorrencia reagendada",
+                `"${task.title}" avancou para ${recurringUpdate.dueDate} (${getTaskRecurrenceLabel(
+                    normalizeTaskRecurrence(task.recurrence)
+                )}).`
+            )
+            return
         }
 
         addActivity(
@@ -770,21 +908,7 @@ export function TasksProvider({ children }: TasksProviderProps) {
                     throw deleteError
                 }
 
-                const { error: insertError } = await client.from("tasks").insert(
-                    demoTasks.map((task) => ({
-                        user_id: userId,
-                        title: task.title,
-                        category: task.category,
-                        priority: task.priority,
-                        done: task.done,
-                        due_date: task.dueDate ?? null,
-                        order_index: task.order,
-                    }))
-                )
-
-                if (insertError) {
-                    throw insertError
-                }
+                await insertRemoteTasks(client, userId, demoTasks)
             })().catch(showRemoteError)
         }
 
@@ -853,21 +977,7 @@ export function TasksProvider({ children }: TasksProviderProps) {
         }
 
         if (importedTasks.length > 0) {
-            const { error } = await client.from("tasks").insert(
-                importedTasks.map((task) => ({
-                    user_id: userId,
-                    title: task.title,
-                    category: task.category,
-                    priority: task.priority,
-                    done: task.done,
-                    due_date: task.dueDate ?? null,
-                    order_index: task.order,
-                }))
-            )
-
-            if (error) {
-                throw error
-            }
+            await insertRemoteTasks(client, userId, importedTasks)
         }
 
         if (importedActivities.length > 0) {

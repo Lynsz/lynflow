@@ -1,6 +1,7 @@
 import type { ActivityType } from "./activity"
 import type { TaskActivity } from "./activity"
-import type { Priority, Task } from "./task"
+import type { Priority, Task, TaskRecurrence } from "./task"
+import { normalizeTaskRecurrence } from "../utils/taskRecurrence"
 
 export type SupabaseProfile = {
     id: string
@@ -18,6 +19,7 @@ export type SupabaseTask = {
     priority: Priority
     done: boolean
     due_date: string | null
+    recurrence?: TaskRecurrence | null
     order_index: number
     created_at: string
     updated_at: string
@@ -69,6 +71,7 @@ export function mapSupabaseTask(task: SupabaseTask): Task {
         priority: task.priority,
         done: task.done,
         dueDate: task.due_date,
+        recurrence: normalizeTaskRecurrence(task.recurrence),
         createdAt: task.created_at,
         order: task.order_index,
     }

@@ -1,6 +1,7 @@
 import type { SessionUser } from "../services/auth"
 import type { ActivityType, TaskActivity } from "../types/activity"
-import type { Priority, Task } from "../types/task"
+import type { Priority, Task, TaskRecurrence } from "../types/task"
+import { isTaskRecurrence } from "./taskRecurrence"
 
 export type LynflowExportPayload = {
     app: "Lynflow"
@@ -27,6 +28,7 @@ type CreateExportPayloadParams = {
 }
 
 const priorities: Priority[] = ["low", "medium", "high"]
+const recurrences: TaskRecurrence[] = ["none", "daily", "weekly", "monthly"]
 const activityTypes: ActivityType[] = [
     "created",
     "completed",
@@ -49,6 +51,15 @@ function isPriority(value: unknown): value is Priority {
     return typeof value === "string" && priorities.includes(value as Priority)
 }
 
+function isRecurrence(value: unknown): value is TaskRecurrence | undefined {
+    return (
+        typeof value === "undefined" ||
+        (typeof value === "string" &&
+            recurrences.includes(value as TaskRecurrence) &&
+            isTaskRecurrence(value))
+    )
+}
+
 function isActivityType(value: unknown): value is ActivityType {
     return typeof value === "string" && activityTypes.includes(value as ActivityType)
 }
@@ -66,6 +77,7 @@ function isTask(value: unknown): value is Task {
         typeof value.done === "boolean" &&
         typeof value.createdAt === "string" &&
         typeof value.order === "number" &&
+        isRecurrence(value.recurrence) &&
         (typeof value.dueDate === "string" ||
             value.dueDate === null ||
             typeof value.dueDate === "undefined")

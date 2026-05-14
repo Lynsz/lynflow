@@ -27,6 +27,12 @@ import {
     sortCalendarTasks,
 } from "../utils/taskCalendar"
 import { formatDatePtBr } from "../utils/date"
+import {
+    generateNextRecurringTaskUpdate,
+    getTaskRecurrenceLabel,
+    hasActiveRecurrence,
+    normalizeTaskRecurrence,
+} from "../utils/taskRecurrence"
 import { isTaskOverdue } from "../utils/taskStatus"
 import type { Task } from "../types/task"
 
@@ -100,12 +106,24 @@ export function Calendar() {
     }
 
     function handleToggleTask(task: Task) {
+        const recurringUpdate = !task.done
+            ? generateNextRecurringTaskUpdate(task)
+            : null
+
         toggleTask(task.id)
 
         showToast({
             type: "success",
-            title: task.done ? "Tarefa reaberta" : "Tarefa concluída",
-            description: task.title,
+            title: recurringUpdate
+                ? "Recorrencia reagendada"
+                : task.done
+                    ? "Tarefa reaberta"
+                    : "Tarefa concluida",
+            description: recurringUpdate
+                ? `${task.title} avancou para ${formatDatePtBr(
+                    recurringUpdate.dueDate
+                )}.`
+                : task.title,
         })
     }
 
@@ -258,7 +276,13 @@ export function Calendar() {
                                                             : "bg-[var(--surface)] text-[var(--text)]"
                                                         }`}
                                                 >
-                                                    {task.title}
+                                                    {hasActiveRecurrence(task)
+                                                        ? `${task.title} - ${getTaskRecurrenceLabel(
+                                                            normalizeTaskRecurrence(
+                                                                task.recurrence
+                                                            )
+                                                        )}`
+                                                        : task.title}
                                                 </div>
                                             ))}
 
@@ -353,6 +377,16 @@ export function Calendar() {
                                                 {task.done && (
                                                     <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-400">
                                                         Concluída
+                                                    </span>
+                                                )}
+
+                                                {hasActiveRecurrence(task) && (
+                                                    <span className="rounded-full border border-sky-500/20 bg-sky-500/10 px-3 py-1 text-xs font-medium text-sky-400">
+                                                        {getTaskRecurrenceLabel(
+                                                            normalizeTaskRecurrence(
+                                                                task.recurrence
+                                                            )
+                                                        )}
                                                     </span>
                                                 )}
                                             </div>

@@ -1,5 +1,6 @@
 import type { Task } from "../types/task"
 import { formatDatePtBr } from "./date"
+import { getTaskRecurrenceLabel, normalizeTaskRecurrence } from "./taskRecurrence"
 import { getTaskFlowStatus } from "./taskStatus"
 
 function escapeCsvValue(value: string | number | null | undefined) {
@@ -46,6 +47,7 @@ export function createTasksCsv(tasks: Task[], referenceDate = new Date()) {
         "Prioridade",
         "Status",
         "Vencimento",
+        "Recorrencia",
         "Criada em",
     ]
 
@@ -55,6 +57,7 @@ export function createTasksCsv(tasks: Task[], referenceDate = new Date()) {
         formatPriority(task.priority),
         formatTaskStatus(task, referenceDate),
         formatOptionalDate(task.dueDate),
+        getTaskRecurrenceLabel(normalizeTaskRecurrence(task.recurrence)),
         formatCreatedAt(task.createdAt),
     ])
 

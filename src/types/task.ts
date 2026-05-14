@@ -1,4 +1,5 @@
-﻿export type Priority = "low" | "medium" | "high"
+export type Priority = "low" | "medium" | "high"
+export type TaskRecurrence = "none" | "daily" | "weekly" | "monthly"
 
 export type Task = {
     id: string
@@ -9,4 +10,5 @@ export type Task = {
     createdAt: string
     order: number
     dueDate?: string | null
+    recurrence?: TaskRecurrence
 }

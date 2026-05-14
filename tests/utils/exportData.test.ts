@@ -15,6 +15,7 @@ const tasks: Task[] = [
         priority: "high",
         done: true,
         dueDate: "2026-05-20",
+        recurrence: "weekly",
         createdAt: "2026-05-13T10:00:00.000Z",
         order: 0,
     },
@@ -95,6 +96,7 @@ describe("exportData", () => {
         const payload = parseLynflowBackupFileContent(content)
 
         expect(payload.tasks).toHaveLength(2)
+        expect(payload.tasks[0].recurrence).toBe("weekly")
         expect(payload.activities).toHaveLength(1)
     })
 

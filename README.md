@@ -137,6 +137,8 @@ lynflow.vercel.app
 - Categorizar tarefas.
 - Definir prioridade.
 - Definir data de vencimento.
+- Definir recorrencia simples: nenhuma, diaria, semanal ou mensal.
+- Reagendar automaticamente tarefas recorrentes para a proxima ocorrencia ao concluir.
 - Buscar tarefas.
 - Filtrar por status.
 - Filtrar por tarefas atrasadas.
@@ -158,11 +160,20 @@ lynflow.vercel.app
 - Limpeza rápida de tarefas concluídas.
 - Exportação de todas as tarefas em CSV.
 - Exportação apenas das tarefas filtradas em CSV.
+- CSV com coluna de recorrencia.
 - Ações em massa nas tarefas filtradas.
 - Marcar tarefas visíveis como concluídas.
 - Deletar tarefas visíveis com confirmação.
 - Persistência local com `localStorage`.
 - Persistência remota opcional com Supabase.
+
+### Calendar
+
+- Visualizacao mensal das tarefas com vencimento.
+- Detalhe das tarefas por dia selecionado.
+- Indicadores de prioridade, atraso, conclusao e recorrencia.
+- Edicao rapida de prazo e recorrencia no painel lateral.
+- Conclusao de tarefas recorrentes com avanco automatico para a proxima data.
 
 ### Goals
 
@@ -353,6 +364,8 @@ Arquivos relacionados:
 - `.env.example`: modelo das variáveis de ambiente.
 - `supabase/schema.sql`: schema com tabelas, triggers, RLS e policies.
 
+O campo `tasks.recurrence` e opcional para projetos Supabase antigos: o app continua funcionando em modo local e tambem evita quebrar a sincronizacao remota caso o schema ainda nao tenha sido atualizado. Para preservar recorrencia no Supabase, rode novamente o trecho de `supabase/schema.sql` que adiciona a coluna `recurrence`.
+
 Para ativar:
 
 1. Crie um projeto no Supabase.
@@ -420,6 +433,7 @@ tests
     ├── taskCsv.test.ts
     ├── taskFilters.test.ts
     ├── taskInsights.test.ts
+    ├── taskRecurrence.test.ts
     └── taskStatus.test.ts
 ```
 
@@ -955,10 +969,11 @@ Para proteger regras de negócio, validações, fluxos principais e evitar regre
 - [x] Plano semanal estruturado
 - [x] Sugestões de próxima evolução
 - [x] Testes da página Goals
+- [x] Edicao avancada de datas e recorrencia 2.0
 
 ### Melhorias futuras
 
-- [ ] Calendário.
+- [x] Calendário.
 - [ ] Integração com IA real.
 - [ ] Notificações.
 - [ ] Multiusuário.
@@ -966,7 +981,7 @@ Para proteger regras de negócio, validações, fluxos principais e evitar regre
 - [ ] Sincronização avançada entre dispositivos.
 - [ ] Melhorias de acessibilidade.
 - [ ] Testes end-to-end.
-- [ ] Edição avançada de datas e recorrência.
+- [x] Edição avançada de datas e recorrência.
 
 ---
 
@@ -1007,6 +1022,7 @@ Cobertura inicial:
 - ações em massa para tarefas visíveis;
 - filtros e ordenação de atividades;
 - analytics de tarefas;
+- recorrencia de tarefas e normalizacao de tarefas antigas;
 - mappers entre Supabase e o formato usado no front-end;
 - exportação e importação de backup;
 - fluxo de autenticação local;

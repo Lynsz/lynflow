@@ -12,6 +12,7 @@ function createTask(overrides: Partial<Task>): Task {
         createdAt: "2026-05-13T00:00:00.000Z",
         order: 1,
         dueDate: null,
+        recurrence: "none",
         ...overrides,
     }
 }
@@ -23,7 +24,7 @@ describe("taskCsv", () => {
         const csv = createTasksCsv([], referenceDate)
 
         expect(csv).toBe(
-            '"Título";"Categoria";"Prioridade";"Status";"Vencimento";"Criada em"'
+            '"Título";"Categoria";"Prioridade";"Status";"Vencimento";"Recorrencia";"Criada em"'
         )
     })
 
@@ -47,7 +48,21 @@ describe("taskCsv", () => {
         expect(csv).toContain('"Alta"')
         expect(csv).toContain('"Pendente"')
         expect(csv).toContain('"14/05/2026"')
+        expect(csv).toContain('"Sem recorrência"')
         expect(csv).toContain('"13/05/2026"')
+    })
+
+    it("exports recurrence labels", () => {
+        const csv = createTasksCsv(
+            [
+                createTask({
+                    recurrence: "weekly",
+                }),
+            ],
+            referenceDate
+        )
+
+        expect(csv).toContain('"Semanal"')
     })
 
     it("marks overdue tasks", () => {
