@@ -148,24 +148,26 @@ export function DashboardPeriodPanel({
                     role="group"
                     aria-label="Selecionar período do dashboard"
                 >
-                    {dashboardPeriods.map((period) => (
-                        <button
-                            key={period.key}
-                            type="button"
-                            onClick={() => setSelectedPeriod(period.key)}
-                            className={`rounded-2xl border px-3 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-[var(--primary)] ${selectedPeriod === period.key
-                                    ? "border-[var(--primary)] bg-[var(--primary)] text-white"
-                                    : "border-[var(--border)] bg-[var(--surface-strong)] text-[var(--muted)] hover:border-[var(--primary)] hover:text-[var(--text)]"
-                                }`}
-                            aria-pressed={
-                                selectedPeriod === period.key ? "true" : "false"
-                            }
-                            aria-label={`Selecionar período ${period.label}`}
-                            title={`Selecionar período ${period.label}`}
-                        >
-                            {period.label}
-                        </button>
-                    ))}
+                    {dashboardPeriods.map((period) => {
+                        const isSelected = selectedPeriod === period.key
+
+                        return (
+                            <button
+                                key={period.key}
+                                type="button"
+                                onClick={() => setSelectedPeriod(period.key)}
+                                className={`rounded-2xl border px-3 py-2 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2 focus:ring-offset-[var(--bg)] ${isSelected
+                                        ? "border-[var(--text)] bg-[var(--text)] text-[var(--bg)] shadow-lg shadow-black/10"
+                                        : "border-[var(--border)] bg-[var(--surface-strong)] text-[var(--muted)] hover:border-[var(--primary)] hover:text-[var(--text)]"
+                                    }`}
+                                aria-pressed={isSelected ? "true" : "false"}
+                                aria-label={`Selecionar período ${period.label}`}
+                                title={`Selecionar período ${period.label}`}
+                            >
+                                {period.label}
+                            </button>
+                        )
+                    })}
                 </div>
             </div>
 
