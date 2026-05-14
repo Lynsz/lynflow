@@ -7,21 +7,19 @@ import {
     FileUp,
     History,
     LogOut,
-    Moon,
     RotateCcw,
-    Sun,
     Trash2,
     User,
 } from "lucide-react"
 import { useAuth } from "../hooks/useAuth"
 import { useTasks } from "../hooks/useTasks"
-import { useTheme } from "../hooks/useTheme"
 import { Button } from "../components/ui/Button"
 import { ConfirmDialog } from "../components/ui/ConfirmDialog"
 import { InfoRow } from "../components/ui/InfoRow"
 import { PageHeader } from "../components/ui/PageHeader"
 import { SectionCard } from "../components/ui/SectionCard"
 import { useToast } from "../components/ui/ToastProvider"
+import { AppearanceSettings } from "../components/settings/AppearanceSettings"
 import { DeployChecklist } from "../components/settings/DeployChecklist"
 import { DeployGuide } from "../components/settings/DeployGuide"
 import { PwaStatus } from "../components/settings/PwaStatus"
@@ -47,7 +45,6 @@ export function Settings() {
         retrySync,
     } = useTasks()
 
-    const { isDark, toggleTheme } = useTheme()
     const { showToast } = useToast()
     const importInputRef = useRef<HTMLInputElement | null>(null)
 
@@ -108,16 +105,6 @@ export function Settings() {
         })
 
         setIsClearActivitiesDialogOpen(false)
-    }
-
-    function handleToggleTheme() {
-        toggleTheme()
-
-        showToast({
-            type: "success",
-            title: "Tema atualizado",
-            description: `Tema ${isDark ? "claro" : "escuro"} ativado.`,
-        })
     }
 
     function handleOpenOnboarding() {
@@ -228,11 +215,12 @@ export function Settings() {
                     >
                         <div className="mb-5 flex items-center gap-3">
                             <div className="ly-button-primary flex h-11 w-11 items-center justify-center rounded-2xl">
-                                <User size={22} />
+                                <User size={22} aria-hidden="true" />
                             </div>
 
                             <div>
                                 <h3 className="font-semibold">{user?.name ?? "Usuária"}</h3>
+
                                 <p className="ly-muted-soft text-sm">
                                     {user?.email ?? "Não informado"}
                                 </p>
@@ -241,10 +229,12 @@ export function Settings() {
 
                         <div className="space-y-4">
                             <InfoRow label="Nome" value={user?.name ?? "Usuária"} />
+
                             <InfoRow
                                 label="E-mail"
                                 value={user?.email ?? "Não informado"}
                             />
+
                             <InfoRow
                                 label="Modo"
                                 value={syncStatus.modeLabel}
@@ -259,13 +249,12 @@ export function Settings() {
                     >
                         <div className="flex items-start gap-3">
                             <div className="ly-button-primary flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl">
-                                <Database size={21} />
+                                <Database size={21} aria-hidden="true" />
                             </div>
 
                             <div>
                                 <p className="font-medium">
-                                    Modo de dados:{" "}
-                                    {syncStatus.modeLabel}
+                                    Modo de dados: {syncStatus.modeLabel}
                                 </p>
 
                                 <p className="ly-muted-soft mt-1 text-sm leading-6">
@@ -279,28 +268,31 @@ export function Settings() {
                                 label="Conexão"
                                 value={syncStatus.connectionLabel}
                             />
+
                             <InfoRow
                                 label="Sincronização"
                                 value={syncStatus.syncLabel}
                             />
-                            <InfoRow
-                                label="Estado"
-                                value={syncStatus.stateLabel}
-                            />
+
+                            <InfoRow label="Estado" value={syncStatus.stateLabel} />
+
                             <InfoRow
                                 label="Último sync"
                                 value={syncStatus.lastSyncedAtLabel}
                             />
+
                             <InfoRow
                                 label="Sessões"
                                 value={syncStatus.connectedDevicesLabel}
                             />
+
                             {syncStatus.errorMessage && (
                                 <InfoRow
                                     label="Erro recente"
                                     value={syncStatus.errorMessage}
                                 />
                             )}
+
                             <InfoRow
                                 label="Isolamento"
                                 value={
@@ -331,27 +323,10 @@ export function Settings() {
 
                     <SectionCard
                         title="Aparência"
-                        description="Alterne entre dark mode e light mode."
+                        description="Controle visual do Lynflow."
+                        className="xl:col-span-2"
                     >
-                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                            <div>
-                                <p className="font-medium">
-                                    Tema atual: {isDark ? "Escuro" : "Claro"}
-                                </p>
-
-                                <p className="ly-muted-soft mt-1 text-sm">
-                                    A preferência fica salva no navegador.
-                                </p>
-                            </div>
-
-                            <Button
-                                variant="secondary"
-                                icon={isDark ? <Sun size={18} /> : <Moon size={18} />}
-                                onClick={handleToggleTheme}
-                            >
-                                Usar tema {isDark ? "claro" : "escuro"}
-                            </Button>
-                        </div>
+                        <AppearanceSettings />
                     </SectionCard>
 
                     <SectionCard
@@ -364,8 +339,8 @@ export function Settings() {
                                 <p className="font-medium">Tutorial do produto</p>
 
                                 <p className="ly-muted-soft mt-1 text-sm leading-6">
-                                    Revise como criar tarefas, usar analytics, acessar histórico
-                                    e navegar com atalhos.
+                                    Revise como criar tarefas, usar analytics, acessar
+                                    histórico e navegar com atalhos.
                                 </p>
                             </div>
 
@@ -415,11 +390,17 @@ export function Settings() {
                         <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-strong)] p-4">
                                 <p className="ly-muted-soft text-sm">Tarefas salvas</p>
-                                <strong className="mt-2 block text-3xl">{tasks.length}</strong>
+
+                                <strong className="mt-2 block text-3xl">
+                                    {tasks.length}
+                                </strong>
                             </div>
 
                             <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-strong)] p-4">
-                                <p className="ly-muted-soft text-sm">Atividades registradas</p>
+                                <p className="ly-muted-soft text-sm">
+                                    Atividades registradas
+                                </p>
+
                                 <strong className="mt-2 block text-3xl">
                                     {activities.length}
                                 </strong>
