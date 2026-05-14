@@ -19,7 +19,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Status-MVP%20Portfolio--Ready-14B8A6?style=for-the-badge" alt="Project Status" />
-  <img src="https://img.shields.io/badge/Tests-Vitest-FCC72B?style=for-the-badge&logo=vitest&logoColor=111827" alt="Vitest" />
+  <img src="https://img.shields.io/badge/Tests-Vitest%20%2B%20Playwright-FCC72B?style=for-the-badge&logo=vitest&logoColor=111827" alt="Vitest and Playwright" />
   <img src="https://img.shields.io/badge/PWA-Ready-5A0FC8?style=for-the-badge&logo=pwa&logoColor=ffffff" alt="PWA Ready" />
 </p>
 
@@ -323,6 +323,7 @@ lynflow.vercel.app
 - Supabase opcional
 - Vitest
 - Testing Library
+- Playwright
 - GitHub Actions
 - PWA
 - Vercel
@@ -344,6 +345,7 @@ lynflow.vercel.app
 | `vitest` | Testes automatizados |
 | `@testing-library/react` | Testes de componentes React |
 | `@testing-library/jest-dom` | Matchers de DOM para testes |
+| `@playwright/test` | Testes end-to-end dos fluxos principais |
 | `tailwindcss` | Estilização |
 
 ---
@@ -698,10 +700,38 @@ Para rodar os testes em modo watch:
 npm run test
 ```
 
+Para rodar os testes end-to-end com Playwright:
+
+```bash
+npm run test:e2e
+```
+
+Para abrir o runner visual do Playwright:
+
+```bash
+npm run test:e2e:ui
+```
+
 Para rodar lint, testes e build em sequência:
 
 ```bash
 npm run check
+```
+
+O `check` mantem lint, Vitest e build como validacao principal. Os testes E2E ficam em `check:e2e` para poderem rodar de forma separada quando o ambiente tiver navegadores Playwright instalados.
+
+### Arvore de testes
+
+```txt
+tests/
+  app-auth-flow.test.ts
+  app-smoke.test.ts
+  components/
+  e2e/
+    lynflow.spec.ts
+  pages/
+  types/
+  utils/
 ```
 
 ---
@@ -970,6 +1000,7 @@ Para proteger regras de negócio, validações, fluxos principais e evitar regre
 - [x] Sugestões de próxima evolução
 - [x] Testes da página Goals
 - [x] Edicao avancada de datas e recorrencia 2.0
+- [x] Testes end-to-end
 
 ### Melhorias futuras
 
@@ -980,7 +1011,7 @@ Para proteger regras de negócio, validações, fluxos principais e evitar regre
 - [ ] Dashboard com dados por período.
 - [ ] Sincronização avançada entre dispositivos.
 - [ ] Melhorias de acessibilidade.
-- [ ] Testes end-to-end.
+- [x] Testes end-to-end.
 - [x] Edição avançada de datas e recorrência.
 
 ---
@@ -995,6 +1026,9 @@ Para proteger regras de negócio, validações, fluxos principais e evitar regre
 | `npm run lint` | Roda lint |
 | `npm run test` | Roda os testes em modo watch |
 | `npm run test:run` | Roda os testes uma vez |
+| `npm run test:e2e` | Roda os testes end-to-end com Playwright |
+| `npm run test:e2e:ui` | Abre o runner visual do Playwright |
+| `npm run check:e2e` | Roda a validacao E2E separada do check principal |
 | `npm run check` | Roda lint, testes e build em sequência |
 
 ---
@@ -1033,6 +1067,8 @@ Cobertura inicial:
 - validação dos estados de progresso do projeto;
 - renderização de milestones e plano semanal;
 
+Os testes end-to-end em `tests/e2e` cobrem landing, autenticacao local, redirecionamento de rota protegida, navegacao autenticada e criacao/conclusao de tarefas.
+
 Antes de abrir PR, publicar deploy ou seguir para uma nova fase, rode:
 
 ```bash
@@ -1055,6 +1091,8 @@ Fluxo executado:
 npm ci
 npm run check
 ```
+
+Os testes Playwright ficam fora do CI principal para evitar instabilidade por dependencias de navegador. Eles podem ser executados manualmente com `npm run check:e2e` em ambientes preparados.
 
 ---
 

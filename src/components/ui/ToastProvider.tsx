@@ -2,6 +2,8 @@
 import {
     createContext,
     useContext,
+    useCallback,
+    useMemo,
     useState,
     type ReactNode,
 } from "react"
@@ -76,17 +78,17 @@ function getToastClass(type: ToastType) {
 export function ToastProvider({ children }: ToastProviderProps) {
     const [toasts, setToasts] = useState<Toast[]>([])
 
-    function removeToast(id: string) {
+    const removeToast = useCallback((id: string) => {
         setToasts((currentToasts) =>
             currentToasts.filter((toast) => toast.id !== id)
         )
-    }
+    }, [])
 
-    function showToast({
+    const showToast = useCallback(({
         type = "info",
         title,
         description,
-    }: ShowToastData) {
+    }: ShowToastData) => {
         const id = createId()
 
         const newToast: Toast = {
@@ -101,10 +103,15 @@ export function ToastProvider({ children }: ToastProviderProps) {
         window.setTimeout(() => {
             removeToast(id)
         }, 3500)
-    }
+    }, [removeToast])
+
+    const value = useMemo<ToastContextValue>(
+        () => ({ showToast }),
+        [showToast]
+    )
 
     return (
-        <ToastContext.Provider value={{ showToast }}>
+        <ToastContext.Provider value={value}>
             {children}
 
             <div className="fixed right-4 top-4 z-[9999] flex w-[calc(100%-2rem)] max-w-sm flex-col gap-3">

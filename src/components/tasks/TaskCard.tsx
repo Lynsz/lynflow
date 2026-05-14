@@ -82,8 +82,16 @@ export function TaskCard({
                     type="checkbox"
                     checked={task.done}
                     onChange={() => onToggle(task.id)}
-                    aria-label="Concluir tarefa"
-                    title="Concluir tarefa"
+                    aria-label={
+                        task.done
+                            ? `Reabrir tarefa "${task.title}"`
+                            : `Concluir tarefa "${task.title}"`
+                    }
+                    title={
+                        task.done
+                            ? `Reabrir tarefa "${task.title}"`
+                            : `Concluir tarefa "${task.title}"`
+                    }
                     className="mt-1 h-4 w-4 accent-emerald-500"
                 />
 
