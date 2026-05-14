@@ -12,37 +12,51 @@ import { TasksProvider } from "./store/TasksProvider"
 const Landing = lazy(() =>
   import("./pages/Landing").then((module) => ({ default: module.Landing }))
 )
+
 const Login = lazy(() =>
   import("./pages/auth/Login").then((module) => ({ default: module.Login }))
 )
+
 const Register = lazy(() =>
   import("./pages/auth/Register").then((module) => ({
     default: module.Register,
   }))
 )
+
 const Dashboard = lazy(() =>
   import("./pages/Dashboard").then((module) => ({ default: module.Dashboard }))
 )
+
 const Tasks = lazy(() =>
   import("./pages/Tasks").then((module) => ({ default: module.Tasks }))
 )
+
+const Calendar = lazy(() =>
+  import("./pages/Calendar").then((module) => ({ default: module.Calendar }))
+)
+
 const Goals = lazy(() =>
   import("./pages/Goals").then((module) => ({ default: module.Goals }))
 )
+
 const Insights = lazy(() =>
   import("./pages/Insights").then((module) => ({ default: module.Insights }))
 )
+
 const ActivityPage = lazy(() =>
   import("./pages/Activity").then((module) => ({
     default: module.ActivityPage,
   }))
 )
+
 const Profile = lazy(() =>
   import("./pages/Profile").then((module) => ({ default: module.Profile }))
 )
+
 const Settings = lazy(() =>
   import("./pages/Settings").then((module) => ({ default: module.Settings }))
 )
+
 const NotFound = lazy(() =>
   import("./pages/NotFound").then((module) => ({ default: module.NotFound }))
 )
@@ -82,7 +96,11 @@ export default function App() {
                   <Routes>
                     <Route path="/" element={<Landing />} />
                     <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<Register />} />
+                    <Route
+                      path="/register"
+                      element={<Register />}
+                    />
+
                     <Route
                       path="/dashboard"
                       element={
@@ -91,6 +109,7 @@ export default function App() {
                         </ProtectedScreen>
                       }
                     />
+
                     <Route
                       path="/tasks"
                       element={
@@ -99,6 +118,16 @@ export default function App() {
                         </ProtectedScreen>
                       }
                     />
+
+                    <Route
+                      path="/calendar"
+                      element={
+                        <ProtectedScreen>
+                          <Calendar />
+                        </ProtectedScreen>
+                      }
+                    />
+
                     <Route
                       path="/goals"
                       element={
@@ -107,6 +136,7 @@ export default function App() {
                         </ProtectedScreen>
                       }
                     />
+
                     <Route
                       path="/insights"
                       element={
@@ -115,6 +145,7 @@ export default function App() {
                         </ProtectedScreen>
                       }
                     />
+
                     <Route
                       path="/activity"
                       element={
@@ -123,6 +154,7 @@ export default function App() {
                         </ProtectedScreen>
                       }
                     />
+
                     <Route
                       path="/profile"
                       element={
@@ -131,6 +163,7 @@ export default function App() {
                         </ProtectedScreen>
                       }
                     />
+
                     <Route
                       path="/settings"
                       element={
@@ -139,6 +172,7 @@ export default function App() {
                         </ProtectedScreen>
                       }
                     />
+
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </Suspense>

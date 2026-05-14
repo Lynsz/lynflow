@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react"
 import { NavLink, useLocation, useNavigate } from "react-router-dom"
 import { AnimatePresence, motion } from "framer-motion"
 import {
+    CalendarDays,
     CheckSquare,
     Command,
     History,
@@ -35,6 +36,11 @@ const navItems = [
         label: "Tasks",
         path: "/tasks",
         icon: CheckSquare,
+    },
+    {
+        label: "Calendar",
+        path: "/calendar",
+        icon: CalendarDays,
     },
     {
         label: "Goals",
@@ -75,14 +81,14 @@ const mobilePrimaryItems = [
         icon: CheckSquare,
     },
     {
+        label: "Calendar",
+        path: "/calendar",
+        icon: CalendarDays,
+    },
+    {
         label: "Activity",
         path: "/activity",
         icon: History,
-    },
-    {
-        label: "Profile",
-        path: "/profile",
-        icon: UserRound,
     },
 ]
 
@@ -96,6 +102,11 @@ const mobileMoreItems = [
         label: "AI Insights",
         path: "/insights",
         icon: Sparkles,
+    },
+    {
+        label: "Profile",
+        path: "/profile",
+        icon: UserRound,
     },
     {
         label: "Settings",
@@ -304,7 +315,9 @@ export function AppLayout({ children }: AppLayoutProps) {
                                 }
                             >
                                 <Icon size={18} />
-                                <span className="max-w-full truncate">{item.label}</span>
+                                <span className="max-w-full truncate">
+                                    {item.label}
+                                </span>
                             </NavLink>
                         )
                     })}
