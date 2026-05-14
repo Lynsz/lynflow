@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom"
 import {
+    CalendarDays,
     CheckSquare,
     ChevronRight,
     Command,
@@ -12,6 +13,7 @@ import {
     UserRound,
     type LucideIcon,
 } from "lucide-react"
+import { TaskNotificationCenter } from "./notification/TaskNotificationCenter"
 
 type RouteMeta = {
     path: string
@@ -32,6 +34,12 @@ const routes: RouteMeta[] = [
         label: "Tasks",
         description: "Gerenciamento de tarefas",
         icon: CheckSquare,
+    },
+    {
+        path: "/calendar",
+        label: "Calendar",
+        description: "Planejamento por vencimento",
+        icon: CalendarDays,
     },
     {
         path: "/goals",
@@ -126,6 +134,8 @@ export function AppTopbar() {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
+                    <TaskNotificationCenter />
+
                     <button
                         type="button"
                         onClick={openCommandPalette}
