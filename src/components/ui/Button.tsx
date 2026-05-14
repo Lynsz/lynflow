@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from "react"
+import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from "react"
 import { cn } from "../../utils/cn"
 
 type ButtonVariant = "primary" | "secondary" | "danger" | "ghost"
@@ -25,28 +25,36 @@ const sizeClasses: Record<ButtonSize, string> = {
     lg: "px-5 py-3 text-sm",
 }
 
-export function Button({
-    children,
-    variant = "primary",
-    size = "md",
-    icon,
-    className,
-    type = "button",
-    ...props
-}: ButtonProps) {
-    return (
-        <button
-            type={type}
-            className={cn(
-                "inline-flex items-center justify-center gap-2 rounded-2xl font-medium transition active:scale-[0.98]",
-                variantClasses[variant],
-                sizeClasses[size],
-                className
-            )}
-            {...props}
-        >
-            {icon}
-            {children}
-        </button>
-    )
-}
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+    (
+        {
+            children,
+            variant = "primary",
+            size = "md",
+            icon,
+            className,
+            type = "button",
+            ...props
+        },
+        ref
+    ) => {
+        return (
+            <button
+                ref={ref}
+                type={type}
+                className={cn(
+                    "inline-flex items-center justify-center gap-2 rounded-2xl font-medium transition active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2 focus:ring-offset-[var(--bg)] disabled:cursor-not-allowed disabled:opacity-60",
+                    variantClasses[variant],
+                    sizeClasses[size],
+                    className
+                )}
+                {...props}
+            >
+                {icon && <span aria-hidden="true">{icon}</span>}
+                {children}
+            </button>
+        )
+    }
+)
+
+Button.displayName = "Button"
