@@ -1,7 +1,16 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import {
+    useCallback,
+    useEffect,
+    useId,
+    useMemo,
+    useRef,
+    useState,
+    type KeyboardEvent,
+} from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { AnimatePresence, motion } from "framer-motion"
 import {
+    CalendarDays,
     CheckSquare,
     Command,
     History,
@@ -16,6 +25,7 @@ import {
     type LucideIcon,
 } from "lucide-react"
 import { useAuth } from "../hooks/useAuth"
+import { LiveRegion } from "./accessibility/LiveRegion"
 
 type CommandItem = {
     id: string
@@ -28,12 +38,27 @@ type CommandItem = {
     danger?: boolean
 }
 
+const focusableSelector = [
+    "a[href]",
+    "button:not([disabled])",
+    "textarea:not([disabled])",
+    "input:not([disabled])",
+    "select:not([disabled])",
+    "[tabindex]:not([tabindex='-1'])",
+].join(",")
+
 export function CommandPalette() {
     const navigate = useNavigate()
     const location = useLocation()
     const { logout } = useAuth()
 
+    const titleId = useId()
+    const descriptionId = useId()
+    const listboxId = useId()
+
+    const dialogRef = useRef<HTMLDivElement | null>(null)
     const inputRef = useRef<HTMLInputElement | null>(null)
+    const previousActiveElementRef = useRef<Element | null>(null)
 
     const [isOpen, setIsOpen] = useState(false)
     const [search, setSearch] = useState("")
@@ -74,6 +99,14 @@ export function CommandPalette() {
                 keywords: ["tarefas", "lista", "todo", "task"],
             },
             {
+                id: "calendar",
+                label: "Calendar",
+                description: "Visualizar vencimentos, prazos e planejamento mensal.",
+                path: "/calendar",
+                icon: CalendarDays,
+                keywords: ["calendario", "calendar", "prazos", "vencimentos"],
+            },
+            {
                 id: "goals",
                 label: "Goals",
                 description: "Acompanhar metas e progresso do MVP.",
@@ -84,7 +117,7 @@ export function CommandPalette() {
             {
                 id: "insights",
                 label: "AI Insights",
-                description: "Sugestões inteligentes simuladas para sua rotina.",
+                description: "Sugestões inteligentes para sua rotina.",
                 path: "/insights",
                 icon: Sparkles,
                 keywords: ["ia", "ai", "sugestao", "insights"],
@@ -100,7 +133,7 @@ export function CommandPalette() {
             {
                 id: "profile",
                 label: "Profile",
-                description: "Perfil local, produtividade e dados da conta.",
+                description: "Perfil, produtividade e dados da conta.",
                 path: "/profile",
                 icon: UserRound,
                 keywords: ["perfil", "usuario", "conta"],
@@ -108,7 +141,7 @@ export function CommandPalette() {
             {
                 id: "settings",
                 label: "Settings",
-                description: "Tema, dados locais, demo e histórico.",
+                description: "Tema, dados, demo, histórico e preferências.",
                 path: "/settings",
                 icon: Settings,
                 keywords: ["configuracoes", "preferencias", "tema"],
@@ -116,7 +149,7 @@ export function CommandPalette() {
             {
                 id: "logout",
                 label: "Sair da conta",
-                description: "Encerrar a sessão local do Lynflow.",
+                description: "Encerrar a sessão do Lynflow.",
                 icon: LogOut,
                 keywords: ["logout", "sair", "encerrar"],
                 action: handleLogout,
@@ -146,10 +179,27 @@ export function CommandPalette() {
         })
     }, [commands, search])
 
+    const safeSelectedIndex =
+        filteredCommands.length === 0
+            ? 0
+            : Math.min(selectedIndex, filteredCommands.length - 1)
+
+    const selectedCommand = filteredCommands[safeSelectedIndex]
+
+    const activeDescendantId = selectedCommand
+        ? `command-option-${selectedCommand.id}`
+        : undefined
+
+    const resultMessage =
+        filteredCommands.length === 0
+            ? "Nenhum comando encontrado."
+            : `${filteredCommands.length} comando(s) disponível(is).`
+
     useEffect(() => {
-        function handleKeyDown(event: KeyboardEvent) {
+        function handleKeyDown(event: globalThis.KeyboardEvent) {
             const isCommandShortcut =
-                (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k"
+                (event.ctrlKey || event.metaKey) &&
+                event.key.toLowerCase() === "k"
 
             if (isCommandShortcut) {
                 event.preventDefault()
@@ -181,11 +231,25 @@ export function CommandPalette() {
     }, [])
 
     useEffect(() => {
-        if (!isOpen) return
+        if (!isOpen) {
+            return
+        }
 
-        window.setTimeout(() => {
+        previousActiveElementRef.current = document.activeElement
+
+        const focusTimer = window.setTimeout(() => {
             inputRef.current?.focus()
         }, 50)
+
+        return () => {
+            window.clearTimeout(focusTimer)
+
+            const previousActiveElement = previousActiveElementRef.current
+
+            if (previousActiveElement instanceof HTMLElement) {
+                previousActiveElement.focus()
+            }
+        }
     }, [isOpen])
 
     function executeCommand(command: CommandItem) {
@@ -200,14 +264,16 @@ export function CommandPalette() {
         }
     }
 
-    function handleInputKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    function handleInputKeyDown(event: KeyboardEvent<HTMLInputElement>) {
         if (event.key === "ArrowDown") {
             event.preventDefault()
 
             setSelectedIndex((currentIndex) => {
-                if (filteredCommands.length === 0) return 0
+                if (filteredCommands.length === 0) {
+                    return 0
+                }
 
-                return currentIndex === filteredCommands.length - 1
+                return currentIndex >= filteredCommands.length - 1
                     ? 0
                     : currentIndex + 1
             })
@@ -217,9 +283,11 @@ export function CommandPalette() {
             event.preventDefault()
 
             setSelectedIndex((currentIndex) => {
-                if (filteredCommands.length === 0) return 0
+                if (filteredCommands.length === 0) {
+                    return 0
+                }
 
-                return currentIndex === 0
+                return currentIndex <= 0
                     ? filteredCommands.length - 1
                     : currentIndex - 1
             })
@@ -228,11 +296,46 @@ export function CommandPalette() {
         if (event.key === "Enter") {
             event.preventDefault()
 
-            const selectedCommand = filteredCommands[selectedIndex]
-
             if (selectedCommand) {
                 executeCommand(selectedCommand)
             }
+        }
+    }
+
+    function handleDialogKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+        if (event.key !== "Tab") {
+            return
+        }
+
+        const dialog = dialogRef.current
+
+        if (!dialog) {
+            return
+        }
+
+        const focusableElements = Array.from(
+            dialog.querySelectorAll<HTMLElement>(focusableSelector)
+        ).filter((element) => {
+            return !element.hasAttribute("disabled")
+        })
+
+        if (focusableElements.length === 0) {
+            event.preventDefault()
+            return
+        }
+
+        const firstElement = focusableElements[0]
+        const lastElement = focusableElements[focusableElements.length - 1]
+
+        if (event.shiftKey && document.activeElement === firstElement) {
+            event.preventDefault()
+            lastElement.focus()
+            return
+        }
+
+        if (!event.shiftKey && document.activeElement === lastElement) {
+            event.preventDefault()
+            firstElement.focus()
         }
     }
 
@@ -249,41 +352,61 @@ export function CommandPalette() {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={closePalette}
+                        tabIndex={-1}
                     />
 
                     <motion.div
+                        ref={dialogRef}
                         role="dialog"
                         aria-modal="true"
-                        aria-labelledby="command-palette-title"
+                        aria-labelledby={titleId}
+                        aria-describedby={descriptionId}
+                        onKeyDown={handleDialogKeyDown}
                         initial={{ opacity: 0, y: -18, scale: 0.98 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -18, scale: 0.98 }}
-                        className="fixed left-1/2 top-8 z-[9997] w-[calc(100%-2rem)] max-w-2xl -translate-x-1/2 overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--surface-strong)] shadow-2xl shadow-black/30"
+                        className="fixed left-1/2 top-8 z-[9997] w-[calc(100%-2rem)] max-w-2xl -translate-x-1/2 overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--surface-strong)] shadow-2xl shadow-black/30 outline-none"
                     >
+                        <LiveRegion message={resultMessage} />
+
                         <div className="border-b border-[var(--border)] p-4">
                             <div className="mb-3 flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <Command size={18} className="ly-accent" />
+                                <div>
+                                    <div className="flex items-center gap-2">
+                                        <Command
+                                            size={18}
+                                            className="ly-accent"
+                                            aria-hidden="true"
+                                        />
 
-                                    <h2 id="command-palette-title" className="font-semibold">
-                                        Command Palette
-                                    </h2>
+                                        <h2 id={titleId} className="font-semibold">
+                                            Command Palette
+                                        </h2>
+                                    </div>
+
+                                    <p
+                                        id={descriptionId}
+                                        className="ly-muted-soft mt-1 text-sm"
+                                    >
+                                        Busque páginas e ações rápidas do Lynflow.
+                                    </p>
                                 </div>
 
                                 <button
                                     type="button"
                                     onClick={closePalette}
-                                    aria-label="Fechar"
-                                    title="Fechar"
-                                    className="rounded-xl p-2 text-[var(--muted)] transition hover:bg-[var(--surface)] hover:text-[var(--text)]"
+                                    aria-label="Fechar command palette"
+                                    title="Fechar command palette"
+                                    className="rounded-xl p-2 text-[var(--muted)] transition hover:bg-[var(--surface)] hover:text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
                                 >
-                                    <X size={18} />
+                                    <X size={18} aria-hidden="true" />
                                 </button>
                             </div>
 
                             <div className="relative">
                                 <Search
                                     size={18}
+                                    aria-hidden="true"
                                     className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted-soft)]"
                                 />
 
@@ -298,33 +421,51 @@ export function CommandPalette() {
                                     placeholder="Buscar página ou ação..."
                                     title="Buscar comando"
                                     aria-label="Buscar comando"
-                                    className="ly-input rounded-2xl py-3 pl-11 pr-4"
+                                    aria-controls={listboxId}
+                                    aria-activedescendant={activeDescendantId}
+                                    aria-autocomplete="list"
+                                    autoComplete="off"
+                                    className="ly-input rounded-2xl py-3 pl-11 pr-4 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
                                 />
                             </div>
                         </div>
 
-                        <div className="max-h-[60vh] overflow-y-auto p-3">
+                        <div className="ly-scrollbar max-h-[60vh] overflow-y-auto p-3">
                             {filteredCommands.length === 0 ? (
-                                <div className="p-8 text-center">
-                                    <p className="font-medium">Nenhum comando encontrado</p>
+                                <div className="p-8 text-center" role="status">
+                                    <p className="font-medium">
+                                        Nenhum comando encontrado
+                                    </p>
+
                                     <p className="ly-muted-soft mt-2 text-sm">
                                         Tente buscar por página, ação ou palavra-chave.
                                     </p>
                                 </div>
                             ) : (
-                                <div className="space-y-2">
+                                <div
+                                    id={listboxId}
+                                    role="listbox"
+                                    aria-label="Comandos disponíveis"
+                                    className="space-y-2"
+                                >
                                     {filteredCommands.map((command, index) => {
                                         const Icon = command.icon
-                                        const isSelected = index === selectedIndex
-                                        const isCurrentPage = command.path === location.pathname
+                                        const isSelected = index === safeSelectedIndex
+                                        const isCurrentPage =
+                                            command.path === location.pathname
 
                                         return (
                                             <button
                                                 key={command.id}
+                                                id={`command-option-${command.id}`}
                                                 type="button"
-                                                onMouseEnter={() => setSelectedIndex(index)}
+                                                role="option"
+                                                aria-selected={isSelected}
+                                                onMouseEnter={() =>
+                                                    setSelectedIndex(index)
+                                                }
                                                 onClick={() => executeCommand(command)}
-                                                className={`flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left transition ${isSelected
+                                                className={`flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left transition focus:outline-none focus:ring-2 focus:ring-[var(--primary)] ${isSelected
                                                         ? "bg-[var(--surface)]"
                                                         : "hover:bg-[var(--surface)]"
                                                     }`}
@@ -335,13 +476,18 @@ export function CommandPalette() {
                                                             : "border-[var(--border)] bg-[var(--surface-strong)] text-[var(--muted)]"
                                                         }`}
                                                 >
-                                                    <Icon size={18} />
+                                                    <Icon
+                                                        size={18}
+                                                        aria-hidden="true"
+                                                    />
                                                 </div>
 
                                                 <div className="min-w-0 flex-1">
                                                     <div className="flex items-center gap-2">
                                                         <p
-                                                            className={`font-medium ${command.danger ? "text-red-500" : ""
+                                                            className={`font-medium ${command.danger
+                                                                    ? "text-red-500"
+                                                                    : ""
                                                                 }`}
                                                         >
                                                             {command.label}
