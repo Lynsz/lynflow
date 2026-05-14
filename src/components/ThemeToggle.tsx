@@ -14,25 +14,25 @@ export function ThemeToggle() {
             aria-pressed={isDark ? "true" : "false"}
         >
             <span
-                className={`absolute inset-y-1.5 w-[calc(50%-0.375rem)] rounded-xl bg-[var(--primary)] shadow-lg shadow-black/20 transition-transform duration-300 ${isDark ? "translate-x-[calc(100%+0.375rem)]" : "translate-x-0"
+                className={`absolute inset-y-1.5 w-[calc(50%-0.375rem)] rounded-xl bg-[var(--text)] shadow-lg shadow-black/10 transition-transform duration-300 ${isDark ? "translate-x-[calc(100%+0.375rem)]" : "translate-x-0"
                     }`}
                 aria-hidden="true"
             />
 
             <span
-                className={`relative z-10 flex flex-1 items-center justify-center gap-2 rounded-xl px-3 py-2 transition ${!isDark ? "text-white" : "text-[var(--muted)]"
+                className={`relative z-10 flex flex-1 items-center justify-center gap-2 rounded-xl px-3 py-2 transition ${!isDark ? "text-[var(--bg)]" : "text-[var(--muted)]"
                     }`}
             >
                 <Sun size={16} aria-hidden="true" />
-                <span className="font-medium">Light</span>
+                <span className="font-semibold">Light</span>
             </span>
 
             <span
-                className={`relative z-10 flex flex-1 items-center justify-center gap-2 rounded-xl px-3 py-2 transition ${isDark ? "text-white" : "text-[var(--muted)]"
+                className={`relative z-10 flex flex-1 items-center justify-center gap-2 rounded-xl px-3 py-2 transition ${isDark ? "text-[var(--bg)]" : "text-[var(--muted)]"
                     }`}
             >
                 <Moon size={16} aria-hidden="true" />
-                <span className="font-medium">Dark</span>
+                <span className="font-semibold">Dark</span>
             </span>
         </button>
     )
