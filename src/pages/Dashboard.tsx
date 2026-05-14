@@ -31,6 +31,7 @@ import {
     getWeeklyProductivity,
 } from "../utils/taskAnalytics"
 import { DashboardFocusPanel } from "../components/dashboard/DashboardFocusPanel"
+import { DashboardPeriodPanel } from "../components/dashboard/DashboardPeriodPanel"
 import { ActivityFeed } from "../components/tasks/ActivityFeed"
 import { Button } from "../components/ui/Button"
 import { EmptyState } from "../components/ui/EmptyState"
@@ -114,6 +115,8 @@ export function Dashboard() {
                 highPriorityTasks={highPriorityTasks}
                 totalTasks={tasks.length}
             />
+
+            <DashboardPeriodPanel tasks={tasks} />
 
             <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1.4fr_0.8fr]">
                 <SectionCard
