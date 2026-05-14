@@ -17,6 +17,7 @@ import { MetricCard } from "../components/ui/MetricCard"
 import { PageHeader } from "../components/ui/PageHeader"
 import { SectionCard } from "../components/ui/SectionCard"
 import { useToast } from "../components/ui/ToastProvider"
+import { TaskDateActions } from "../components/tasks/TaskDateActions"
 import {
     formatDateKey,
     getCalendarMonthDays,
@@ -354,6 +355,10 @@ export function Calendar() {
                                                         Concluída
                                                     </span>
                                                 )}
+                                            </div>
+
+                                            <div className="mb-4">
+                                                <TaskDateActions task={task} />
                                             </div>
 
                                             <Button
