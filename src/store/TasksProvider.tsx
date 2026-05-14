@@ -1,9 +1,11 @@
 /* eslint-disable react-refresh/only-export-components */
 import {
     createContext,
+    useCallback,
     useContext,
     useEffect,
     useMemo,
+    useRef,
     useState,
     type ReactNode,
 } from "react"
@@ -19,9 +21,11 @@ import {
     normalizeTaskRecurrence,
 } from "../utils/taskRecurrence"
 import {
+    countPresenceDevices,
     getUserRealtimeChannelName,
     getUserRealtimeFilter,
     REALTIME_REFRESH_DELAY_MS,
+    type SyncPresencePayload,
 } from "../utils/realtime"
 import {
     buildRemoteActivityPayload,
@@ -29,6 +33,7 @@ import {
     buildRemoteTaskUpdatePayload,
     type RemoteTaskUpdatePayload,
 } from "../utils/remoteTaskPayload"
+import { getSyncStatus, type SyncStatus } from "../utils/syncStatus"
 
 const TASKS_KEY = "lynflow-tasks"
 const ACTIVITIES_KEY = "lynflow-activities"
@@ -50,6 +55,7 @@ type TasksContextValue = {
     highPriorityTasks: number
     productivity: number
     categories: string[]
+    syncStatus: SyncStatus
     addTask: (data: AddTaskData) => void
     updateTask: (id: string, data: Partial<Omit<Task, "id">>) => void
     toggleTask: (id: string) => void
@@ -62,6 +68,7 @@ type TasksContextValue = {
         tasks: Task[]
         activities: TaskActivity[]
     }) => Promise<void>
+    retrySync: () => Promise<void>
 }
 
 type TasksProviderProps = {
@@ -224,6 +231,14 @@ function parseStoredArray<T>(value: string | null): T[] | null {
     }
 }
 
+function getErrorMessage(error: unknown) {
+    if (error instanceof Error) {
+        return error.message
+    }
+
+    return "Erro inesperado de sincronização."
+}
+
 function reorderArray<T>(items: T[], fromIndex: number, toIndex: number) {
     const result = [...items]
     const [removed] = result.splice(fromIndex, 1)
@@ -276,8 +291,74 @@ export function TasksProvider({ children }: TasksProviderProps) {
     const [tasks, setTasks] = useState<Task[]>([])
     const [activities, setActivities] = useState<TaskActivity[]>([])
     const [isReady, setIsReady] = useState(false)
+    const [isOnline, setIsOnline] = useState(() =>
+        typeof navigator === "undefined" ? true : navigator.onLine
+    )
+    const [isSyncing, setIsSyncing] = useState(false)
+    const [isRealtimeConnected, setIsRealtimeConnected] = useState(false)
+    const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null)
+    const [syncError, setSyncError] = useState<string | null>(null)
+    const [connectedDevices, setConnectedDevices] = useState(0)
+    const remoteRefreshPromiseRef = useRef<Promise<void> | null>(null)
+    const pendingRemoteRefreshRef = useRef(false)
+    const deviceIdRef = useRef(createId())
 
     const isRemoteMode = dataMode === "supabase"
+    const userId = user?.id
+
+    const refreshRemoteData = useCallback(async () => {
+        if (!isRemoteMode || !supabase || !userId) {
+            return
+        }
+
+        if (remoteRefreshPromiseRef.current) {
+            pendingRemoteRefreshRef.current = true
+            await remoteRefreshPromiseRef.current
+            return
+        }
+
+        const runRefresh = async () => {
+            do {
+                pendingRemoteRefreshRef.current = false
+                setIsSyncing(true)
+                setSyncError(null)
+
+                try {
+                    const remoteState = await fetchRemoteTaskState(userId)
+
+                    setTasks(remoteState.tasks)
+                    setActivities(remoteState.activities)
+                    setLastSyncedAt(new Date().toISOString())
+                } catch (err) {
+                    setSyncError(getErrorMessage(err))
+                    throw err
+                } finally {
+                    setIsSyncing(false)
+                }
+            } while (pendingRemoteRefreshRef.current)
+        }
+
+        const refreshPromise = runRefresh().finally(() => {
+            remoteRefreshPromiseRef.current = null
+        })
+
+        remoteRefreshPromiseRef.current = refreshPromise
+        await refreshPromise
+    }, [isRemoteMode, userId])
+
+    useEffect(() => {
+        function updateOnlineStatus() {
+            setIsOnline(navigator.onLine)
+        }
+
+        window.addEventListener("online", updateOnlineStatus)
+        window.addEventListener("offline", updateOnlineStatus)
+
+        return () => {
+            window.removeEventListener("online", updateOnlineStatus)
+            window.removeEventListener("offline", updateOnlineStatus)
+        }
+    }, [])
 
     useEffect(() => {
         if (isAuthLoading) {
@@ -293,19 +374,19 @@ export function TasksProvider({ children }: TasksProviderProps) {
                 if (!user?.id) {
                     setTasks([])
                     setActivities([])
+                    setIsRealtimeConnected(false)
+                    setConnectedDevices(0)
+                    setSyncError(null)
                     setIsReady(true)
                     return
                 }
 
                 try {
-                    const remoteState = await fetchRemoteTaskState(user.id)
-
                     if (!isMounted) {
                         return
                     }
 
-                    setTasks(remoteState.tasks)
-                    setActivities(remoteState.activities)
+                    await refreshRemoteData()
                 } catch (err) {
                     if (err instanceof Error) {
                         showToast({
@@ -322,6 +403,12 @@ export function TasksProvider({ children }: TasksProviderProps) {
 
                 return
             }
+
+            setIsRealtimeConnected(false)
+            setConnectedDevices(0)
+            setLastSyncedAt(null)
+            setSyncError(null)
+            setIsSyncing(false)
 
             const parsedTasks = parseStoredArray<Partial<Task>>(
                 localStorage.getItem(TASKS_KEY)
@@ -353,28 +440,29 @@ export function TasksProvider({ children }: TasksProviderProps) {
         return () => {
             isMounted = false
         }
-    }, [isAuthLoading, isRemoteMode, showToast, user?.id])
+    }, [isAuthLoading, isRemoteMode, refreshRemoteData, showToast, user?.id])
 
     useEffect(() => {
-        if (isAuthLoading || !isRemoteMode || !supabase || !user?.id) {
+        if (isAuthLoading || !isRemoteMode || !supabase || !userId) {
             return
         }
 
         const client = supabase
-        const userId = user.id
         let isActive = true
         let refreshTimer: ReturnType<typeof window.setTimeout> | null = null
 
+        function updatePresenceCount() {
+            const presenceState = channel.presenceState<SyncPresencePayload>()
+            setConnectedDevices(countPresenceDevices(presenceState))
+        }
+
         async function refreshRemoteState() {
             try {
-                const remoteState = await fetchRemoteTaskState(userId)
-
                 if (!isActive) {
                     return
                 }
 
-                setTasks(remoteState.tasks)
-                setActivities(remoteState.activities)
+                await refreshRemoteData()
             } catch (err) {
                 if (err instanceof Error && isActive) {
                     showToast({
@@ -398,7 +486,16 @@ export function TasksProvider({ children }: TasksProviderProps) {
         }
 
         const channel = client
-            .channel(getUserRealtimeChannelName(userId))
+            .channel(getUserRealtimeChannelName(userId), {
+                config: {
+                    presence: {
+                        key: deviceIdRef.current,
+                    },
+                },
+            })
+            .on("presence", { event: "sync" }, updatePresenceCount)
+            .on("presence", { event: "join" }, updatePresenceCount)
+            .on("presence", { event: "leave" }, updatePresenceCount)
             .on(
                 "postgres_changes",
                 {
@@ -420,7 +517,24 @@ export function TasksProvider({ children }: TasksProviderProps) {
                 scheduleRefresh
             )
             .subscribe((status) => {
+                if (status === "SUBSCRIBED") {
+                    setIsRealtimeConnected(true)
+                    setSyncError(null)
+
+                    const presencePayload: SyncPresencePayload = {
+                        userId,
+                        deviceId: deviceIdRef.current,
+                        onlineAt: new Date().toISOString(),
+                    }
+
+                    void channel.track(presencePayload)
+                    return
+                }
+
                 if (status === "CHANNEL_ERROR") {
+                    setIsRealtimeConnected(false)
+                    setSyncError("Realtime indisponível.")
+
                     showToast({
                         type: "warning",
                         title: "Realtime indisponivel",
@@ -428,18 +542,25 @@ export function TasksProvider({ children }: TasksProviderProps) {
                             "O app continua funcionando e tentara sincronizar nas proximas atualizacoes.",
                     })
                 }
+
+                if (status === "TIMED_OUT" || status === "CLOSED") {
+                    setIsRealtimeConnected(false)
+                }
             })
 
         return () => {
             isActive = false
+            setIsRealtimeConnected(false)
+            setConnectedDevices(0)
 
             if (refreshTimer) {
                 window.clearTimeout(refreshTimer)
             }
 
+            void channel.untrack()
             void client.removeChannel(channel)
         }
-    }, [isAuthLoading, isRemoteMode, showToast, user?.id])
+    }, [isAuthLoading, isRemoteMode, refreshRemoteData, showToast, userId])
 
     useEffect(() => {
         if (!isReady || isRemoteMode) return
@@ -467,12 +588,45 @@ export function TasksProvider({ children }: TasksProviderProps) {
         return Array.from(new Set(tasks.map((task) => task.category)))
     }, [tasks])
 
+    const syncStatus = useMemo(
+        () =>
+            getSyncStatus({
+                dataMode,
+                isReady,
+                userId: user?.id,
+                isOnline,
+                isRealtimeConnected,
+                isSyncing,
+                lastSyncedAt,
+                errorMessage: syncError,
+                connectedDevices,
+            }),
+        [
+            connectedDevices,
+            dataMode,
+            isOnline,
+            isReady,
+            isRealtimeConnected,
+            isSyncing,
+            lastSyncedAt,
+            syncError,
+            user?.id,
+        ]
+    )
+
+    async function retrySync() {
+        await refreshRemoteData()
+    }
+
     function showRemoteError(error: unknown) {
+        const message = getErrorMessage(error)
+        setSyncError(message)
+
         if (error instanceof Error) {
             showToast({
                 type: "error",
                 title: "Nao foi possivel sincronizar",
-                description: error.message,
+                description: message,
             })
         }
     }
@@ -992,6 +1146,7 @@ export function TasksProvider({ children }: TasksProviderProps) {
         highPriorityTasks,
         productivity,
         categories,
+        syncStatus,
         addTask,
         updateTask,
         toggleTask,
@@ -1001,6 +1156,7 @@ export function TasksProvider({ children }: TasksProviderProps) {
         resetTasks,
         clearActivities,
         importBackup,
+        retrySync,
     }
 
     return (

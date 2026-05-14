@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import {
+    countPresenceDevices,
     getUserRealtimeChannelName,
     getUserRealtimeFilter,
     REALTIME_REFRESH_DELAY_MS,
@@ -17,5 +18,15 @@ describe("realtime utils", () => {
 
     it("keeps realtime refreshes debounced", () => {
         expect(REALTIME_REFRESH_DELAY_MS).toBeGreaterThanOrEqual(100)
+    })
+
+    it("counts unique presence devices", () => {
+        expect(
+            countPresenceDevices({
+                "device-a": [{ deviceId: "device-a" }],
+                "device-b": [{ deviceId: "device-b" }],
+                "device-a-duplicate": [{ deviceId: "device-a" }],
+            })
+        ).toBe(2)
     })
 })

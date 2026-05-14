@@ -13,7 +13,6 @@ import {
 } from "lucide-react"
 import { useAuth } from "../hooks/useAuth"
 import { validateProfileForm } from "../utils/validators"
-import { getSyncStatus } from "../utils/syncStatus"
 import { useTasks } from "../hooks/useTasks"
 import { Button } from "../components/ui/Button"
 import { InfoRow } from "../components/ui/InfoRow"
@@ -60,6 +59,7 @@ export function Profile() {
         highPriorityTasks,
         productivity,
         categories,
+        syncStatus,
     } = useTasks()
 
     if (!isReady) {
@@ -70,12 +70,6 @@ export function Profile() {
     const userEmail = user?.email ?? "Nao informado"
     const initials = getInitials(userName)
     const productivityLabel = getProductivityLabel(productivity)
-    const syncStatus = getSyncStatus({
-        dataMode,
-        isReady,
-        userId: user?.id,
-    })
-
     const hasProfileChanges =
         name.trim() !== userName || email.trim().toLowerCase() !== userEmail
 
@@ -279,6 +273,10 @@ export function Profile() {
                             <InfoRow
                                 label="Sincronização"
                                 value={syncStatus.syncLabel}
+                            />
+                            <InfoRow
+                                label="Último sync"
+                                value={syncStatus.lastSyncedAtLabel}
                                 bordered={false}
                             />
                         </div>

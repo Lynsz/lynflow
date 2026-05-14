@@ -222,6 +222,7 @@ lynflow.vercel.app
 - Categorias usadas.
 - Status do modo local ou Supabase.
 - Status de sincronização da conta.
+- Último horário de sincronização.
 - Atalhos rápidos para Dashboard, Tasks e Goals.
 
 ### Settings
@@ -230,6 +231,8 @@ lynflow.vercel.app
 - Controle de dados locais.
 - Modo de persistência local ou Supabase.
 - Status de conexão e sincronização.
+- Estado detalhado de sync e último sync.
+- Botão para tentar sincronizar novamente no modo Supabase.
 - Explicação do modo local versus multiusuário com Supabase.
 - Exportação de backup em JSON.
 - Importação de backup em JSON.
@@ -390,6 +393,14 @@ O schema em `supabase/schema.sql` habilita RLS e `force row level security` nas 
 - `task_activities`.
 
 As policies são limitadas ao role `authenticated` e verificam `auth.uid() is not null` antes de comparar `auth.uid()` com `id` ou `user_id`. Isso evita acesso anônimo e garante que cada usuário leia e altere somente os próprios dados. A anon key pode ficar no front-end, mas service role key nunca deve ser usada em variáveis `VITE_*`.
+
+### Sincronização entre dispositivos
+
+Quando o modo Supabase está ativo, o `TasksProvider` usa Postgres Changes do Supabase Realtime para ouvir alterações em `tasks` e `task_activities` com filtro por `user_id`. Os refreshes remotos continuam com debounce, evitam múltiplas consultas simultâneas e atualizam o horário do último sync.
+
+O status de sincronização diferencia `offline`, `local-only`, `connecting`, `connected`, `syncing`, `synced` e `error`. Settings mostra modo atual, estado, último sync, erro recente e um botão para tentar sincronizar novamente.
+
+Presence também foi integrado ao mesmo channel em modo Supabase para contar sessões/dispositivos ativos da conta atual. Sem Supabase configurado, o status fica claro como `local-only` e o app continua usando `localStorage`.
 
 O campo `tasks.recurrence` e opcional para projetos Supabase antigos: o app continua funcionando em modo local e tambem evita quebrar a sincronizacao remota caso o schema ainda nao tenha sido atualizado. Para preservar recorrencia no Supabase, rode novamente o trecho de `supabase/schema.sql` que adiciona a coluna `recurrence`.
 
@@ -757,6 +768,7 @@ tests/
   pages/
   types/
   utils/
+    realtime.test.ts
     remoteTaskPayload.test.ts
     syncStatus.test.ts
 ```
@@ -1030,6 +1042,7 @@ Para proteger regras de negócio, validações, fluxos principais e evitar regre
 - [x] Testes end-to-end
 - [x] Integração com IA real opcional
 - [x] Multiusuário com Supabase opcional
+- [x] Sincronização avançada entre dispositivos
 
 ### Melhorias futuras
 
@@ -1038,7 +1051,7 @@ Para proteger regras de negócio, validações, fluxos principais e evitar regre
 - [ ] Notificações.
 - [x] Multiusuário.
 - [ ] Dashboard com dados por período.
-- [ ] Sincronização avançada entre dispositivos.
+- [x] Sincronização avançada entre dispositivos.
 - [ ] Melhorias de acessibilidade.
 - [x] Testes end-to-end.
 - [x] Edição avançada de datas e recorrência.
@@ -1089,6 +1102,8 @@ Cobertura inicial:
 - mappers entre Supabase e o formato usado no front-end;
 - payloads remotos com `user_id` preservado;
 - status de modo local/Supabase e sincronização;
+- estados de sync offline/local-only/connected/error;
+- contagem de Presence para sessões ativas;
 - exportação e importação de backup;
 - fluxo de autenticação local;
 - status visual de PWA em Settings;

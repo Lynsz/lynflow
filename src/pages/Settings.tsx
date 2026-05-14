@@ -25,7 +25,6 @@ import { useToast } from "../components/ui/ToastProvider"
 import { DeployChecklist } from "../components/settings/DeployChecklist"
 import { DeployGuide } from "../components/settings/DeployGuide"
 import { PwaStatus } from "../components/settings/PwaStatus"
-import { getSyncStatus } from "../utils/syncStatus"
 import {
     createLynflowExportPayload,
     downloadJsonFile,
@@ -38,13 +37,14 @@ export function Settings() {
     const { user, logout, dataMode } = useAuth()
 
     const {
-        isReady,
         tasks,
         activities,
+        syncStatus,
         clearTasks,
         resetTasks,
         clearActivities,
         importBackup,
+        retrySync,
     } = useTasks()
 
     const { isDark, toggleTheme } = useTheme()
@@ -55,12 +55,6 @@ export function Settings() {
     const [isResetDialogOpen, setIsResetDialogOpen] = useState(false)
     const [isClearActivitiesDialogOpen, setIsClearActivitiesDialogOpen] =
         useState(false)
-
-    const syncStatus = getSyncStatus({
-        dataMode,
-        isReady,
-        userId: user?.id,
-    })
 
     async function handleLogout() {
         await logout()
@@ -134,6 +128,30 @@ export function Settings() {
             title: "Tutorial aberto",
             description: "O onboarding do Lynflow foi reaberto.",
         })
+    }
+
+    async function handleRetrySync() {
+        try {
+            await retrySync()
+
+            showToast({
+                type: "success",
+                title: "Sincronização atualizada",
+                description:
+                    dataMode === "supabase"
+                        ? "Os dados remotos foram consultados novamente."
+                        : "O modo local não precisa de sincronização remota.",
+            })
+        } catch (err) {
+            showToast({
+                type: "error",
+                title: "Não foi possível sincronizar",
+                description:
+                    err instanceof Error
+                        ? err.message
+                        : "Tente novamente em alguns instantes.",
+            })
+        }
     }
 
     function handleExportData() {
@@ -266,6 +284,24 @@ export function Settings() {
                                 value={syncStatus.syncLabel}
                             />
                             <InfoRow
+                                label="Estado"
+                                value={syncStatus.stateLabel}
+                            />
+                            <InfoRow
+                                label="Último sync"
+                                value={syncStatus.lastSyncedAtLabel}
+                            />
+                            <InfoRow
+                                label="Sessões"
+                                value={syncStatus.connectedDevicesLabel}
+                            />
+                            {syncStatus.errorMessage && (
+                                <InfoRow
+                                    label="Erro recente"
+                                    value={syncStatus.errorMessage}
+                                />
+                            )}
+                            <InfoRow
                                 label="Isolamento"
                                 value={
                                     syncStatus.isRemote
@@ -275,6 +311,22 @@ export function Settings() {
                                 bordered={false}
                             />
                         </div>
+
+                        {syncStatus.canRetry && (
+                            <div className="mt-5">
+                                <Button
+                                    variant="secondary"
+                                    icon={<RotateCcw size={18} />}
+                                    onClick={handleRetrySync}
+                                    disabled={
+                                        !syncStatus.isRemote ||
+                                        syncStatus.state === "syncing"
+                                    }
+                                >
+                                    Tentar sincronizar novamente
+                                </Button>
+                            </div>
+                        )}
                     </SectionCard>
 
                     <SectionCard
