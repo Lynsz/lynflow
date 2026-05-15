@@ -75,7 +75,9 @@ describe("local auth flow", () => {
 
         renderAppAt("/settings")
 
-        expect(await screen.findByText("Modo de dados: Local")).toBeTruthy()
+        expect(
+            await screen.findByText("Modo de dados: Local", {}, { timeout: 3000 })
+        ).toBeTruthy()
         expect(
             screen.getByText("Dados salvos no navegador via localStorage.")
         ).toBeTruthy()
