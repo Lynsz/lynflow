@@ -1,0 +1,1 @@
+import{i as e,l as t,n,t as r}from"./jsx-runtime-ZxZBCjXo.js";var i=t(e(),1),a=r(),o=(0,i.forwardRef)(function({className:e,...t},r){return(0,a.jsx)(`input`,{ref:r,className:n(`ly-input rounded-2xl px-4 py-3`,e),...t})});export{o as t};

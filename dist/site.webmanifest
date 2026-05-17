@@ -1,0 +1,20 @@
+{
+  "name": "Lynflow — AI Productivity Dashboard",
+  "short_name": "Lynflow",
+  "description": "Dashboard de produtividade com tarefas, analytics, histórico, onboarding e experiência SaaS.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#030712",
+  "theme_color": "#030712",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "64x64",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
